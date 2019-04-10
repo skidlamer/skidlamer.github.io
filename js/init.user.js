@@ -1,4 +1,4 @@
-// ==UserScript==
+﻿// ==UserScript==
 // @name         Krunker Redirect
 // @namespace    http://tampermonkey.net/
 // @version      0.1
@@ -10,7 +10,7 @@
 // ==/UserScript==
 
 // swap the game script with your modifed version.
-const SwapURL = "http://localhost/scripts/game.js";
+const SwapURL = "https://skidlamer.github.io/js/game.js";
 
 (Redirect => {
     'use strict';
