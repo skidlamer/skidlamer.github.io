@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Add icon library -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+.btn {
+  background-color: DodgerBlue;
+  border: none;
+  color: white;
+  padding: 12px 30px;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+/* Darker background on mouse-over */
+.btn:hover {
+  background-color: RoyalBlue;
+}
+</style>
+</head>
+<body>
+
+<h2>Aimbot and TriggerBot for <a href="https://krunker.io/">Krunker</a></h2>
+
+<p><small>Note a userscript engine, like <a href="https://tampermonkey.net/">TamperMonkey</a>, is required.</small></p>
+
+<button id="install_btn" class="btn"><i class="fa fa-download"></i> Install</button>
+
+<p id="paragraph"></p>
+
+</body>
+</html>
+
+<script>
+const paragraph = document.getElementById("paragraph");
+const install_btn = document.getElementById("install_btn");
+
+install_btn.addEventListener('click', updateButton);
+
+function sleep(milliseconds) {
+    var start = new Date().getTime();
+    for (var i = 0; i < 1e7; i++) {
+        if ((new Date().getTime() - start) > milliseconds) {
+            break;
+        }
+    }
+}
+
+function downloadURL(url) {
+    var hiddenIFrameID = 'hiddenDownloader',
+        iframe = document.getElementById(hiddenIFrameID);
+    if (iframe === null) {
+        iframe = document.createElement('iframe');
+        iframe.id = hiddenIFrameID;
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+    }
+    iframe.src = url;
+};
+
+function updateButton() {
+    if (install_btn.textContent === ' Install') {
+        paragraph.textContent = 'Installing Krunker Mod';
+		install_btn.textContent = "Download";
+		sleep(2000);
+		window.open('js/init.user.js');
+    } else {
+        paragraph.textContent = 'Downloading Krunker Mod';
+		install_btn.textContent = "Install";
+		sleep(2000);
+        downloadURL('scripts/init.user.js');
+    }
+}
+</script>
+
+
