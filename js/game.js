@@ -1,6 +1,5 @@
 //<edit>
 window.utilities = undefined;
-myCounter = undefined;
 //</edit>
 ! function(t) {
     var e = {};
@@ -44384,7 +44383,7 @@ myCounter = undefined;
                         a = null == T.skins[o] ? null : T.skins[o];
                     null != a && (a = b.store.skins[a]), s += "<br/><div id='kCInfo' style='color:" + (a ? b.store.rarities[a.rarity].color : "rgba(255,255,255,0.7)") + "'>[" + (a ? a.name : b.weapons[i[0]].name) + "] <span id='kCInfoS'>+" + i[1] + "</span></div>"
                 }
-                killCard.innerHTML = s, v.toggleGameUI(!0), setTimeout(function() {
+                killCard.innerHTML = s, v.toggleGameUI(!1), setTimeout(function() {
                     xt()
                 }, n.deathDelay)
             }
@@ -44632,22 +44631,7 @@ myCounter = undefined;
     }
 
     function Ti() {
-        if( typeof myCounter == 'undefined' ) {
-            myCounter = 0;
-        }
-        else
-        {
-            if (myCounter > 100 )
-            {
-               
-                
-                myCounter = 0;
-            }
-            // !b.singlePlayer && M && M.active && (w.send("i", N), N.length = 0)
-            !b.singlePlayer && N && (w.send("i", N), N.length = 0)
-
-            myCounter++;
-        }
+        !b.singlePlayer && M && M.active && (w.send("i", N), N.length = 0)
     }
 
     function Ei(t) {
@@ -46441,8 +46425,7 @@ myCounter = undefined;
                 for (t = 0; t < this.players.list.length; ++t)(v = this.players.list[t]).didWin = v.team && v.team == this.winner || v == this.winner, f.send(v.id, "end", !1, v.didWin, this.endData);
                 this.updateAccounts(), this.init()
             }, this.update = function(t, e, i) {
-                if( typeof f !== 'undefined' ) console.warn("SOCKET" + f);
-                
+                /*<edit>*/ if( typeof f !== 'undefined' ) console.warn("SOCKET" + f); /*</edit>*/
                 if (this.now = e, f) {
                     var n = !0;
                     if (0 < this.endTimer ? (n = !1, this.endTimer -= t, 0 >= this.endTimer ? (this.endTimer = 0, f.broadcast("game" + this.sid, "init", this.mapIndex, this.modeIndex, this.getTeamScores(), this.activeObjective, this.host, this.config, 0, this.customMapData ? 1 : null, this.getSyncData()), this.isPrimary && r.restartIfNeeded(f)) : (x = r.getTime(this.endTimer)) != this.lastTimer && (this.lastTimer = x, f.broadcast("game" + this.sid, "t", x, 1))) : this.waitTimers && (n = !1, this.minPlayers && this.players.activeCount() < this.minPlayers ? f.broadcast("game" + this.sid, "gmsg", "wt") : (this.waitTimers[0].time -= t, 0 >= this.waitTimers[0].time ? (this.waitTimers[0].trigger && this.waitTimers[0].trigger(this, -this.waitTimers[0].time), 0 >= this.waitTimers[0].time && (this.waitTimers.splice(0, 1), !this.waitTimers.length && (this.waitTimers = null, f.broadcast("game" + this.sid, "gmsg")))) : (x = r.getTime(this.waitTimers[0].time)) != this.lastTimerW && (this.lastTimerW = x, f.broadcast("game" + this.sid, "gmsg", this.waitTimers[0].msg + x)))), 0 >= this.endTimer && (n || this.waitTimers && this.waitTimers[0].contTime) && (this.condition && !this.condition(this) && (this.gameTimer = "skip"), "skip" != this.gameTimer && this.mode.timed ? (this.gameTimer += t, (x = r.getTime(this.gameTimer, this.mode.showMS)) != this.lastTimer && (this.lastTimer = x, f.broadcast("game" + this.sid, "t", x))) : (0 < this.gameTimer || "skip" == this.gameTimer) && ("skip" != this.gameTimer && (this.gameTimer -= t), "skip" == this.gameTimer || 0 >= this.gameTimer ? (this.gameTimer = 0, this.endGame()) : (x = r.getTime(this.gameTimer, this.mode.showMS)) != this.lastTimer && (this.lastTimer = x, f.broadcast("game" + this.sid, "t", x)))), 0 >= this.endTimer && this.nukeTimer && (this.nukeTimer -= t, 0 >= this.nukeTimer && (this.nukeTimer = 0, f.broadcast("game" + this.sid, "n", 1), this.nukePlayer))) {
@@ -46613,7 +46596,7 @@ myCounter = undefined;
         weapon: 1,
         rarity: 3
     }, {
-        name: "Scharfschï¿½tze",
+        name: "Scharfschütze",
         id: 5,
         weapon: 1,
         rarity: 1
