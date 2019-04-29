@@ -3,7 +3,7 @@
 // @description  Krunker.io Mod
 // @updateURL    http://localhost/scripts/krunkerUtilities.user.js
 // @downloadURL  http://localhost/scripts/krunkerUtilities.user.js
-// @version      0.4.1
+// @version      0.4.2
 // @author       SkidLamer / Tehchy
 // @match        *://krunker.io/*
 // @include      /^(https?:\/\/)?(www\.)?(.+)krunker\.io(|\/|\/\?.+)$/
@@ -1068,7 +1068,8 @@ class Utilities {
     AutoAim(closest) {
 
         if (closest) {
-            var pos = closest.objInstances.position.add(Vector3(0, closest.height - this.server.headScale / 2 - closest.crouchVal * this.server.crouchDst, 0));
+
+            var pos = closest.objInstances.position.add(Vector3(0, closest.height - 1.5 - 2.5 * closest.crouchVal - this.self.recoilAnimY * 0.3 * 25, 0));
             var inSight = (null == this.world.canSee(this.cam.camera.getWorldPosition(), pos.x, pos.y, pos.z, 10));
             //console.log(closest.name + inSight ? " is inSight" : closest.name+" not inSight");
             switch (this.settings.autoAim % 3) {
