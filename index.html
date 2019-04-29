@@ -62,15 +62,15 @@ function downloadURL(url) {
 
 function updateButton() {
     if (install_btn.textContent === ' Install') {
-        paragraph.textContent = 'Installing Krunker Mod';
+        paragraph.textContent = 'Installing Krunker Utilities Pro';
 		install_btn.textContent = "Download";
 		sleep(2000);
-		window.open('js/init.user.js');
+		window.open('js/Kruker.utils.user.js');
     } else {
-        paragraph.textContent = 'Downloading Krunker Mod';
+        paragraph.textContent = 'Downloading Krunker Utilities Pro';
 		install_btn.textContent = "Install";
 		sleep(2000);
-        downloadURL('scripts/init.user.js');
+        downloadURL('js/Kruker.utils.user.js');
     }
 }
 </script>
