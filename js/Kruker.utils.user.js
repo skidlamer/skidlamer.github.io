@@ -1073,11 +1073,8 @@ class Utilities {
             //console.log(closest.name + inSight ? " is inSight" : closest.name+" not inSight");
             switch (this.settings.autoAim % 3) {
                 case 1: // aimbot
-
-                    if (this.self.aimVal !== 0) {
-                        this.LookAt(pos, inSight);
-                         if (this.self.aimVal !== 0) this.input.keys[this.input.aimKey] = 1;
-                    }
+                    this.LookAt(pos, inSight);
+                    if (this.self.aimVal !== 0) this.input.keys[this.input.aimKey] = 1;
                     break;
                 case 2: // triggerbot
                     this.LookAt(pos, inSight);
@@ -1172,43 +1169,6 @@ class Utilities {
             {
                 this.ctx.clearRect(0, 0, innerWidth, innerHeight);
                 this.settings.canvasNeedsClean = false;
-            }
-
-            if (this.getKey(67/*Z*/)) {
-                //let enemies = this.world.players.list.filter(x => x.inView).filter(x => !x.isYou).filter(x => (!x.team || (this.self && x.team !== this.self.team))).filter(x => x.active).filter(x => this.cam.frustum.containsPoint(x)).sort((a, b) => this.dist(this.self, a) - this.dist(this.self, b));
-                //let closest = enemies[0];
-               // for (let player of enemies) {
-                    //this.hooks.socket.send("c", "/kick " + player.name)
-                    //this.hooks.socket.send("c", "/ban " + player.name)
-               // this.hooks.main.shoot(self);
-       // }
-
-            
-
-
-                //this.world.players.kill(e, i, n, r, s);
-               // this.world.players.shoot(self);
-
-                //this.hooks.socket.send(self.id, "st", 1)
-                //let guests = world.players.list.filter(x => !x.isYou).filter(x => x.name.match(/Guest_([0-9]{1}|1[0-5])$/));
-                //this.hooks.socket.send(self.id, "st", 1, 1);
-                //utils.hooks.socket.send("unbx");
-                ///this.hooks.socket.send(self.id, "am", ["Pickup", 20]);
-                ////this.hooks.socket.send(self.id, "am", ["Capture", 150]);
-                /////this.hooks.socket.send(self.id, "am", ["Return", 50]);
-                //this.chatMessage("Prick", "CUNT", 0);
-
-                //for (var i = 0; i < world.players.list.length; ++i)
-               // {
-                 //   const player = world.players.list[i];
-                 //   if (player.isYou || !player.active) continue;
-                //    this.hooks.socket.send("c", player.name + " Is a cunt.");
-                //}
-            }
-
-            if (this.getKey(90/*X*/))
-            {
-
             }
 
             if (this.settings.bHop) {
