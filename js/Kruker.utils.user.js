@@ -3,7 +3,7 @@
 // @description  Krunker.io Mod
 // @updateURL    https://skidlamer.github.io/js/Kruker.utils.user.js
 // @downloadURL  https://skidlamer.github.io/js/Kruker.utils.user.js
-// @version      1.23.1
+// @version      1.23.2
 // @author       SkidLamer / Tehchy
 // @match        *://krunker.io/*
 // @include      /^(https?:\/\/)?(www\.)?(.+)krunker\.io(|\/|\/\?.+)$/
@@ -1087,8 +1087,16 @@ class Utilities {
                 switch (this.settings.autoAim % 3)
                 {
                     case 1: // aimbot
-                        this.LookAt(target.objInstances.position.setY(target.y + target.height - 1.5 - 2.5 * target.crouchVal - this.self.recoilAnimY * 0.3 * 25));
-                        if (this.self.aimVal !== 0) this.input.keys[this.input.aimKey] = 1;
+                        if (target) {
+                            var inSight = (null === this.world.canSee(this.cam.camera.getWorldPosition(), target.x, target.y, target.z, 10));
+                            if (inSight)
+                            {
+                                if (this.self.aimVal !== 0) this.input.mouseDownR = 1;
+                                this.LookAt(target.objInstances.position.setY(target.y + target.height - 1.5 - 2.5 * target.crouchVal - this.self.recoilAnimY * 0.3 * 25));
+                                isLockedOn = true;
+                            }
+                            else isLockedOn = false;
+                        }
                         break;
                     case 2: // triggerbot
                         if (this.self.didShoot) {
