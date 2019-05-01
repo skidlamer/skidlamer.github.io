@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Krunker.io Utilities Pro
 // @description  Krunker.io Mod
-// @updateURL    http://localhost/scripts/krunkerUtilities.user.js
-// @downloadURL  http://localhost/scripts/krunkerUtilities.user.js
-// @version      0.4.2
+// @updateURL    https://skidlamer.github.io/js/Kruker.utils.user.js
+// @downloadURL  https://skidlamer.github.io/js/Kruker.utils.user.js
+// @version      1.23.1
 // @author       SkidLamer / Tehchy
 // @match        *://krunker.io/*
 // @include      /^(https?:\/\/)?(www\.)?(.+)krunker\.io(|\/|\/\?.+)$/
@@ -11,8 +11,8 @@
 // @run-at       document-start
 // ==/UserScript==
 
-const SwapURL = "https://skidlamer.github.io/js/game.js";
-//const SwapURL = "http://localhost/scripts/game.js";
+const InternalURL = "http://localhost/scripts/game.js";
+const ExternalURL = "https://skidlamer.github.io/js/game.js";
 
 let Vector3 = (x, y, z) => {
     this.x = x || 0;
@@ -76,7 +76,8 @@ class Utilities {
             espCounter: 0,
             tracers: false,
             canvasNeedsClean: false,
-            bHop: false,
+            bHop: 0,
+            isSliding: false,
             fullClip: false,
             noRecoil: false,
             noDeathDelay: false,
@@ -89,6 +90,8 @@ class Utilities {
             wpnRange: 1000,
             autoAim: 2,
             aimCounter: 0,
+            scopingOut: false,
+            canShoot: true,
         };
         this.hooks = {
             socket: null,
@@ -136,12 +139,12 @@ class Utilities {
         hookedCanvas.width = innerWidth;
         hookedCanvas.height = innerHeight;
         function resize() {
-            var ws = innerWidth / 1920;
-            var hs = innerHeight / 937;
+            var ws = innerWidth / 1700;
+            var hs = innerHeight / 900;
             hookedCanvas.width = innerWidth;
             hookedCanvas.height = innerHeight;
-            hookedCanvas.style.width = (hs < ws ? (innerWidth / hs).toFixed(3) : 1920) + "px";
-            hookedCanvas.style.height = (ws < hs ? (innerHeight / ws).toFixed(3) : 937) + "px";
+            hookedCanvas.style.width = (hs < ws ? (innerWidth / hs).toFixed(3) : 1700) + "px";
+            hookedCanvas.style.height = (ws < hs ? (innerHeight / ws).toFixed(3) : 900) + "px";
         }
         unsafeWindow.addEventListener('resize', resize);
         resize();
@@ -178,6 +181,82 @@ class Utilities {
                 set(t) {
                     self.settings.showLeaderboard = t;
                     leaderDisplay.style.display = t ? "block" : "none";
+                }
+            },
+            esp: {
+                name: "Player ESP",
+                val: 1,
+                html() {
+                    return `<select class="floatR" onchange="window.utilities.setSetting('esp', this.value)">
+                    <option value="0"${self.settingsMenu.esp.val == 0 ? " selected" : ""}>Disabled</option>
+                    <option value="1"${self.settingsMenu.esp.val == 1 ? " selected" : ""}>Name In View</option>
+                    <option value="2"${self.settingsMenu.esp.val == 2 ? " selected" : ""}>Name WallHack</option>
+                    <option value="3"${self.settingsMenu.esp.val == 3 ? " selected" : ""}>Extended WallHack</option>
+                    <option value="4"${self.settingsMenu.esp.val == 4 ? " selected" : ""}>Outline Only</option>
+                    <option value="5"${self.settingsMenu.esp.val == 5 ? " selected" : ""}>Full ESP</option>
+                    </select>`
+                },
+                set(t) {
+                    self.settings.esp = parseInt(t);
+                    //unsafeWindow.playerInfos.style.width = self.settings.esp < 3 ? '100%' : '0%';
+                }
+            },
+            /*
+            espColor: {
+                name: "Player ESP Color",
+                val: 0,
+                html() {
+                    return `<select class="floatR" onchange="window.utilities.setSetting('espColor', this.value)">
+                    <option value="0"${self.settingsMenu.espColor.val == 0 ? " selected" : ""}>Aqua</option>
+                    <option value="1"${self.settingsMenu.espColor.val == 1 ? " selected" : ""}>Blue</option>
+                    <option value="2"${self.settingsMenu.espColor.val == 2 ? " selected" : ""}>Lime</option>
+                    <option value="3"${self.settingsMenu.espColor.val == 3 ? " selected" : ""}>Navy</option>
+                    <option value="4"${self.settingsMenu.espColor.val == 4 ? " selected" : ""}>Teal</option>
+                    <option value="5"${self.settingsMenu.espColor.val == 5 ? " selected" : ""}>Olive</option>
+                    <option value="6"${self.settingsMenu.espColor.val == 6 ? " selected" : ""}>Green</option>
+                    <option value="7"${self.settingsMenu.espColor.val == 7 ? " selected" : ""}>Red</option>
+                    <option value="8"${self.settingsMenu.espColor.val == 8 ? " selected" : ""}>Maroon</option>
+                    <option value="9"${self.settingsMenu.espColor.val == 9 ? " selected" : ""}>Orange</option>
+					<option value="10"${self.settingsMenu.espColor.val == 10 ? " selected" : ""}>Purple</option>
+					<option value="11"${self.settingsMenu.espColor.val == 11 ? " selected" : ""}>Yellow</option>
+					<option value="12"${self.settingsMenu.espColor.val == 12 ? " selected" : ""}>Fuchsia</option>
+					<option value="13"${self.settingsMenu.espColor.val == 13 ? " selected" : ""}>GreyDark</option>
+					<option value="14"${self.settingsMenu.espColor.val == 14 ? " selected" : ""}>GreyMed</option>
+					<option value="15"${self.settingsMenu.espColor.val == 15 ? " selected" : ""}>GreyLight</option>
+					<option value="16"${self.settingsMenu.espColor.val == 16 ? " selected" : ""}>White</option>
+					<option value="17"${self.settingsMenu.espColor.val == 17 ? " selected" : ""}>Black</option>
+					<option value="18"${self.settingsMenu.espColor.val == 18 ? " selected" : ""}>Silver</option>
+					<option value="19"${self.settingsMenu.espColor.val == 19 ? " selected" : ""}>Hostile</option>
+					<option value="20"${self.settingsMenu.espColor.val == 20 ? " selected" : ""}>Friendly</option>
+                    </select>`
+                },
+                set(t) {
+                   self.settings.espColor = parseInt(t)
+                }
+            },*/
+            espFontSize: {
+                name: "Player ESP Font Size",
+                val: 14,
+                html() {
+                    return `<select class="floatR" onchange="window.utilities.setSetting('espFontSize', this.value)">
+                    <option value="10"${self.settingsMenu.espFontSize.val == 10 ? " selected" : ""}>Small</option>
+                    <option value="C"${self.settingsMenu.espFontSize.val == 14 ? " selected" : ""}>Medium</option>
+                    <option value="20"${self.settingsMenu.espFontSize.val == 24 ? " selected" : ""}>Large</option>
+                    <option value="26"${self.settingsMenu.espFontSize.val == 32 ? " selected" : ""}>Giant</option>
+                    </select>`
+                },
+                set(t) {
+                    self.settings.espFontSize = parseInt(t + 10);
+                }
+            },
+            hacksTracers: {
+                name: "Player Tracers",
+                val: 0,
+                html() {
+                    return `<label class='switch'><input type='checkbox' onclick='window.utilities.setSetting("hacksTracers", this.checked)' ${self.settingsMenu.hacksTracers.val ? "checked" : ""}><span class='slider'></span></label>`;
+                },
+                set(t) {
+                    self.settings.tracers = t;
                 }
             },
             autoFindNew: {
@@ -350,16 +429,6 @@ class Utilities {
                     self.settings.noDeathDelay = t;
                 }
             },
-            hacksautoBhop: {
-                name: "Auto BHop",
-                val: 0,
-                html() {
-                    return `<label class='switch'><input type='checkbox' onclick='window.utilities.setSetting("hacksautoBhop", this.checked)' ${self.settingsMenu.hacksautoBhop.val ? "checked" : ""}><span class='slider'></span></label>`;
-                },
-                set(t) {
-                    self.settings.bHop = t;
-                }
-            },
             hacksFullClip: {
                 name: "Full Clip",
                 val: 0,
@@ -394,79 +463,18 @@ class Utilities {
                     self.settings.autoAim = parseInt(t);
                 }
             },
-            esp: {
-                name: "Player ESP",
-                val: 1,
-                html() {
-                    return `<select class="floatR" onchange="window.utilities.setSetting('esp', this.value)">
-                    <option value="0"${self.settingsMenu.esp.val == 0 ? " selected" : ""}>Disabled</option>
-                    <option value="1"${self.settingsMenu.esp.val == 1 ? " selected" : ""}>Name In View</option>
-                    <option value="2"${self.settingsMenu.esp.val == 2 ? " selected" : ""}>Name WallHack</option>
-                    <option value="3"${self.settingsMenu.esp.val == 3 ? " selected" : ""}>Extended WallHack</option>
-                    <option value="4"${self.settingsMenu.esp.val == 4 ? " selected" : ""}>Outline Only</option>
-                    <option value="5"${self.settingsMenu.esp.val == 5 ? " selected" : ""}>Full ESP</option>
-                    </select>`
-                },
-                set(t) {
-                    self.settings.esp = parseInt(t);
-                    //unsafeWindow.playerInfos.style.width = self.settings.esp < 3 ? '100%' : '0%';
-                }
-            },
-            espColor: {
-                name: "Player ESP Color",
+            hacksautoBhop: {
+                name: "Auto Bhop Mode",
                 val: 0,
                 html() {
-                    return `<select class="floatR" onchange="window.utilities.setSetting('espColor', this.value)">
-                    <option value="0"${self.settingsMenu.espColor.val == 0 ? " selected" : ""}>Aqua</option>
-                    <option value="1"${self.settingsMenu.espColor.val == 1 ? " selected" : ""}>Blue</option>
-                    <option value="2"${self.settingsMenu.espColor.val == 2 ? " selected" : ""}>Lime</option>
-                    <option value="3"${self.settingsMenu.espColor.val == 3 ? " selected" : ""}>Navy</option>
-                    <option value="4"${self.settingsMenu.espColor.val == 4 ? " selected" : ""}>Teal</option>
-                    <option value="5"${self.settingsMenu.espColor.val == 5 ? " selected" : ""}>Olive</option>
-                    <option value="6"${self.settingsMenu.espColor.val == 6 ? " selected" : ""}>Green</option>
-                    <option value="7"${self.settingsMenu.espColor.val == 7 ? " selected" : ""}>Red</option>
-                    <option value="8"${self.settingsMenu.espColor.val == 8 ? " selected" : ""}>Maroon</option>
-                    <option value="9"${self.settingsMenu.espColor.val == 9 ? " selected" : ""}>Orange</option>
-					<option value="10"${self.settingsMenu.espColor.val == 10 ? " selected" : ""}>Purple</option>
-					<option value="11"${self.settingsMenu.espColor.val == 11 ? " selected" : ""}>Yellow</option>
-					<option value="12"${self.settingsMenu.espColor.val == 12 ? " selected" : ""}>Fuchsia</option>
-					<option value="13"${self.settingsMenu.espColor.val == 13 ? " selected" : ""}>GreyDark</option>
-					<option value="14"${self.settingsMenu.espColor.val == 14 ? " selected" : ""}>GreyMed</option>
-					<option value="15"${self.settingsMenu.espColor.val == 15 ? " selected" : ""}>GreyLight</option>
-					<option value="16"${self.settingsMenu.espColor.val == 16 ? " selected" : ""}>White</option>
-					<option value="17"${self.settingsMenu.espColor.val == 17 ? " selected" : ""}>Black</option>
-					<option value="18"${self.settingsMenu.espColor.val == 18 ? " selected" : ""}>Silver</option>
-					<option value="19"${self.settingsMenu.espColor.val == 19 ? " selected" : ""}>Hostile</option>
-					<option value="20"${self.settingsMenu.espColor.val == 20 ? " selected" : ""}>Friendly</option>
+                    return `<select class="floatR" onchange="window.utilities.setSetting('hacksautoBhop', this.value)">
+                    <option value="0"${self.settingsMenu.hacksautoBhop.val == 0 ? " selected" : ""}>Disabled</option>
+                    <option value="1"${self.settingsMenu.hacksautoBhop.val == 1 ? " selected" : ""}>AutoJump</option>
+                    <option value="2"${self.settingsMenu.hacksautoBhop.val == 2 ? " selected" : ""}>AutoSlideJump</option>
                     </select>`
                 },
                 set(t) {
-                   self.settings.espColor = parseInt(t)
-                }
-            },
-            espFontSize: {
-                name: "Player ESP Font Size",
-                val: 14,
-                html() {
-                    return `<select class="floatR" onchange="window.utilities.setSetting('espFontSize', this.value)">
-                    <option value="10"${self.settingsMenu.espFontSize.val == 10 ? " selected" : ""}>Small</option>
-                    <option value="C"${self.settingsMenu.espFontSize.val == 14 ? " selected" : ""}>Medium</option>
-                    <option value="20"${self.settingsMenu.espFontSize.val == 20 ? " selected" : ""}>Large</option>
-                    <option value="26"${self.settingsMenu.espFontSize.val == 26 ? " selected" : ""}>Giant</option>
-                    </select>`
-                },
-                set(t) {
-                    self.settings.espFontSize = parseInt(t + 10);
-                }
-            },
-            hacksTracers: {
-                name: "Player Tracers",
-                val: 0,
-                html() {
-                    return `<label class='switch'><input type='checkbox' onclick='window.utilities.setSetting("hacksTracers", this.checked)' ${self.settingsMenu.hacksTracers.val ? "checked" : ""}><span class='slider'></span></label>`;
-                },
-                set(t) {
-                    self.settings.tracers = t;
+                    self.settings.bHop = parseInt(t);
                 }
             },
             hacksMoveSpeed: {
@@ -863,10 +871,10 @@ class Utilities {
     }
 
     world2Screen(pos3d, camera) {
-       // this.canvas.width
-       // this.canvas.height
+       // this.canvas.width / window.innerWidth
+       // this.canvas.height / window.innerHeight
         var pos = pos3d.clone();
-        var width = window.innerWidth, height = window.innerHeight;
+        var width = this.canvas.width, height = this.canvas.height;
         var widthHalf = width / 2, heightHalf = height / 2;
         pos.project(camera);
         pos.x = ( pos.x * widthHalf ) + widthHalf;
@@ -904,61 +912,67 @@ class Utilities {
         this.text("Krunker Utilities", `7px GameFont`, "rgba(255,255,255, 0.3)", this.canvas.width - 100, 15);
     }
 
-    drawESP(player)
+    drawESP()
     {
-        let offset = Vector3(0, this.server.playerHeight + this.server.nameOffset - player.crouchVal * this.server.crouchDst, 0);
-        let screenG = this.world2Screen(player.objInstances.position.clone(), this.cam.camera);
-        let screenH = this.world2Screen(player.objInstances.position.clone().add(offset), this.cam.camera);
-        let hDiff = ~~(screenG.y - screenH.y);
-        let bWidth = ~~(hDiff * 0.6);
-
-        if (this.settings.esp > 3)
+        let players = this.world.players.list.filter(x => !x.isYou).filter(x => x.active).filter(x => this.cam.frustum.containsPoint(x)).sort((a, b) => this.dist(this.self, a) - this.dist(this.self, b));
+        for (const player of players)
         {
-            let health = this.percentage(player.health, player.maxHealth);
-            this.rect((screenH.x - bWidth / 2) - 7, ~~screenH.y - 1, -3, 0, 6, hDiff + 2, this.colors.black, false);
-            this.rect((screenH.x - bWidth / 2) - 7, ~~screenH.y - 1, -3, 0, 6, hDiff + 2, health > 75 ? this.colors.green : health > 50 ? this.colors.orange : this.colors.red, true);
-            this.rect((screenH.x - bWidth / 2) - 7, ~~screenH.y - 1, -3, 0, 6, ~~((player.maxHealth - player.health) / player.maxHealth * (hDiff + 2)), this.colors.black, true);
-            this.ctx.save();
-            this.ctx.lineWidth = 4;
-            this.pixelTranslate(this.ctx, screenH.x - bWidth / 2, screenH.y);
-            this.ctx.beginPath();
-            this.ctx.rect(0, 0, bWidth, hDiff);
-            this.ctx.strokeStyle = "rgba(0, 0, 0, 0.25)";
-            this.ctx.stroke();
-            this.ctx.lineWidth = 2;
-            this.ctx.strokeStyle = this.teamCol(player, 0);
-            this.ctx.stroke();
-            this.ctx.closePath();
-            this.ctx.restore();
+            let offset = Vector3(0, this.server.playerHeight + this.server.nameOffset - player.crouchVal * this.server.crouchDst, 0);
+            let screenG = this.world2Screen(player.objInstances.position.clone(), this.cam.camera);
+            let screenH = this.world2Screen(player.objInstances.position.clone().add(offset), this.cam.camera);
+            let hDiff = ~~(screenG.y - screenH.y);
+            let bWidth = ~~(hDiff * 0.6);
 
-            if (this.settings.esp ===5)
+            if (this.settings.esp > 3)
             {
-                let playerDist = (Math.round( this.dist(this.cam.camera.getWorldPosition(), player) ) /10).toFixed(0);
+                let health = this.percentage(player.health, player.maxHealth);
+                this.rect((screenH.x - bWidth / 2) - 7, ~~screenH.y - 1, -3, 0, 6, hDiff + 2, this.colors.black, false);
+                this.rect((screenH.x - bWidth / 2) - 7, ~~screenH.y - 1, -3, 0, 6, hDiff + 2, health > 75 ? this.colors.green : health > 50 ? this.colors.orange : this.colors.red, true);
+                this.rect((screenH.x - bWidth / 2) - 7, ~~screenH.y - 1, -3, 0, 6, ~~((player.maxHealth - player.health) / player.maxHealth * (hDiff + 2)), this.colors.black, true);
                 this.ctx.save();
-                this.ctx.font = `${this.settings.espFontSize}px`;
-                let meas = this.getTextMeasurements(["[", `${playerDist}`, "m]", `${player.level}`, "00", player.name, player.weapon.name]);
+                this.ctx.lineWidth = 4;
+                this.pixelTranslate(this.ctx, screenH.x - bWidth / 2, screenH.y);
+                this.ctx.beginPath();
+                this.ctx.rect(0, 0, bWidth, hDiff);
+                this.ctx.strokeStyle = "rgba(0, 0, 0, 0.25)";
+                this.ctx.stroke();
+                this.ctx.lineWidth = 2;
+                this.ctx.strokeStyle = this.teamCol(player, 0);
+                this.ctx.stroke();
+                this.ctx.closePath();
                 this.ctx.restore();
-                let padding = 2;
-                let grad2 = this.gradient(0, 0, meas[4] * 5, 0, ["rgba(0, 0, 0, 0.25)", "rgba(0, 0, 0, 0)"]);
-                this.rect(~~(screenH.x + bWidth / 2) + padding, ~~screenH.y - padding, 0, 0, (meas[4] * 5), (meas[4] * 4) + (padding * 2), grad2, true);
 
-                this.text(player.name, `${this.settings.espFontSize}px`, this.colors.white, (screenH.x + bWidth / 2) + 4, screenH.y + meas[4] * 1)
-                if (player.clan) this.text(`[${player.clan}]`, `${this.settings.espFontSize}px`, '#AAAAAA', (screenH.x + bWidth / 2) + 8 + meas[5], screenH.y + meas[4] * 1)
+                if (this.settings.esp ===5)
+                {
+                    let playerDist = (Math.round( this.dist(this.cam.camera.getWorldPosition(), player) ) /10).toFixed(0);
+                    this.ctx.save();
+                    this.ctx.font = `${this.settings.espFontSize}px`;
+                    let meas = this.getTextMeasurements(["[", `${playerDist}`, "m]", `${player.level}`, "00", player.name, player.weapon.name]);
+                    this.ctx.restore();
+                    let padding = 2;
+                    let grad2 = this.gradient(0, 0, meas[4] * 5, 0, ["rgba(0, 0, 0, 0.25)", "rgba(0, 0, 0, 0)"]);
+                    this.rect(~~(screenH.x + bWidth / 2) + padding, ~~screenH.y - padding, 0, 0, (meas[4] * 5), (meas[4] * 4) + (padding * 2), grad2, true);
 
-                this.text(fmt("Level:%%", player.level ? player.level : 0), `${this.settings.espFontSize}px`, this.colors.yellow, (screenH.x + bWidth / 2) + 4, screenH.y + meas[4] * 2)
+                    this.text(player.name, `${this.settings.espFontSize}px`, this.colors.white, (screenH.x + bWidth / 2) + 4, screenH.y + meas[4] * 1)
+                    if (player.clan) this.text(`[${player.clan}]`, `${this.settings.espFontSize}px`, '#AAAAAA', (screenH.x + bWidth / 2) + 8 + meas[5], screenH.y + meas[4] * 1)
 
-                this.text(player.weapon.name, `${this.settings.espFontSize}px`, this.colors.greyMed, (screenH.x + bWidth / 2) + 4, screenH.y + meas[4] * 3)
-                this.text(fmt("[%%/%%]", player.weapon.ammo ? player.ammos[player.weaponIndex] : 0, player.weapon.ammo ? player.weapon.ammo : 0), `${this.settings.espFontSize}px`, this.colors.greyDark, (screenH.x + bWidth / 2) + 8 + meas[6], screenH.y + meas[4] * 3)
+                    this.text(fmt("Level:%%", player.level ? player.level : 0), `${this.settings.espFontSize}px`, this.colors.yellow, (screenH.x + bWidth / 2) + 4, screenH.y + meas[4] * 2)
 
-                this.text("[", `${this.settings.espFontSize}px`, this.colors.greyMed, (screenH.x + bWidth / 2) + 4, screenH.y + meas[4] * 4)
-                this.text(`${playerDist}`, `${this.settings.espFontSize}px`, this.colors.white, (screenH.x + bWidth / 2) + 4 + meas[0], screenH.y + meas[4] * 4)
-                this.text("m]", `${this.settings.espFontSize}px`, this.colors.greyMed, (screenH.x + bWidth / 2) + 4 + meas[0] + meas[1], screenH.y + meas[4] * 4)
+                    this.text(player.weapon.name, `${this.settings.espFontSize}px`, this.colors.greyMed, (screenH.x + bWidth / 2) + 4, screenH.y + meas[4] * 3)
+                    this.text(fmt("[%%/%%]", player.weapon.ammo ? player.ammos[player.weaponIndex] : 0, player.weapon.ammo ? player.weapon.ammo : 0), `${this.settings.espFontSize}px`, this.colors.greyDark, (screenH.x + bWidth / 2) + 8 + meas[6], screenH.y + meas[4] * 3)
+
+                    this.text("[", `${this.settings.espFontSize}px`, this.colors.greyMed, (screenH.x + bWidth / 2) + 4, screenH.y + meas[4] * 4)
+                    this.text(`${playerDist}`, `${this.settings.espFontSize}px`, this.colors.white, (screenH.x + bWidth / 2) + 4 + meas[0], screenH.y + meas[4] * 4)
+                    this.text("m]", `${this.settings.espFontSize}px`, this.colors.greyMed, (screenH.x + bWidth / 2) + 4 + meas[0] + meas[1], screenH.y + meas[4] * 4)
+                }
+            }
+            if (this.settings.tracers)
+            {
+                this.line(innerWidth / 2, innerHeight - 1, screenG.x, screenG.y, 2, this.teamCol(player, 0));
             }
         }
-        if (this.settings.tracers)
-        {
-            this.line(innerWidth / 2, innerHeight - 1, screenG.x, screenG.y, 2, this.teamCol(player, 0));
-        }
+
+        this.settings.canvasNeedsClean = true;
     }
 
     drawPinfo() {
@@ -1041,61 +1055,76 @@ class Utilities {
         return Math.round((a / b) * 100);
     }
 
-    LookAt(pos, condition) {
-        if (!condition) return;
+    LookAt(pos)
+    {
+        var xdir = this.funct.getXDir( this.input.object.position.x, this.input.object.position.y, this.input.object.position.z, pos.x, pos.y, pos.z),
+            ydir = this.funct.getDirection( this.input.object.position.z, this.input.object.position.x, pos.z, pos.x);
+        this.input.target = {
+            xD: xdir,
+            yD: ydir,
+            x: pos.x + this.server.camChaseDst * Math.sin(ydir) * Math.cos(xdir),
+            y: pos.y - this.server.camChaseDst * Math.sin(xdir),
+            z: pos.z + this.server.camChaseDst * Math.cos(ydir) * Math.cos(xdir)
+        }
+
         const pi = Math.PI / 2;
-        this.server.camChaseSen = 0;
-        this.server.camChaseSpd = 0;
-        this.server.camChaseDst = 0;
-        this.input.camLookAt(pos.x, pos.y, pos.z);
         this.input.object.rotation.y = this.input.target.yD;
         this.input.pitchObject.rotation.x = this.input.target.xD;
         this.input.pitchObject.rotation.x = Math.max(-pi, Math.min(pi, this.input.pitchObject.rotation.x));
         this.input.yDr = (this.input.pitchObject.rotation.x % Math.PI2).round(3);
         this.input.xDr = (this.input.object.rotation.y % Math.PI2).round(3);
-        this.input.object.rotation.y = this.input.target.yD;
-        this.input.pitchObject.rotation.x = this.input.target.xD;
-        this.input.pitchObject.rotation.x = Math.max(-pi, Math.min(pi, this.input.pitchObject.rotation.x));
-        this.input.yDr = (this.input.pitchObject.rotation.x % Math.PI2).round(3);
-        this.input.xDr = (this.input.object.rotation.y % Math.PI2).round(3);
-
-        let screenG = this.world2Screen(pos, this.cam.fpsCamera);
-
-        this.line(innerWidth / 2, innerHeight - 1, screenG.x, screenG.y, 2, this.colors.white);
-
+        //let screenG = this.world2Screen(pos, this.cam.fpsCamera);
+        //this.line(innerWidth / 2, innerHeight - 1, screenG.x, screenG.y, 2, this.colors.white);
     }
 
-    AutoAim(closest) {
-
-        if (closest) {
-
-            var pos = closest.objInstances.position.add(Vector3(0, closest.height - 1.5 - 2.5 * closest.crouchVal - this.self.recoilAnimY * 0.3 * 25, 0));
-            var inSight = (null == this.world.canSee(this.cam.camera.getWorldPosition(), pos.x, pos.y, pos.z, 10));
-            //console.log(closest.name + inSight ? " is inSight" : closest.name+" not inSight");
-            switch (this.settings.autoAim % 3) {
-                case 1: // aimbot
-                    this.LookAt(pos, inSight);
-                    if (this.self.aimVal !== 0) this.input.keys[this.input.aimKey] = 1;
-                    break;
-                case 2: // triggerbot
-                    this.LookAt(pos, inSight);
-                    if (this.self.aimVal !== 0) this.input.keys[this.input.aimKey] = 1;
-                    else {
-                        this.input.mouseDownL ^= 1;
-                        this.self.aimVal = 0;
-                    }
-                    break;
-                default:
-                    break;
-            }
-        } else {
-            if (this.settings.aimCounter > 100) {
-                if (this.input.keys[this.input.aimKey] === 1 && !inSight)
+    AutoAim()
+    {
+        const possibleTargets = this.world.players.list.filter(player => {return player.active && player.inView && !player.isYou && (!player.team || player.team !== this.self.team);}).sort((p1, p2) => this.dist(this.self, p1) - this.dist(this.self, p2));
+            let isLockedOn = false;
+            if (possibleTargets.length > 0)
+            {
+                const target = possibleTargets[0];
+                switch (this.settings.autoAim % 3)
                 {
-                   this.input.keys[this.input.aimKey] = 0;
+                    case 1: // aimbot
+                        this.LookAt(target.objInstances.position.setY(target.y + target.height - 1.5 - 2.5 * target.crouchVal - this.self.recoilAnimY * 0.3 * 25));
+                        if (this.self.aimVal !== 0) this.input.keys[this.input.aimKey] = 1;
+                        break;
+                    case 2: // triggerbot
+                        if (this.self.didShoot) {
+                            this.settings.canShoot = false;
+                            setTimeout(() => {
+                                this.settings.canShoot = true;
+                            }, this.self.weapon.rate);
+                        }
+                        if (this.input.mouseDownL === 1) {
+                            this.input.mouseDownL = 0;
+                            this.input.mouseDownR = 0;
+                            this.settings.scopingOut = true;
+                        }
+                        if (this.self.aimVal === 1) {
+                            this.scopingOut = false;
+                        }
+                        if (this.settings.scopingOut || !this.settings.canShoot || this.self.recoilForce > 0.01) {
+                            isLockedOn = false;
+                        }
+                        this.LookAt(target.objInstances.position.setY(target.y + target.height - 1.5 - 2.5 * target.crouchVal - this.self.recoilAnimY * 0.3 * 25));
+                        if (this.input.mouseDownR === 0) {
+                            this.input.mouseDownR = 1;
+                        }
+                        else if (this.self.aimVal < 0.2) {
+                            this.input.mouseDownL = 1 - this.input.mouseDownL;
+                        }
+                        isLockedOn = true;
                 }
+
+            }
+        if (!isLockedOn) {
+            if (this.settings.aimCounter > 100) {
+                if (this.input.mouseDownL === 1) this.input.mouseDownL = 0;
+                if (this.input.mouseDownR === 1) this.input.mouseDownR = 0;
                 this.settings.aimCounter = 0;
-            } else if (!inSight) this.input.target = null;
+            } this.input.target = null;
             this.settings.aimCounter++;
         }
     }
@@ -1112,33 +1141,23 @@ class Utilities {
         if (!this.proc) console.warn("PROC TRACE", proc); this.proc = proc
 
         server.kickTimer = window.idleTimer + 60000;
+        server.clientSendRate = 100;
 
         if (self && self.active) {
 
-            server.clientSendRate = 100;
-            //server.serverTickRate = 100;
-            server.maxParticles = 0;
-            server.viewDist = 5000;
-            server.tracerMaxDst = 1000;
-            server.aimAnimMlt = 1;
-            server.aimSlow = 1;
-            server.crouchSlow = 1;
-            server.useLooseClient = true;
-            server.recoilMlt = 0;
-            server.regenDelay = 0;
-            server.regenVal = .5
-            self.recoilAnim = 0;
-            self.recoilAnimY = 0;
-            self.recoilForce = 0;
-            self.recoilTweenY = 0;
-            self.recoilTweenYM = 0;
-            self.recoilTweenZ = 0;
-            self.recoilX = 0;
-            self.recoilZ = 0;
-            //self.weapon.dmg = 200;
-            //self.weapon.aimSpeed = 0;
-            //self.weapon.dmgDrop = 100;
-            //self.dmgReceived = {};
+            if (this.settings.noRecoil) {
+                server.recoilMlt = 0;
+                server.regenDelay = 0;
+                server.regenVal = .5
+                self.recoilAnim = 0;
+                self.recoilAnimY = 0;
+                self.recoilForce = 0;
+                self.recoilTweenY = 0;
+                self.recoilTweenYM = 0;
+                self.recoilTweenZ = 0;
+                self.recoilX = 0;
+                self.recoilZ = 0;
+            }
 
             proc[1] *= this.settings.moveSpeed;
             if (this.settings.shotRate !== 1000) self.weapon.rate = this.settings.shotRate;
@@ -1147,23 +1166,16 @@ class Utilities {
                 self.ammos[self.weaponIndex] = self.weapon.ammo;
                 world.players.updatePlayerAmmo(self);
             }
-            //self.weapon.range = this.settings.wpnRange * 1000;
 
-            let players = this.world.players.list.filter(x => !x.isYou).filter(x => x.active).filter(x => this.cam.frustum.containsPoint(x)).sort((a, b) => this.dist(this.self, a) - this.dist(this.self, b));
-            let enemies = players.filter(x => x.inView).filter(x => (!x.team || (this.self && x.team !== this.self.team)));
-            let closest = enemies[0];
+            self.weapon.aimSpeed = 60;
 
-            this.AutoAim(closest);
+            this.AutoAim();
 
             if (this.settings.esp < 3 || this.settings.tracers)
             {
                 unsafeWindow.requestAnimFrame( ()=>{
                     this.ctx.clearRect(0, 0, innerWidth, innerHeight);
-                    for (const player of players)
-                    {
-                        this.drawESP(player);
-                    }
-                    this.settings.canvasNeedsClean = true;
+                    this.drawESP();
                 });
             }
             else if (this.settings.canvasNeedsClean)
@@ -1174,7 +1186,19 @@ class Utilities {
 
             if (this.settings.bHop) {
                 input.keys[input.jumpKey] = self.onGround;
-                input.keys[input.crouchKey] = !self.onGround && self.slideTimer > 2;
+                if (this.settings.bHop === 2)
+                {
+                    if (this.settings.isSliding) {
+                    proc[8] = 1;
+                    }
+                    else if (self.yVel < -0.04 && self.canSlide) {
+                        this.settings.isSliding = true;
+                        setTimeout(() => {
+                            this.settings.isSliding = false;
+                        }, self.slideTimer);
+                        proc[8] = 1;
+                    }
+                }
             }
 
             if (this.settings.espCounter > 100 )
@@ -1221,7 +1245,7 @@ if (window.location.hostname === 'krunker.io') {
             url: document.location.origin,
             onload: load => {
                 let body = load.responseText;
-                body = body.replace(/<script src="js\/game\.\w+?(?=\.)\.js\?build=.+"><\/script>/g, `<script type="application/javascript" src="` + SwapURL + `"></script>`)
+                body = body.replace(/<script src="js\/game\.\w+?(?=\.)\.js\?build=.+"><\/script>/g, `<script type="application/javascript" src="` + ExternalURL + `"></script>`)
                     .replace(/libs\/zip-ext\.js\?build=.+?(?=")/g, ``)
                 //.replace(/libs\/zip\.js\?build=.+?(?=")/g, ``);
                 //console.log(body);
