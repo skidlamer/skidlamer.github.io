@@ -4,7 +4,7 @@
 @description  A Krunker.io Cheat
 @updateURL    https://skidlamer.github.io/js/Kruker.utils.user.js
 @downloadURL  https://skidlamer.github.io/js/Kruker.utils.user.js
-@version      1.0.4
+@version      1.0.5
 @author       SkidLamer
 @match        *://krunker.io/*
 @run-at       document-start
@@ -21,6 +21,7 @@ class Utilities {
         this.inputs;
         this.exports;
         this.control;
+        this.functions
         this.self;
         this.settings = {
             scopingOut: false,
@@ -172,6 +173,10 @@ class Utilities {
         return Math.sqrt(distX * distX + distY * distY + distZ * distZ)
     }
 
+    getDistance(player1, player2) {
+        return this.getDistance3D(player1.x, player1.y, player1.z, player2.x, player2.y, player2.z);
+    }
+
     getDirection(fromZ, fromX, toZ, toX) {
         return Math.atan2(fromX - toX, fromZ - toZ)
     }
@@ -282,12 +287,14 @@ class Utilities {
 
     getTarget() {
         const enemies = this.world.players.list.filter(x => !x.isYou).filter(x => x.inView && x.objInstances && x.objInstances.visible).filter(x => (!x.team || (x.team !== this.self.team))).filter(x => x.active).sort(this.functions.orderByDst);
+        for (const cunt of enemies) {
+            if (this.self.dmgReceived[cunt.id]) return cunt;
+        }
         return enemies[0];
     }
 
     lookAtHead(target) {
-
-        this.camLookAt(target.x, target.y + target.height - this.server.headScale - this.server.legHeight * target.crouchVal - this.self.recoilAnimY * this.server.recoilMlt * 25, target.z);
+        this.camLookAt(target.x2, target.y2 + target.height - 1.5 - 2.5 * target.crouchVal - this.self.recoilAnimY * 0.3 * this.getDistance(this.self, target) / 10, target.z2);
     }
 
     inputsTick(self, inputs, world) {
@@ -341,6 +348,8 @@ function patchedIndex(html) {
 }
 
 function patchedScript(script) {
+    script = patch(script, "IsHacker", /&&(\w+)\['isHacker']&&/, `&&!1&&`);
+    script = patch(script, "LastHack", /&&(\w+)\['lastHack']&&/, `&&!1&&`);
     script = patch(script, 'WallHack', /if\(!tmpObj\['inView']\)continue;/, ``);
     script = patch(script, "Exports", /\['__CANCEL__']=!(\w+),(\w+)\['exports']=(\w+);},function\((\w+),(\w+),(\w+)\){let/, `['__CANCEL__']=!$1,$2['exports']=$3;},function($4,$5,$6){window.utilities=new Utilities();window.utilities.exports=$6;let`);
     script = patch(script, 'ProcInput', /this\['procInputs']=function\((\w+),(\w+),(\w+)\){/, `this['procInputs']=function($1,$2,$3){window.utilities.inputsTick(this,$1,$2);`);
@@ -354,9 +363,13 @@ function patchedScript(script) {
     const build = index.match(/(?<=build=)[^"]+/)[0];
     const patch = index.match(/"SOUND.play\(.+\)">v(.+)</)[1];
     const script = await read(`/js/game.${build}.js`);
-    window.stop();
+    //window.stop();
     document.open();
     document.write(patchedIndex(index));
     document.close();
-    eval(patchedScript(script));
+    try {
+        eval(patchedScript(script));
+    } catch (err) {
+        location.reload();
+    }
 })();
