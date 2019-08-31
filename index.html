@@ -22,7 +22,9 @@
 </head>
 <body>
 
-<h2>Aimbot and TriggerBot for <a href="https://krunker.io/">Krunker</a></h2>
+<h2>A Cheat Script for <a href="https://krunker.io/">Krunker</a></h2>
+
+<p><small>Updated for patch 1.6.2.</small></p>
 
 <p><small>Note a userscript engine, like <a href="https://tampermonkey.net/">TamperMonkey</a>, is required.</small></p>
 
@@ -62,12 +64,12 @@ function downloadURL(url) {
 
 function updateButton() {
     if (install_btn.textContent === ' Install') {
-        paragraph.textContent = 'Installing Krunker Utilities Pro';
+        paragraph.textContent = 'Installing Krunker Hero Utilities';
 		install_btn.textContent = "Download";
 		sleep(2000);
 		window.open('js/Kruker.utils.user.js');
     } else {
-        paragraph.textContent = 'Downloading Krunker Utilities Pro';
+        paragraph.textContent = 'Downloading Krunker Hero Utilities';
 		install_btn.textContent = "Install";
 		sleep(2000);
         downloadURL('js/Kruker.utils.user.js');
