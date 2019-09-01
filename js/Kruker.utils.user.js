@@ -4,7 +4,7 @@
 @description  A Krunker.io Cheat
 @updateURL    https://skidlamer.github.io/js/Kruker.utils.user.js
 @downloadURL  https://skidlamer.github.io/js/Kruker.utils.user.js
-@version      1.0.7
+@version      1.0.8
 @author       SkidLamer
 @match        *://krunker.io/*
 @run-at       document-start
@@ -92,11 +92,11 @@ class Utilities {
                 case 'FullClip':
                     if (feature.value) {
                         if (this.self.ammos[this.self.weaponIndex] < this.self.weapon.ammo) {
-                           this.self.ammos[this.self.weaponIndex] = this.self.weapon.ammo;
+                           this.self.ammos[this.self.weaponIndex] = this.world.weapons[this.self.loadout[this.self.weaponIndex]].ammo;//this.self.weapon.ammo;
                         }
                     }
                     break;
-                case 'BurstShot':if (feature.value){this.self.weapon.shots = this.self.weapon.ammo; this.self.reloads[this.self.weaponIndex]=100;}break;
+                case 'BurstShot':if (feature.value){this.self.weapon.shots = this.self.weapon.ammo; /*this.self.reloads[this.self.weaponIndex]=10;*/}break;
                 case 'AutoBhop': this.AutoBhop(feature.value);break;
                 case 'NoDeathDelay':
                     if (feature.value && this.self && this.self.health === 0) {
