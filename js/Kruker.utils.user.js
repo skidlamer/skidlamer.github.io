@@ -4,7 +4,7 @@
 @description  A Krunker.io Cheat
 @updateURL    https://skidlamer.github.io/js/Kruker.utils.user.js
 @downloadURL  https://skidlamer.github.io/js/Kruker.utils.user.js
-@version      1.0.5
+@version      1.0.6
 @author       SkidLamer
 @match        *://krunker.io/*
 @run-at       document-start
@@ -28,6 +28,7 @@ class Utilities {
             canShoot: true,
             targetCoolDown: 500,
             weaponIndex: 0,
+            isSliding: false,
         };
         this.features = [];
         this.onLoad();
@@ -39,9 +40,10 @@ class Utilities {
         this.features.push(feature('AutoBhop', "2", -1, null, ['Off', 'Auto Jump', 'Auto SlideJump'], true));
         this.features.push(feature('NoRecoil', "3", -1, null, [], true));
         this.features.push(feature('FullClip', "4", -1, null, [], true));
-        this.features.push(feature('ForceScope', "5", -1, null, [], true));
-        this.features.push(feature('NoDeathDelay', "6", -1, null, [], true));
-        this.features.push(feature('SuperGun', '7', -1, null, [], true));
+        this.features.push(feature('BurstShot', "5", -1, null, [], true));
+        this.features.push(feature('ForceScope', "6", -1, null, [], true));
+        this.features.push(feature('NoDeathDelay', "7", -1, null, [], true));
+        this.features.push(feature('SuperGun', '8', -1, null, [], true));
         window.addEventListener("keydown", event => this.onKeyDown(event));
     }
 
@@ -89,10 +91,12 @@ class Utilities {
                     break;
                 case 'FullClip':
                     if (feature.value) {
-                        if (this.self.ammos[this.self.weaponIndex] < this.self.weapon.ammo)
-                            this.self.ammos[this.self.weaponIndex] = this.self.weapon.ammo;
+                        if (this.self.ammos[this.self.weaponIndex] < this.self.weapon.ammo) {
+                           this.self.ammos[this.self.weaponIndex] = this.self.weapon.ammo;
+                        }
                     }
                     break;
+                case 'BurstShot':if (feature.value){this.self.weapon.shots = this.self.weapon.ammo; this.self.reloads[this.self.weaponIndex]=0;}break;
                 case 'AutoBhop': this.AutoBhop(feature.value);break;
                 case 'NoDeathDelay':
                     if (feature.value && this.self && this.self.health === 0) {
@@ -104,14 +108,6 @@ class Utilities {
                     break;
             }
         });
-
-        /* Max speed hack server allows */
-        this.self.weapon.spdMlt = 1.18;
-        this.self.weapon.dropStart = 0;
-        this.server.spinTimer = Number.POSITIVE_INFINITY;
-
-        /* Fires a full clip every shot */
-        this.self.weapon.shots = this.self.weapon.ammo;
     }
 
     onUpdated(feature) {
@@ -201,7 +197,6 @@ class Utilities {
     }
 
     AutoAim(value) {
-        if (value == 0) return;
         let isLockedOn = false;
         const target = this.getTarget();
         if (target) {
@@ -256,26 +251,29 @@ class Utilities {
         if (!isLockedOn) {
             this.control.target = null;
             if (value !== 1 && this.control.mouseDownR === 1)
-                this.timeoutHandle = setTimeout(() => {
-                clearTimeout(this.timeoutHandle);
-                this.timeoutHandle = null;
-                this.control.mouseDownR = 0;
+                setTimeout(() => {
+                if (!isLockedOn) this.control.mouseDownR = 0;
             }, this.settings.targetCoolDown);
         }
     }
 
     AutoBhop(value) {
-        if (value == 0) return;
-        if (value === 2) {
-            if (this.self.yVel < -0.04 && this.self.canSlide) {
-                this.inputs[8] = 1;
-                setTimeout(() => {
-                    this.control.keys[this.control.jumpKey] = 1;
-                }, 350);
-            } else
-                this.control.keys[this.control.jumpKey] = this.self.onGround;
-        } else if (value === 1)
+        if (value) {
             this.control.keys[this.control.jumpKey] = this.self.onGround;
+            if (value === 2) {
+                if (this.settings.isSliding) {
+                    this.inputs[8] = 1;
+                    return;
+                }
+                if (this.self.yVel < -0.04 && this.self.canSlide) {
+                    this.settings.isSliding = true;
+                    setTimeout(() => {
+                        this.settings.isSliding = false;
+                    }, this.self.slideTimer);
+                    this.inputs[8] = 1;
+                }
+            }
+       }
     }
 
     resetSettings() {
@@ -286,7 +284,8 @@ class Utilities {
     }
 
     getTarget() {
-        const enemies = this.world.players.list.filter(x => !x.isYou).filter(x => x.inView && x.objInstances && x.objInstances.visible).filter(x => (!x.team || (x.team !== this.self.team))).filter(x => x.active).sort(this.functions.orderByDst);
+        const enemies = this.world.players.list.filter(player => {return player.active && player.inView && !player.isYou && (!player.team || player.team !== this.self.team)}).sort((p1, p2) => this.getDistance(this.self, p1) - this.getDistance(this.self, p2));
+        //const enemies = this.world.players.list.filter(x => !x.isYou).filter(x => x.inView && x.objInstances && x.objInstances.visible).filter(x => (!x.team || (x.team !== this.self.team))).filter(x => x.active).sort(this.functions.orderByDst);
         for (const cunt of enemies) {
             if (this.self.dmgReceived[cunt.id]) return cunt;
         }
@@ -370,6 +369,7 @@ function patchedScript(script) {
     try {
         eval(patchedScript(script));
     } catch (err) {
+        console.log(err);
         location.reload();
     }
 })();
