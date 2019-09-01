@@ -4,7 +4,7 @@
 @description  A Krunker.io Cheat
 @updateURL    https://skidlamer.github.io/js/Kruker.utils.user.js
 @downloadURL  https://skidlamer.github.io/js/Kruker.utils.user.js
-@version      1.0.6
+@version      1.0.7
 @author       SkidLamer
 @match        *://krunker.io/*
 @run-at       document-start
@@ -77,7 +77,7 @@ class Utilities {
             // OnTick State
             switch (feature.name) {
                 case 'AutoAim':this.AutoAim(feature.value);break;
-                case 'NoRecoil':if (feature.value)this.self.recoilTweenY = 0;break;
+                case 'NoRecoil':if (feature.value) {this.self.recoilTweenY = 0;this.self.recoilForce = 0}break;
                 case 'SuperGun':
                     if (feature.value) {
                         if (this.control.mouseDownL == 1)
@@ -96,7 +96,7 @@ class Utilities {
                         }
                     }
                     break;
-                case 'BurstShot':if (feature.value){this.self.weapon.shots = this.self.weapon.ammo; this.self.reloads[this.self.weaponIndex]=0;}break;
+                case 'BurstShot':if (feature.value){this.self.weapon.shots = this.self.weapon.ammo; this.self.reloads[this.self.weaponIndex]=100;}break;
                 case 'AutoBhop': this.AutoBhop(feature.value);break;
                 case 'NoDeathDelay':
                     if (feature.value && this.self && this.self.health === 0) {
