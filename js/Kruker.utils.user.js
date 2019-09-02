@@ -4,7 +4,7 @@
 @description  A Krunker.io Cheat
 @updateURL    https://skidlamer.github.io/js/Kruker.utils.user.js
 @downloadURL  https://skidlamer.github.io/js/Kruker.utils.user.js
-@version      1.0.8
+@version      1.0.7
 @author       SkidLamer
 @match        *://krunker.io/*
 @run-at       document-start
@@ -35,11 +35,16 @@ class Utilities {
     }
 
     onLoad() {
-        this.createInfoBox();
+        const initInfoBoxInterval = setInterval(() => {
+            if (document.querySelector('#leaderDisplay') !== null) {
+                clearInterval(initInfoBoxInterval);
+                this.createInfoBox();
+            }
+        }, 100);
         this.features.push(feature('AutoAim', "1", -1, null, ['Off', 'Aim Assist', 'Aim Bot', 'Trigger Bot'], true));
         this.features.push(feature('AutoBhop', "2", -1, null, ['Off', 'Auto Jump', 'Auto SlideJump'], true));
-        this.features.push(feature('NoRecoil', "3", -1, null, [], true));
-        this.features.push(feature('FullClip', "4", -1, null, [], true));
+        this.features.push(feature('AutoReload', "3", -1, null, [], true));
+        this.features.push(feature('NoRecoil', "4", -1, null, [], true));
         this.features.push(feature('BurstShot', "5", -1, null, [], true));
         this.features.push(feature('ForceScope', "6", -1, null, [], true));
         this.features.push(feature('NoDeathDelay', "7", -1, null, [], true));
@@ -77,6 +82,7 @@ class Utilities {
             // OnTick State
             switch (feature.name) {
                 case 'AutoAim':this.AutoAim(feature.value);break;
+                case 'AutoReload':if (feature.value) {this.inputs[9] = this.self.ammos[this.self.weaponIndex] === 0}break;
                 case 'NoRecoil':if (feature.value) {this.self.recoilTweenY = 0;this.self.recoilForce = 0}break;
                 case 'SuperGun':
                     if (feature.value) {
@@ -89,14 +95,7 @@ class Utilities {
                         }
                     }
                     break;
-                case 'FullClip':
-                    if (feature.value) {
-                        if (this.self.ammos[this.self.weaponIndex] < this.self.weapon.ammo) {
-                           this.self.ammos[this.self.weaponIndex] = this.world.weapons[this.self.loadout[this.self.weaponIndex]].ammo;//this.self.weapon.ammo;
-                        }
-                    }
-                    break;
-                case 'BurstShot':if (feature.value){this.self.weapon.shots = this.self.weapon.ammo; /*this.self.reloads[this.self.weaponIndex]=10;*/}break;
+                case 'BurstShot':if (feature.value){this.self.weapon.shots = this.self.weapon.ammo;}break;
                 case 'AutoBhop': this.AutoBhop(feature.value);break;
                 case 'NoDeathDelay':
                     if (feature.value && this.self && this.self.health === 0) {
@@ -181,6 +180,10 @@ class Utilities {
         var dirY = Math.abs(fromY - toY),
             dist = this.getDistance3D(fromX, fromY, fromZ, toX, toY, toZ);
         return Math.asin(dirY / dist) * (fromY > toY ? -1 : 1)
+    }
+
+    getAngleDist(start, end) {
+        return Math.atan2(Math.sin(end - start), Math.cos(start - end));
     }
 
     camLookAt(X, Y, Z) {
@@ -362,8 +365,8 @@ function patchedScript(script) {
     const build = index.match(/(?<=build=)[^"]+/)[0];
     const patch = index.match(/"SOUND.play\(.+\)">v(.+)</)[1];
     const script = await read(`/js/game.${build}.js`);
-    //window.stop();
     document.open();
+    window.stop();
     document.write(patchedIndex(index));
     document.close();
     try {
