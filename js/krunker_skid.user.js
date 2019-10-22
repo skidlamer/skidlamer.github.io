@@ -29,19 +29,24 @@ class Utilities {
         this.control;
         this.socket;
         this.server;
-        this.keys = new Set();
+        this.downKeys = new Set();
+        this.upKeys = new Set();
+        this.menus = new Map();
         this.features = [];
         this.colors = ['Green', 'Orange', 'DodgerBlue', 'Black', 'Red'];
         this.settings = {
             showMenu: true,
+            autoAimWalls: 0,
             espMode: 4,
             espColor: 0,
             espFontSize: 14,
-            tracers: true,
             canShoot: true,
             scopingOut: false,
             isSliding: false,
+            delta:1,
         }
+        this.activeMenuIndex = 0;
+        this.activeLineIndex = 0;
         this.canvas = null;
         this.ctx = null;
 		let interval_ui = setInterval(() => {
@@ -55,38 +60,43 @@ class Utilities {
     onLoad() {
         addEventListener("keydown", e => {
             if ("INPUT" == window.document.activeElement.tagName) return;
-			//if (event.shiftKey) {
-			//	alert("The SHIFT key was pressed!");
-			//}
-			//if (event.ctrlKey) {
-				//alert("The CTRL key was pressed!");
-			//}
-			const key = e.key.toUpperCase();
-			if (!this.keys.has(key)) this.keys.add(key);
+            const key = e.key.toUpperCase();
+            const code = e.code;
+			if (!this.downKeys.has(code)) this.downKeys.add(code);
         });
         addEventListener("keyup", e => {
 			const key = e.key.toUpperCase();
-            if (this.keys.has(key)) this.keys.delete(key);
-            for (const feature of this.features) {
-                if (feature.hotkey.toUpperCase() === key) {
-                    this.onUpdated(feature);
-                }
+            const code = e.code;
+            if (this.downKeys.has(code)) this.downKeys.delete(code);
+            if (!this.upKeys.has(code)) this.upKeys.add(code);
+
+            if (key === "L") {
+                console.dir(self);
+                console.dir(this.me);
+                console.dir(this.world);
+                console.dir(this.server);
+                console.dir(this.socket);
             }
-            if (key === "DELETE") this.resetSettings();
-            if (key === "M") this.settings.showMenu ^=1;
         })
 
-        this.newFeature('AutoAim', "1", ['Off', 'Aim Assist', 'Aim Bot', 'Trigger Bot']);
-        this.newFeature('AutoBhop', "2", ['Off', 'Auto Jump', 'Auto Slide']);
-        this.newFeature('EspMode', "3", ['Off', 'Full', '2d', 'Walls']);
-        this.newFeature('AutoReload', "4", []);
-        this.newFeature('NoDeathDelay', "5", []);
-        this.newFeature('SkidSettings', "6", []);
-        this.server.voiceChatMaxLength = 4;
+        this.menus
+        .set('Krunker Skid', [this.newFeature('Self', []), this.newFeature('Weapon', []), this.newFeature('Visual', []), this.newFeature('Settings', [])])
+        .set('Self', [this.newFeature('AutoBhop', ['Off', 'Auto Jump', 'Auto Slide']), this.newFeature('NoDeathDelay', ['Off', 'On']), this.newFeature('SkidSettings', ['Off', 'On'])])
+        .set('Weapon', [this.newFeature('AutoAim', ['Off', 'Aim Assist', 'Aim Bot', 'Trigger Bot']), this.newFeature('AutoReload', ['Off', 'On']), this.newFeature('Aim Through Walls', ['Off', 'On']), this.newFeature('UseDeltaForce', ['Off', 'On'])])
+        .set('Visual', [this.newFeature('EspMode', ['Off', 'Full', '2d', 'Walls']), this.newFeature('Tracers', ['Off', 'On'])])
+        .set('Settings', [this.newFeature('Reset', [], this.resetSettings)])
     }
 
-	keyDown(key) {
-		return this.keys.has(key);
+	keyDown(code) {
+		return this.downKeys.has(code);
+	}
+
+    keyUp(code) {
+        if (this.upKeys.has(code)) {
+            this.upKeys.delete(code);
+            return true;
+        }
+		return false;
 	}
 
     byte2Hex(n) {
@@ -94,12 +104,8 @@ class Utilities {
         return String(chars.substr((n >> 4) & 0x0F,1)) + chars.substr(n & 0x0F,1);
     }
 
-    rgb2hex(r,g,b) {
-        return '#' + this.byte2Hex(r) + this.byte2Hex(g) + this.byte2Hex(b);
-    }
-
-    colorText(str, rgb, options) {
-        return String( '<font style="color:' + this.rgb2hex(rgb[0],rgb[1],rgb[2]) + '"' + options + '>' + str + '</font>');
+    rgba2hex(r,g,b,a = 255) {
+        return ("#").concat(this.byte2Hex(r),this.byte2Hex(g),this.byte2Hex(b),this.byte2Hex(a));
     }
 
     onTick(me, world, inputs) {
@@ -107,7 +113,6 @@ class Utilities {
         this.world = world;
         this.inputs = inputs;
         this.server=this.exports.c[7].exports;
-
         for (let i = 0, sz = this.features.length; i < sz; i++) {
             const feature = this.features[i];
             switch (feature.name) {
@@ -121,16 +126,19 @@ class Utilities {
                     this.autoBhop(feature.value);
                     break;
                 case 'NoDeathDelay':
-                    if (feature.value && this.me && this.me.health === 0) {
-                        this.server.deathDelay = 0;
+                    if (this.me.health === 0) {
+                        if (feature.value) this.server.deathDelay = 0;
                     }
                     break;
                 case 'EspMode':
                     this.settings.espMode = feature.value;
                     break;
                 case 'SkidSettings':
-                        if (feature.value) new Map([ ["fov", 85], ["fpsFOV", 85], ["weaponBob", 3], ["weaponLean", 6], ["weaponOffX", 2], ["weaponOffY", 2], ["weaponOffZ", 2] ]).forEach(function(value, key, map) { window.setSetting(key, value) });
-                        break;
+                    if (feature.value) new Map([ ["fov", 85], ["fpsFOV", 85], ["weaponBob", 3], ["weaponLean", 6], ["weaponOffX", 2], ["weaponOffY", 2], ["weaponOffZ", 2] ]).forEach(function(value, key, map) { window.setSetting(key, value) });
+                    break;
+                case 'UseDeltaForce':
+                    this.settings.delta = feature.value ? 5 : 1;
+                    break;
             }
         }
     }
@@ -142,14 +150,18 @@ class Utilities {
         }
     }
 
-    newFeature(name, key, array) {
+    newFeature(name, array, myFunction = null) {
         const cStruct = (...keys) => ((...v) => keys.reduce((o, k, i) => {
             o[k] = v[i];
             return o
         }, {}));
-        const feature = cStruct('name', 'hotkey', 'value', 'valueStr', 'container')
+        var item = [];
+        const myStruct = cStruct('name', 'value', 'valueStr', 'container', 'myFunction')
         const value = parseInt(window.getSavedVal("utilities_" + name) || 0);
-        this.features.push(feature(name, key, value, array.length ? array[value] : value ? "On" : "Off", array));
+        const feature = myStruct(name, value, array.length ? array[value] : '', array, myFunction);
+        if (array.length||myFunction) this.features.push(feature);
+        item.push(feature);
+        return item;
     }
 
     getFeature(name) {
@@ -161,14 +173,6 @@ class Utilities {
         return null;
     }
 
-    featureColor(valueStr) {
-        switch(valueStr) {
-            case "On": return [178,242,82];
-            case "Off": return [235,86,86];
-            default: return [32,146,236];
-        }
-    }
-
     onUpdated(feature) {
         if (feature.container.length) {
             feature.value += 1;
@@ -176,11 +180,15 @@ class Utilities {
                 feature.value = 0;
             }
             feature.valueStr = feature.container[feature.value];
-        } else {
-            feature.value ^= 1;
-            feature.valueStr = feature.value ? "On" : "Off";
+            window.saveVal("utilities_" + feature.name, feature.value);
         }
-        window.saveVal("utilities_" + feature.name, feature.value);
+        if (feature.container.length == 2 && feature.container[0] == 'Off' && feature.container[1] == 'On') {
+            console.log(feature.name, " is now ", feature.valueStr);
+            switch (feature.name) {
+                case 'Aim Through Walls': this.settings.autoAimWalls = feature.value;
+                    break;
+            }
+        }
     }
 
     getDistance3D(fromX, fromY, fromZ, toX, toY, toZ) {
@@ -209,6 +217,8 @@ class Utilities {
     }
 
     camLookAt(X, Y, Z) {
+        const currentXDR = this.control.xDr;
+        const currentYDR = this.control.yDr;
         var xdir = this.getXDir(this.control.object.position.x, this.control.object.position.y, this.control.object.position.z, X, Y, Z),
             ydir = this.getDirection(this.control.object.position.z, this.control.object.position.x, Z, X),
             camChaseDst = this.server.camChaseDst;
@@ -219,6 +229,8 @@ class Utilities {
             y: Y - camChaseDst * Math.sin(xdir),
             z: Z + camChaseDst * Math.cos(ydir) * Math.cos(xdir)
         }
+        this.control.xDr = currentXDR;
+        this.control.yDr = currentYDR;
     }
 
     lookAt(target) {
@@ -239,7 +251,7 @@ class Utilities {
     getTarget() {
         const players = this.world.players.list.filter(player => { return player.active && !player.isYou });
         const targets = players.filter(player => {
-            return player.inView && (!player.team || player.team !== this.me.team)
+            return player.isSeen && (!player.team || player.team !== this.me.team)
         }).sort((p1, p2) => this.getDistance(this.me, p1) - this.getDistance(this.me, p2));
         return targets[0];
     }
@@ -255,15 +267,11 @@ class Utilities {
             }, this.me.weapon.rate / 1.85);
         }
         if (target) {
-            let playerDist = (Math.round(this.getDistance(this.me, target)) / 10).toFixed(0);
-            const currentXDR = this.control.xDr;
-            const currentYDR = this.control.yDr;
-            if (isNaN(playerDist)) playerDist = 0;
             switch (value) {
                 case 1:
                     /*Aim Assist*/
                     if (this.control.mouseDownR === 1) {
-						this.world.config.deltaMlt = 5;
+						this.world.config.deltaMlt = this.settings.delta;
                         this.lookAt(target);
 						this.world.config.deltaMlt = 1;
                         lockedOn = true;
@@ -282,7 +290,7 @@ class Utilities {
 						this.settings.scopingOut = false;
 					}
 					if (!this.settings.scopingOut && this.settings.canShoot && this.me.recoilForce <= 0.01) {
-						this.world.config.deltaMlt = 5;
+						this.world.config.deltaMlt = this.settings.delta;
                     this.lookAt(target);
 						if (this.control.mouseDownR !== 2) {
                         this.control.mouseDownR = 2;
@@ -294,9 +302,8 @@ class Utilities {
                 case 3:
                     /*Trigger Bot*/
                     lockedOn = this.quickscoper(target);
-                    this.control.xDr = currentXDR;
-                    this.control.yDr = currentYDR;
                     break;
+                default: break;
             }
         }
         if (!lockedOn) {
@@ -329,14 +336,15 @@ class Utilities {
             return false;
         }
 
-		this.world.config.deltaMlt = 5;
+		this.world.config.deltaMlt = this.settings.delta;
 		this.lookAt(target);
         if (this.control.mouseDownR !== 2) {
             this.control.mouseDownR = 2;
         }
 
         if (this.me.aimVal < 0.2) {
-			this.world.config.deltaMlt = 5;
+			this.world.config.deltaMlt = this.settings.delta;
+            this.lookAt(target);
             this.control.mouseDownL ^= 1;
 			this.world.config.deltaMlt = 1;
         }
@@ -346,7 +354,7 @@ class Utilities {
 
     autoBhop(value) {
         if (!value) return;
-        if (this.keyDown(" ")) { //Space
+        if (this.keyDown("Space")) {
             this.control.keys[this.control.jumpKey] = !this.control.keys[this.control.jumpKey];
             if (value === 2) {
                 if (this.settings.isSliding) {
@@ -367,7 +375,10 @@ class Utilities {
     wpnReload(force = false) {
         //(inputs[9] = me.ammos[me.weaponIndex] === 0);
         const ammoLeft = this.me.ammos[this.me.weaponIndex];
-        if (force || ammoLeft === 0) this.world.players.reload(this.me);
+        if (force || ammoLeft === 0) {
+            this.world.players.reload(this.me);
+            if (ammoLeft) this.world.players.endReload(this.me.weapon);
+        }
     }
 
      world2Screen(camera, pos3d, aY = 0) {
@@ -502,27 +513,112 @@ class Utilities {
 						this.text("m]", this.settings.espFontSize+'px GameFont', "#AAAAAA", (screenH.x + bWidth / 2) + 4 + meas[0] + meas[1], screenH.y + meas[4] * 4)
 					}
 				}
-				if (this.settings.espMode === 1 || this.settings.espMode === 2) this.line(innerWidth / 2, innerHeight - 1, screenR.x, screenR.y, 2, entity.team === null ? '#FF4444' : myself.team === entity.team ? '#44AAFF' : '#FF4444');
+                const tracers = this.getFeature('Tracers');
+				if (tracers && tracers.value) if (this.settings.espMode === 1 || this.settings.espMode === 2) this.line(innerWidth / 2, innerHeight - 1, screenR.x, screenR.y, 2, entity.team === null ? '#FF4444' : myself.team === entity.team ? '#44AAFF' : '#FF4444');
 			}
 		}
     }
 
+    drawMenuLine(item, lineWidth, lineHeight, lineTop, lineLeft, textLeft, active, title, rescaleText = true)
+    {
+        // default values
+        let text_col = [255, 255, 255, 255],
+            rect_col = [0, 0, 0, 120],
+            text_scale = 20,
+            font = 'px sans-serif';
+
+        // active line values
+        if (active) {
+            text_col[0] = 0;
+            text_col[1] = 0;
+            text_col[2] = 0;
+            rect_col[0] = 231;
+            rect_col[1] = 231;
+            rect_col[2] = 231;
+            if (rescaleText) text_scale = 21;
+        }
+
+        // title values
+        if (title)
+        {
+            rect_col[0] = 70;
+            rect_col[1] = 90;
+            rect_col[2] = 90;
+            rect_col[3] = 255;
+            if (rescaleText) text_scale = 20;
+            font = 'px GameFont';
+            textLeft = lineWidth / 2 - this.getTextMeasurements([item.name]);
+        }
+
+        // rect
+        this.rect(lineLeft, lineTop, 0, 0, lineWidth, (lineHeight * 2), this.rgba2hex(rect_col[0],rect_col[1],rect_col[2],rect_col[3]), true);
+
+        // text
+        this.text(item.name, text_scale+font, this.rgba2hex(text_col[0],text_col[1],text_col[2]), textLeft, lineTop + lineHeight + lineHeight/2);
+
+        // value
+        this.text(item.valueStr, text_scale+font, item.valueStr == "On" ? "#B2F252" : item.valueStr == "Off" ? "#FF4444" : active ? "#333333" : "#999EA5", lineWidth - textLeft * 1.5 - this.getTextMeasurements([item.valueStr]), lineTop + lineHeight + lineHeight/2);
+    }
+
+    drawMenuItem(caption) {
+        const top = 280;
+        const left = 20;
+        const lineWidth = 320;
+        const items = this.menus.get(caption);
+        if (!items.length) return;
+        if (this.activeLineIndex > items.length -1) this.activeLineIndex = 0;
+
+        // draw menu
+        this.drawMenuLine({name:caption,valueStr:''}, lineWidth, 22, top + 18, left, left + 5, false, true);
+        for (var i = 0; i < items.length; i++) {
+            if (i != this.activeLineIndex) this.drawMenuLine(items[i][0], lineWidth, 19, top + 60 + i * 36, left, left + 9, false, false);
+            this.drawMenuLine(items[this.activeLineIndex][0], lineWidth, 19, top + 60 + this.activeLineIndex * 36, left, left + 9, true, false);
+        }
+
+        // process buttons
+        if (this.keyUp("Numpad5")) {
+            self.SOUND.play('tick_0',0.1)
+            const feature = items[this.activeLineIndex][0];
+            if (feature) {
+                if (feature.container.length) this.onUpdated(feature);
+                else if (typeof feature.myFunction === "function") feature.myFunction();
+                else this.activeMenuIndex = this.activeLineIndex + 1;
+            }
+        } else if (this.keyUp("Numpad0")) {
+            self.SOUND.play('tick_0',0.1);
+            if (this.activeMenuIndex > 0) this.activeMenuIndex = 0;
+            else this.settings.showMenu = false;
+            return;
+        } else if (this.keyUp("Numpad8")) {
+            self.SOUND.play('tick_0',0.1)
+            if (this.activeLineIndex == 0) this.activeLineIndex = items.length;
+                this.activeLineIndex--;
+        } else if (this.keyUp("Numpad2")) {
+            self.SOUND.play('tick_0',0.1)
+            this.activeLineIndex++;
+            if (this.activeLineIndex == items.length) this.activeLineIndex = 0;
+        }
+    }
+
     drawMenu() {
-        let width = 320, height = 280, X = 20, Y = 280;
-        this.rect(X, Y, 0, 0, width, height, 'rgba(0,0,0,0.5)', true);
-        this.rect(X, Y, 0, 0, width, 50, '#B447FF', true);
-        this.text("Krunker Skid", "20px GameFont", "#FFFFFF", width / 2 - this.getTextMeasurements(["Krunker Skid"]) - X / 2, Y + 40);
-        this.rect(X + 10, Y + 60, 0, 0, width -20, height -70, '#FFFFFF', false);
-        var posX = X + 10, posY = Y + 65;
-        for (const feature of this.features) {
-            this.text('[ ' + feature.hotkey.toUpperCase() + ' ]', "13px GameFont", "#FFC147", posX + 15, posY += 30);
-            this.text(feature.name, "13px GameFont", "#44AAFF", posX + 60, posY);
-            this.text(feature.valueStr, "13px GameFont", feature.valueStr == "On" ? "#B2F252" : feature.valueStr == "Off" ? "#FF4444" : "#999EA5", posX + 55 + 140, posY);
+        if (this.settings.showMenu) {
+            switch(this.activeMenuIndex) {
+                case 0: this.drawMenuItem('Krunker Skid'); break;
+                case 1: this.drawMenuItem('Self'); break;
+                case 2: this.drawMenuItem('Weapon'); break;
+                case 3: this.drawMenuItem('Visual'); break;
+                case 4: this.drawMenuItem('Settings'); break;
+                default: break;
+            }
+        }
+        else if (this.keyUp("Numpad0")) {
+            self.SOUND.play('tick_0',0.1)
+            this.settings.showMenu = true;
         }
     }
 
 	onRender(uiConfig, scale, world, ui, me, scale2) {
-		if (uiConfig)
+        if (uiConfig)
 		{
 			uiConfig.crosshairAlways = true;
 			this.settings.espFontSize = uiConfig.dmgScale * 0.25;
@@ -534,7 +630,7 @@ class Utilities {
 			{
 				if ('none' == self.menuHolder.style.display && 'none' == self.endUI.style.display) {
                     this.drawEsp(ui, world, me);
-                    if (this.settings.showMenu) this.drawMenu();
+                    this.drawMenu();
                 }
 			}
 			this.ctx.restore();
@@ -553,9 +649,10 @@ function patchGame(source) {
     .set("html_fixHowler", [/(Howler\['orientation'](.+?)\)\),)/, ``])
     .set("html_clearRec", [/(if\(\w+\['save']\(\),\w+\['scale']\(\w+,\w+\),)\w+\['clearRect']\(0x0,0x0,\w+,\w+\),(\w+\['showDMG']\))/, '$1$2'])
     .set("html_onRender", [/((\w+)\['render']=function\((\w+,\w+,\w+,\w+,\w+)\){)/, '$1utilities.onRender($2,$3);'])
-    .set("html_pInfo", [/(if\()(!tmpObj\['inView']\)continue;)/, '$1utilities.settings.espMode==1||utilities.settings.espMode==0&&$2'])
-    .set("html_wallhack", [/(\(((\w+))=this\['map']\['manager']\['objects']\[(\w+)]\))(.+?)\)/, '$1.penetrable&&$2.active)'])
+    .set("html_pInfo", [/(if\()(!\w+\['isSeen']\)continue;)/, '$1utilities.settings.espMode==1||utilities.settings.espMode==0&&$2'])
+    .set("html_wallhack", [/(\(((\w+))=this\['map']\['manager']\['objects']\[(\w+)]\))(.+?)\)/, '$1.penetrable&&$2.active&&!utilities.settings.autoAimWalls)'])
     .set("html_socket", [/(new WebSocket)/, 'utilities.socket=$1'])
+    .set("fuckingLame", [/if\(!\w+&&!\w+&&!\w+&&\w+\['isView']\(this\)&&\w+\['isView']\(\w+\)/, 'if(!1'])
 
     for (const [name, item] of patches) {
         const patched = source.replace(item[0], item[1]);
@@ -569,10 +666,10 @@ function patchGame(source) {
     return source;
 }
 
-(function () {
-    var hideHook = (fn, oFn) => { fn.toString = oFn.toString.bind(oFn) };
+document.addEventListener('DOMContentLoaded', _ => {
+   var hideHook = (fn, oFn) => { fn.toString = oFn.toString.bind(oFn) };
     const handler = { construct(target, args) { if (args.length == 2 && args[1].length >140000) { args[1] = patchGame(args[1]); } return new target(...args); } };
     const original = self.Function;
     self.Function = new Proxy(Function, handler);
     hideHook(Function, original);
-})();
+}, false);
