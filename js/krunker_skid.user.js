@@ -2,10 +2,12 @@
 // @name                Krunker.io Skid
 // @namespace           https://github.com/skidlamer
 // @author              SkidLamer
+// @version             1.7.8
 // @description         A cheat for krunker.io
 // @downloadURL         https://skidlamer.github.io/js/krunker_skid.user.js
 // @supportURL          https://github.com/skidlamer/skidlamer.github.io
 // @match               *://krunker.io/*
+// @require https://greasyfork.org/scripts/2350-filesaver-js/code/filesaverjs.js
 // @run-at              document-start
 // @grant               none
 // ==/UserScript==
@@ -44,6 +46,7 @@ class Utilities {
             scopingOut: false,
             isSliding: false,
             delta:1,
+            deathDelay:2800,
         }
         this.activeMenuIndex = 0;
         this.activeLineIndex = 0;
@@ -77,14 +80,15 @@ class Utilities {
                 console.dir(this.server);
                 console.dir(this.socket);
             }
+            //if(key =="DELETE" && self.GameScript !== null) saveAs(new Blob([self.GameScript], {type: "text/plain;charset=utf-8"}), `game.js`);
         })
 
         this.menus
         .set('Krunker Skid', [this.newFeature('Self', []), this.newFeature('Weapon', []), this.newFeature('Visual', []), this.newFeature('Settings', [])])
-        .set('Self', [this.newFeature('AutoBhop', ['Off', 'Auto Jump', 'Auto Slide']), this.newFeature('NoDeathDelay', ['Off', 'On']), this.newFeature('SkidSettings', ['Off', 'On'])])
+        .set('Self', [this.newFeature('AutoBhop', ['Off', 'Auto Jump', 'Auto Slide']), /*this.newFeature('NoDeathDelay', ['Off', 'On']),*/ this.newFeature('SkidSettings', ['Off', 'On'])])
         .set('Weapon', [this.newFeature('AutoAim', ['Off', 'Aim Assist', 'Aim Bot', 'Trigger Bot']), this.newFeature('AutoReload', ['Off', 'On']), this.newFeature('Aim Through Walls', ['Off', 'On']), this.newFeature('UseDeltaForce', ['Off', 'On'])])
         .set('Visual', [this.newFeature('EspMode', ['Off', 'Full', '2d', 'Walls']), this.newFeature('Tracers', ['Off', 'On'])])
-        .set('Settings', [this.newFeature('Reset', [], this.resetSettings)])
+        .set('Settings', [this.newFeature('Reset', [], this.resetSettings), this.newFeature('Save game.js', [], _=>{self.saveAs(new Blob([self.GameScript], {type: "text/plain;charset=utf-8"}), `game.js`)})])
     }
 
 	keyDown(code) {
@@ -125,11 +129,9 @@ class Utilities {
                 case 'AutoBhop':
                     this.autoBhop(feature.value);
                     break;
-                case 'NoDeathDelay':
-                    if (this.me.health === 0) {
-                        if (feature.value) this.server.deathDelay = 0;
-                    }
-                    break;
+                ///case 'NoDeathDelay':
+                    //this.settings.deathDelay = feature.value ? 0 : 2800;
+                    //break;
                 case 'EspMode':
                     this.settings.espMode = feature.value;
                     break;
@@ -576,7 +578,7 @@ class Utilities {
         }
 
         // process buttons
-        if (this.keyUp("Numpad5")) {
+        if (this.keyUp("Numpad5")||this.keyUp("ArrowRight")) {
             self.SOUND.play('tick_0',0.1)
             const feature = items[this.activeLineIndex][0];
             if (feature) {
@@ -584,16 +586,16 @@ class Utilities {
                 else if (typeof feature.myFunction === "function") feature.myFunction();
                 else this.activeMenuIndex = this.activeLineIndex + 1;
             }
-        } else if (this.keyUp("Numpad0")) {
+        } else if (this.keyUp("Numpad0")||this.keyUp("ArrowLeft")) {
             self.SOUND.play('tick_0',0.1);
             if (this.activeMenuIndex > 0) this.activeMenuIndex = 0;
             else this.settings.showMenu = false;
             return;
-        } else if (this.keyUp("Numpad8")) {
+        } else if (this.keyUp("Numpad8")||this.keyUp("ArrowUp")) {
             self.SOUND.play('tick_0',0.1)
             if (this.activeLineIndex == 0) this.activeLineIndex = items.length;
                 this.activeLineIndex--;
-        } else if (this.keyUp("Numpad2")) {
+        } else if (this.keyUp("Numpad2")||this.keyUp("ArrowDown")) {
             self.SOUND.play('tick_0',0.1)
             this.activeLineIndex++;
             if (this.activeLineIndex == items.length) this.activeLineIndex = 0;
@@ -611,7 +613,7 @@ class Utilities {
                 default: break;
             }
         }
-        else if (this.keyUp("Numpad0")) {
+        else if (this.keyUp("Numpad0")||this.keyUp("ArrowLeft")) {
             self.SOUND.play('tick_0',0.1)
             this.settings.showMenu = true;
         }
@@ -639,19 +641,21 @@ class Utilities {
 }
 
 function patchGame(source) {
+    window.GameScript = source;
     source = Utilities.toString().concat(source);
     const patches = new Map()
-    .set("html_exports", [/(\['__CANCEL__']=.*?\(\w+,\w+,(\w+)\){)(let)/, '$1window.utilities=new Utilities();utilities.exports=$2;$3'])
-    .set("html_controlView", [/(if\(this\['target']\){)/, '$1this.object.rotation.y=this.target.yD;this.pitchObject.rotation.x=this.target.xD;const half=Math.PI/2;this.yDr=Math.max(-half,Math.min(half,this.target.xD))%Math.PI;this.xDr=this.target.yD%Math.PI;'])
-    .set("html_control", [/(=this;this\['gamepad'])/, '=utilities.control$1'])
-    .set("html_procInputs", [/(this\['procInputs']=function\((\w+),(\w+),(\w+)\){)/, '$1utilities.onTick(this,$3,$2);'])
-    .set("html_ui", [/(this,\w+={};this\['frustum'])/, 'utilities.ui=$1'])
-    .set("html_fixHowler", [/(Howler\['orientation'](.+?)\)\),)/, ``])
-    .set("html_clearRec", [/(if\(\w+\['save']\(\),\w+\['scale']\(\w+,\w+\),)\w+\['clearRect']\(0x0,0x0,\w+,\w+\),(\w+\['showDMG']\))/, '$1$2'])
-    .set("html_onRender", [/((\w+)\['render']=function\((\w+,\w+,\w+,\w+,\w+)\){)/, '$1utilities.onRender($2,$3);'])
-    .set("html_pInfo", [/(if\()(!\w+\['isSeen']\)continue;)/, '$1utilities.settings.espMode==1||utilities.settings.espMode==0&&$2'])
-    .set("html_wallhack", [/(\(((\w+))=this\['map']\['manager']\['objects']\[(\w+)]\))(.+?)\)/, '$1.penetrable&&$2.active&&!utilities.settings.autoAimWalls)'])
-    .set("html_socket", [/(new WebSocket)/, 'utilities.socket=$1'])
+    .set("exports", [/(\['__CANCEL__']=.*?\(\w+,\w+,(\w+)\){)(let)/, '$1window.utilities=new Utilities();utilities.exports=$2;$3'])
+    .set("controlView", [/(if\(this\['target']\){)/, '$1this.object.rotation.y=this.target.yD;this.pitchObject.rotation.x=this.target.xD;const half=Math.PI/2;this.yDr=Math.max(-half,Math.min(half,this.target.xD))%Math.PI;this.xDr=this.target.yD%Math.PI;'])
+    .set("control", [/(=this;this\['gamepad'])/, '=utilities.control$1'])
+    .set("procInputs", [/(this\['procInputs']=function\((\w+),(\w+),(\w+)\){)/, '$1utilities.onTick(this,$3,$2);'])
+    .set("ui", [/(this,\w+={};this\['frustum'])/, 'utilities.ui=$1'])
+    .set("fixHowler", [/(Howler\['orientation'](.+?)\)\),)/, ``])
+    .set("clearRec", [/(if\(\w+\['save']\(\),\w+\['scale']\(\w+,\w+\),)\w+\['clearRect']\(0x0,0x0,\w+,\w+\),(\w+\['showDMG']\))/, '$1$2'])
+    .set("onRender", [/((\w+)\['render']=function\((\w+,\w+,\w+,\w+,\w+)\){)/, '$1utilities.onRender($2,$3);'])
+    .set("pInfo", [/(if\()(!\w+\['isSeen']\)continue;)/, '$1utilities.settings.espMode==1||utilities.settings.espMode==0&&$2'])
+    .set("wallhack", [/(\(((\w+))=this\['map']\['manager']\['objects']\[(\w+)]\))(.+?)\)/, '$1.penetrable&&$2.active&&!utilities.settings.autoAimWalls)'])
+    .set("socket", [/(new WebSocket)/, 'utilities.socket=$1'])
+    //.set("deathDelay", [/\w+\['deathDelay']/, 'utilities.settings.deathDelay'])
     .set("fuckingLame", [/if\(!\w+&&!\w+&&!\w+&&\w+\['isView']\(this\)&&\w+\['isView']\(\w+\)/, 'if(!1'])
 
     for (const [name, item] of patches) {
@@ -672,4 +676,5 @@ document.addEventListener('DOMContentLoaded', _ => {
     const original = self.Function;
     self.Function = new Proxy(Function, handler);
     hideHook(Function, original);
+    window.saveAs = saveAs;
 }, false);
