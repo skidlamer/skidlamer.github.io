@@ -47,6 +47,7 @@ class Utilities {
             isSliding: false,
             delta:1,
             deathDelay:2800,
+            roogyMath:false,
         }
         this.activeMenuIndex = 0;
         this.activeLineIndex = 0;
@@ -80,13 +81,12 @@ class Utilities {
                 console.dir(this.server);
                 console.dir(this.socket);
             }
-            //if(key =="DELETE" && self.GameScript !== null) saveAs(new Blob([self.GameScript], {type: "text/plain;charset=utf-8"}), `game.js`);
         })
 
         this.menus
         .set('Krunker Skid', [this.newFeature('Self', []), this.newFeature('Weapon', []), this.newFeature('Visual', []), this.newFeature('Settings', [])])
         .set('Self', [this.newFeature('AutoBhop', ['Off', 'Auto Jump', 'Auto Slide']), /*this.newFeature('NoDeathDelay', ['Off', 'On']),*/ this.newFeature('SkidSettings', ['Off', 'On'])])
-        .set('Weapon', [this.newFeature('AutoAim', ['Off', 'Aim Assist', 'Aim Bot', 'Trigger Bot']), this.newFeature('AutoReload', ['Off', 'On']), this.newFeature('Aim Through Walls', ['Off', 'On']), this.newFeature('UseDeltaForce', ['Off', 'On'])])
+        .set('Weapon', [this.newFeature('AutoAim', ['Off', 'Aim Assist', 'Aim Bot', 'Trigger Bot']), this.newFeature('AutoReload', ['Off', 'On']), this.newFeature('Aim Through Walls', ['Off', 'On']), this.newFeature('UseDeltaForce', ['Off', 'On']), this.newFeature('AlternateAim', ['Off', 'On'])])
         .set('Visual', [this.newFeature('EspMode', ['Off', 'Full', '2d', 'Walls']), this.newFeature('Tracers', ['Off', 'On'])])
         .set('Settings', [this.newFeature('Reset', [], this.resetSettings), this.newFeature('Save game.js', [], _=>{self.saveAs(new Blob([self.GameScript], {type: "text/plain;charset=utf-8"}), `game.js`)})])
     }
@@ -140,6 +140,9 @@ class Utilities {
                     break;
                 case 'UseDeltaForce':
                     this.settings.delta = feature.value ? 5 : 1;
+                    break;
+                case 'AlternateAim':
+                    this.settings.roogyMath = feature.value;
                     break;
             }
         }
@@ -236,7 +239,9 @@ class Utilities {
     }
 
     lookAt(target) {
-        this.camLookAt(target.x2, target.y2 + target.height - target.headScale / 2 - this.server.crouchDst * target.crouchVal - this.me.recoilAnimY * this.server.recoilMlt * 25, target.z2);
+		!this.settings.roogyMath ?
+        this.camLookAt(target.x2, target.y2 + target.height - target.headScale / 2 - this.server.crouchDst * target.crouchVal - this.me.recoilAnimY * this.server.recoilMlt * 25, target.z2):
+        this.camLookAt(target.x2, target.y2 + target.height - 1.5 - 2.5 * target.crouchVal - this.me.recoilAnimY * 0.3 * 25, target.z2);
     }
 
     getStatic(s, d) {
