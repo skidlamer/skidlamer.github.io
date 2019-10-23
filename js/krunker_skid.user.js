@@ -13,7 +13,7 @@
 // ==/UserScript==
 // Please Do not copy and paste this script to greasy fork and pretend you made it its lame/r I can and will give you the hose again
 // Discord Krunker Heros - https://discord.gg/Emkf5by
-// hook - credit to @hrt - https://github.com/hrt/KrunkerBypass
+// hook - credit to @lemons - https://github.com/Lemons1337
 // esp - credit to @techy - https://www.gitmemory.com/Tehchy
 // game - credit to @sidney - https://twitter.com/sidney_de_vries?lang=en
 // other excellent krunker cheat script developers:
@@ -675,11 +675,19 @@ function patchGame(source) {
     return source;
 }
 
+// Hook - Lemons1337
+const decode = TextDecoder.prototype.decode;
+TextDecoder.prototype.decode = function() {
+    var code = decode.apply(this, arguments);
+
+    if (code.length > /*Lemons*/1337 && code[0] === '!') {
+        code = patchGame(code);
+        TextDecoder.prototype.decode = decode;
+    }
+
+    return code;
+}
+
 document.addEventListener('DOMContentLoaded', _ => {
-   var hideHook = (fn, oFn) => { fn.toString = oFn.toString.bind(oFn) };
-    const handler = { construct(target, args) { if (args.length == 2 && args[1].length >140000) { args[1] = patchGame(args[1]); } return new target(...args); } };
-    const original = self.Function;
-    self.Function = new Proxy(Function, handler);
-    hideHook(Function, original);
     window.saveAs = saveAs;
 }, false);
