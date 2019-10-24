@@ -2,7 +2,7 @@
 // @name                Krunker.io Skid
 // @namespace           https://github.com/skidlamer
 // @author              SkidLamer
-// @version             1.7.8
+// @version             1.8.0
 // @description         A cheat for krunker.io
 // @downloadURL         https://skidlamer.github.io/js/krunker_skid.user.js
 // @supportURL          https://github.com/skidlamer/skidlamer.github.io
@@ -652,13 +652,12 @@ function patchGame(source) {
     .set("exports", [/(\['__CANCEL__']=.*?\(\w+,\w+,(\w+)\){)(let)/, '$1window.utilities=new Utilities();utilities.exports=$2;$3'])
     .set("controlView", [/(if\(this\['target']\){)/, '$1this.object.rotation.y=this.target.yD;this.pitchObject.rotation.x=this.target.xD;const half=Math.PI/2;this.yDr=Math.max(-half,Math.min(half,this.target.xD))%Math.PI;this.xDr=this.target.yD%Math.PI;'])
     .set("control", [/(=this;this\['gamepad'])/, '=utilities.control$1'])
-    .set("procInputs", [/(this\['procInputs']=function\((\w+),(\w+),(\w+)\){)/, '$1utilities.onTick(this,$3,$2);'])
+    .set("procInputs", [/(this\['procInputs']=function\((\w+),(\w+),(\w+),(\w+)\){)/, '$1utilities.onTick(this,$3,$2);'])
     .set("ui", [/(this,\w+={};this\['frustum'])/, 'utilities.ui=$1'])
     .set("fixHowler", [/(Howler\['orientation'](.+?)\)\),)/, ``])
     .set("clearRec", [/(if\(\w+\['save']\(\),\w+\['scale']\(\w+,\w+\),)\w+\['clearRect']\(0x0,0x0,\w+,\w+\),(\w+\['showDMG']\))/, '$1$2'])
     .set("onRender", [/((\w+)\['render']=function\((\w+,\w+,\w+,\w+,\w+)\){)/, '$1utilities.onRender($2,$3);'])
     .set("pInfo", [/(if\()(!\w+\['isSeen']\)continue;)/, '$1utilities.settings.espMode==1||utilities.settings.espMode==0&&$2'])
-    .set("wallhack", [/(\(((\w+))=this\['map']\['manager']\['objects']\[(\w+)]\))(.+?)\)/, '$1.penetrable&&$2.active&&!utilities.settings.autoAimWalls)'])
     .set("socket", [/(new WebSocket)/, 'utilities.socket=$1'])
     //.set("deathDelay", [/\w+\['deathDelay']/, 'utilities.settings.deathDelay'])
     .set("fuckingLame", [/if\(!\w+&&!\w+&&!\w+&&\w+\['isView']\(this\)&&\w+\['isView']\(\w+\)/, 'if(!1'])
