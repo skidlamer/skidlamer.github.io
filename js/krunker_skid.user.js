@@ -658,6 +658,7 @@ function patchGame(source) {
     .set("clearRec", [/(if\(\w+\['save']\(\),\w+\['scale']\(\w+,\w+\),)\w+\['clearRect']\(0x0,0x0,\w+,\w+\),(\w+\['showDMG']\))/, '$1$2'])
     .set("onRender", [/((\w+)\['render']=function\((\w+,\w+,\w+,\w+,\w+)\){)/, '$1utilities.onRender($2,$3);'])
     .set("pInfo", [/(if\()(!\w+\['isSeen']\)continue;)/, '$1utilities.settings.espMode==1||utilities.settings.espMode==0&&$2'])
+    .set("wallhack", [/(\(((\w+))=this\['map']\['manager']\['objects']\[(\w+)]\))(.+?)\)/, '$1.penetrable&&$2.active&&!utilities.settings.autoAimWalls)'])
     .set("socket", [/(new WebSocket)/, 'utilities.socket=$1'])
     //.set("deathDelay", [/\w+\['deathDelay']/, 'utilities.settings.deathDelay'])
     .set("fuckingLame", [/if\(!\w+&&!\w+&&!\w+&&\w+\['isView']\(this\)&&\w+\['isView']\(\w+\)/, 'if(!1'])
