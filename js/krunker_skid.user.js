@@ -2,12 +2,13 @@
 // @name                Krunker.io Skid
 // @namespace           https://github.com/skidlamer
 // @author              SkidLamer
-// @version             1.8.0
+// @version             1.8.1.1
 // @description         A cheat for krunker.io
 // @downloadURL         https://skidlamer.github.io/js/krunker_skid.user.js
 // @supportURL          https://github.com/skidlamer/skidlamer.github.io
+// @icon                https://krunker.io/img/favicon.png
 // @match               *://krunker.io/*
-// @require https://greasyfork.org/scripts/2350-filesaver-js/code/filesaverjs.js
+// @require             https://skidlamer.github.io/js/FileSaver.js
 // @run-at              document-start
 // @grant               none
 // ==/UserScript==
@@ -27,8 +28,6 @@ class Utilities {
         this.ui;
         this.me;
         this.world;
-        this.inputs;
-        this.control;
         this.socket;
         this.server;
         this.downKeys = new Set();
@@ -46,8 +45,6 @@ class Utilities {
             scopingOut: false,
             isSliding: false,
             delta:1,
-            deathDelay:2800,
-            roogyMath:false,
         }
         this.activeMenuIndex = 0;
         this.activeLineIndex = 0;
@@ -62,6 +59,13 @@ class Utilities {
     }
 
     onLoad() {
+        this.menus
+        .set('Krunker Skid', [this.newFeature('Self', []), this.newFeature('Weapon', []), this.newFeature('Visual', []), this.newFeature('Settings', [])])
+        .set('Self', [this.newFeature('AutoBhop', ['Off', 'Auto Jump', 'Auto Slide']), this.newFeature('SkidSettings', ['Off', 'On'])])
+        .set('Weapon', [this.newFeature('AutoAim', ['Off', 'Aim Assist', 'Aim Bot', 'Trigger Bot']), this.newFeature('AutoReload', ['Off', 'On']), this.newFeature('Aim Through Walls', ['Off', 'On']), this.newFeature('UseDeltaForce', ['Off', 'On'])])
+        .set('Visual', [this.newFeature('EspMode', ['Off', 'Full', '2d', 'Walls']), this.newFeature('Tracers', ['Off', 'On'])])
+        .set('Settings', [this.newFeature('Reset', [], this.resetSettings), this.newFeature('Save game.js', [], _=>{self.saveAs(new Blob([self.GameScript], {type: "text/plain;charset=utf-8"}), `game.js`)})])
+        // EventListeners and Hooks ...
         addEventListener("keydown", e => {
             if ("INPUT" == window.document.activeElement.tagName) return;
             const key = e.key.toUpperCase();
@@ -79,16 +83,9 @@ class Utilities {
                 console.dir(this.me);
                 console.dir(this.world);
                 console.dir(this.server);
-                console.dir(this.socket);
             }
         })
 
-        this.menus
-        .set('Krunker Skid', [this.newFeature('Self', []), this.newFeature('Weapon', []), this.newFeature('Visual', []), this.newFeature('Settings', [])])
-        .set('Self', [this.newFeature('AutoBhop', ['Off', 'Auto Jump', 'Auto Slide']), /*this.newFeature('NoDeathDelay', ['Off', 'On']),*/ this.newFeature('SkidSettings', ['Off', 'On'])])
-        .set('Weapon', [this.newFeature('AutoAim', ['Off', 'Aim Assist', 'Aim Bot', 'Trigger Bot']), this.newFeature('AutoReload', ['Off', 'On']), this.newFeature('Aim Through Walls', ['Off', 'On']), this.newFeature('UseDeltaForce', ['Off', 'On']), this.newFeature('AlternateAim', ['Off', 'On'])])
-        .set('Visual', [this.newFeature('EspMode', ['Off', 'Full', '2d', 'Walls']), this.newFeature('Tracers', ['Off', 'On'])])
-        .set('Settings', [this.newFeature('Reset', [], this.resetSettings), this.newFeature('Save game.js', [], _=>{self.saveAs(new Blob([self.GameScript], {type: "text/plain;charset=utf-8"}), `game.js`)})])
     }
 
 	keyDown(code) {
@@ -112,10 +109,10 @@ class Utilities {
         return ("#").concat(this.byte2Hex(r),this.byte2Hex(g),this.byte2Hex(b),this.byte2Hex(a));
     }
 
-    onTick(me, world, inputs) {
-        this.me = me;
+    onTick(player, world) {
+        if (world && player.isYou) {
         this.world = world;
-        this.inputs = inputs;
+            this.me = player;
         this.server=this.exports.c[7].exports;
         for (let i = 0, sz = this.features.length; i < sz; i++) {
             const feature = this.features[i];
@@ -128,11 +125,8 @@ class Utilities {
                     break;
                 case 'AutoBhop':
                     this.autoBhop(feature.value);
-                    break;
-                ///case 'NoDeathDelay':
-                    //this.settings.deathDelay = feature.value ? 0 : 2800;
-                    //break;
-                case 'EspMode':
+                        break;
+                    case 'EspMode':
                     this.settings.espMode = feature.value;
                     break;
                 case 'SkidSettings':
@@ -141,9 +135,7 @@ class Utilities {
                 case 'UseDeltaForce':
                     this.settings.delta = feature.value ? 5 : 1;
                     break;
-                case 'AlternateAim':
-                    this.settings.roogyMath = feature.value;
-                    break;
+                }
             }
         }
     }
@@ -222,25 +214,23 @@ class Utilities {
     }
 
     camLookAt(X, Y, Z) {
-        const currentXDR = this.control.xDr;
-        const currentYDR = this.control.yDr;
-        var xdir = this.getXDir(this.control.object.position.x, this.control.object.position.y, this.control.object.position.z, X, Y, Z),
-            ydir = this.getDirection(this.control.object.position.z, this.control.object.position.x, Z, X),
+        const currentXDR = this.world.controls.xDr;
+        const currentYDR = this.world.controls.yDr;
+        var xdir = this.getXDir(this.world.controls.object.position.x, this.world.controls.object.position.y, this.world.controls.object.position.z, X, Y, Z),
+            ydir = this.getDirection(this.world.controls.object.position.z, this.world.controls.object.position.x, Z, X),
             camChaseDst = this.server.camChaseDst;
-        this.control.target = {
+        this.world.controls.target = {
             xD: xdir,
             yD: ydir,
             x: X + camChaseDst * Math.sin(ydir) * Math.cos(xdir),
             y: Y - camChaseDst * Math.sin(xdir),
             z: Z + camChaseDst * Math.cos(ydir) * Math.cos(xdir)
         }
-        this.control.xDr = currentXDR;
-        this.control.yDr = currentYDR;
+        this.world.controls.xDr = currentXDR;
+        this.world.controls.yDr = currentYDR;
     }
 
     lookAt(target) {
-		!this.settings.roogyMath ?
-        this.camLookAt(target.x2, target.y2 + target.height - target.headScale / 2 - this.server.crouchDst * target.crouchVal - this.me.recoilAnimY * this.server.recoilMlt * 25, target.z2):
         this.camLookAt(target.x2, target.y2 + target.height - 1.5 - 2.5 * target.crouchVal - this.me.recoilAnimY * 0.3 * 25, target.z2);
     }
 
@@ -255,78 +245,49 @@ class Utilities {
         return player.team === null ? '#FF4444' : this.me.team === player.team ? '#44AAFF' : '#FF4444';
     }
 
-    getTarget() {
-        const players = this.world.players.list.filter(player => { return player.active && !player.isYou });
-        const targets = players.filter(player => {
-            return player.isSeen && (!player.team || player.team !== this.me.team)
-        }).sort((p1, p2) => this.getDistance(this.me, p1) - this.getDistance(this.me, p2));
-        return targets[0];
-    }
-
     autoAim(value) {
         if (!value) return;
-        var lockedOn = false;
-        const target = this.getTarget();
         if (this.me.didShoot) {
             this.settings.canShoot = false;
-            setTimeout(() => {
-                this.settings.canShoot = true;
-            }, this.me.weapon.rate / 1.85);
+        setTimeout(()=>{
+            this.settings.canShoot = true; }, this.me.weapon.rate / 1.75);
         }
-        if (target) {
+
+        const enemies = this.world.players.list.filter(x => { return x.active && x.cnBSeen && !x.isYou && (!x.team || x.team !== this.me.team); }).sort((p1, p2) => this.getDistance(this.me, p1) - this.getDistance(this.me, p2));
+        const target = enemies.shift();
+        if (target !== undefined) {
             switch (value) {
                 case 1:
                     /*Aim Assist*/
-                    if (this.control.mouseDownR === 1) {
+                    if (this.world.controls.mouseDownR > 0) {
 						this.world.config.deltaMlt = this.settings.delta;
                         this.lookAt(target);
 						this.world.config.deltaMlt = 1;
-                        lockedOn = true;
-                    } else {
-						lockedOn = false;
                     }
                     break;
                 case 2:
                     /*Aim Bot*/
-					if (this.control.mouseDownL === 1) {
-						this.control.mouseDownL = 0;
-						this.control.mouseDownR = 0;
-						this.settings.scopingOut = true;
-					}
-					if (this.me.aimVal === 1) {
-						this.settings.scopingOut = false;
-					}
-					if (!this.settings.scopingOut && this.settings.canShoot && this.me.recoilForce <= 0.01) {
-						this.world.config.deltaMlt = this.settings.delta;
-                    this.lookAt(target);
-						if (this.control.mouseDownR !== 2) {
-                        this.control.mouseDownR = 2;
-						}
-                        lockedOn = true;
-						this.world.config.deltaMlt = 1;
-					}	else lockedOn = false;
+					this.Aimbot(target, value, false);
                     break;
                 case 3:
                     /*Trigger Bot*/
-                    lockedOn = this.quickscoper(target);
+					this.Aimbot(target, value, true);
                     break;
                 default: break;
             }
         }
-        if (!lockedOn) {
-			this.world.config.deltaMlt = 1;
-            this.camLookAt(0, 0, 0);
-            this.control.target = null;
-            if (this.control.mouseDownR == 2) {
-                this.control.mouseDownR = 0;
-            }
+        else {
+            this.world.controls.target = null;
+            this.world.config.deltaMlt = 1;
+            if (this.world.controls.mouseDownR > 1) this.world.controls.mouseDownR = 0;
         }
     }
 
-    quickscoper(target) {
-        if (this.control.mouseDownL === 1) {
-            this.control.mouseDownL = 0;
-            this.control.mouseDownR = 0;
+    Aimbot(target, value, autoShoot) {
+
+        if (this.world.controls.mouseDownL > 0) {
+            this.world.controls.mouseDownL = 0;
+            this.world.controls.mouseDownR = 0;
             this.settings.scopingOut = true;
         }
 
@@ -334,38 +295,39 @@ class Utilities {
             this.settings.scopingOut = false;
         }
 
+        if (this.me.recoilForce > 0) {
+            this.me.recoilTween = new self.TWEEN.Tween(this.me).to({ recoilTweenY: 0, recoilTweenYM: 0, recoilTweenZ: 0 });
+        }
+
         if (this.settings.scopingOut || !this.settings.canShoot) {
-            return false;
+            return;
         }
 
-        if (this.me.recoilForce > 0.01) {
-			this.world.config.deltaMlt = 1;
-            return false;
+        this.world.config.deltaMlt = this.settings.delta;
+
+        if (autoShoot) {
+            this.camLookAt(target.x2, target.y2 + target.height - this.server.cameraHeight - this.server.crouchDst * target.crouchVal - this.server.recoilMlt * this.me.recoilAnimY * this.me.recoilForce, target.z2);
+            this.world.controls.mouseDownR = 2;
+            if (this.me.aimVal < 0.2) {
+                this.world.controls.mouseDownL ^= 1;
+            }
+        }
+        else {
+            this.world.config.deltaMlt = this.settings.delta;
+            this.camLookAt(target.x2, target.y2 + target.height - this.server.cameraHeight - this.server.crouchDst * target.crouchVal - this.server.recoilMlt * this.me.recoilAnimY * this.me.recoilForce, target.z2);
+            if (target.cnBSeen) this.world.controls.mouseDownR = 2;
         }
 
-		this.world.config.deltaMlt = this.settings.delta;
-		this.lookAt(target);
-        if (this.control.mouseDownR !== 2) {
-            this.control.mouseDownR = 2;
-        }
-
-        if (this.me.aimVal < 0.2) {
-			this.world.config.deltaMlt = this.settings.delta;
-            this.lookAt(target);
-            this.control.mouseDownL ^= 1;
-			this.world.config.deltaMlt = 1;
-        }
-
-        return true;
+        this.world.config.deltaMlt = 1;
     }
 
     autoBhop(value) {
         if (!value) return;
         if (this.keyDown("Space")) {
-            this.control.keys[this.control.jumpKey] = !this.control.keys[this.control.jumpKey];
+            this.world.controls.keys[this.world.controls.jumpKey] = !this.world.controls.keys[this.world.controls.jumpKey];
             if (value === 2) {
                 if (this.settings.isSliding) {
-                    this.inputs[8] = 1;
+                    this.me.inputs.push([8, 1]);
                     return;
                 }
                 if (this.me.yVel < -0.04 && this.me.canSlide) {
@@ -373,7 +335,6 @@ class Utilities {
                     setTimeout(() => {
                         this.settings.isSliding = false;
                     }, this.me.slideTimer);
-                    this.inputs[8] = 1;
                 }
             }
         }
@@ -423,6 +384,45 @@ class Utilities {
         this.ctx.rect(ox, oy, w, h);
         fill ? this.ctx.fill() : this.ctx.stroke();
         this.ctx.closePath();
+        this.ctx.restore();
+    }
+
+    roundRect(x, y, width, height, radius, fill, stroke, color) {
+        var cornerRadius = {
+            upperLeft: 0,
+            upperRight: 0,
+            lowerLeft: 0,
+            lowerRight: 0
+        };
+        if (typeof stroke == "undefined") {
+            stroke = true;
+        }
+        if (typeof radius === "object") {
+            for (var side in radius) {
+                cornerRadius[side] = radius[side];
+            }
+        }
+        this.ctx.save();
+        this.pixelTranslate(this.ctx, x, y);
+        this.ctx.beginPath();
+        this.ctx.moveTo(x + cornerRadius.upperLeft, y);
+        this.ctx.lineTo(x + width - cornerRadius.upperRight, y);
+        this.ctx.quadraticCurveTo(x + width, y, x + width, y + cornerRadius.upperRight);
+        this.ctx.lineTo(x + width, y + height - cornerRadius.lowerRight);
+        this.ctx.quadraticCurveTo(x + width, y + height, x + width - cornerRadius.lowerRight, y + height);
+        this.ctx.lineTo(x + cornerRadius.lowerLeft, y + height);
+        this.ctx.quadraticCurveTo(x, y + height, x, y + height - cornerRadius.lowerLeft);
+        this.ctx.lineTo(x, y + cornerRadius.upperLeft);
+        this.ctx.quadraticCurveTo(x, y, x + cornerRadius.upperLeft, y);
+        this.ctx.closePath();
+        if (stroke) {
+            this.ctx.strokeStyle = color;
+            this.ctx.stroke();
+        }
+        if (fill) {
+            this.ctx.fillStyle = color;
+            this.ctx.fill();
+        }
         this.ctx.restore();
     }
 
@@ -651,16 +651,15 @@ function patchGame(source) {
     const patches = new Map()
     .set("exports", [/(\['__CANCEL__']=.*?\(\w+,\w+,(\w+)\){)(let)/, '$1window.utilities=new Utilities();utilities.exports=$2;$3'])
     .set("controlView", [/(if\(this\['target']\){)/, '$1this.object.rotation.y=this.target.yD;this.pitchObject.rotation.x=this.target.xD;const half=Math.PI/2;this.yDr=Math.max(-half,Math.min(half,this.target.xD))%Math.PI;this.xDr=this.target.yD%Math.PI;'])
-    .set("control", [/(=this;this\['gamepad'])/, '=utilities.control$1'])
-    .set("procInputs", [/(this\['procInputs']=function\((\w+),(\w+),(\w+),(\w+)\){)/, '$1utilities.onTick(this,$3,$2);'])
+    //.set("procInputs", [/(this\['procInputs']=function\((\w+),(\w+),(\w+),(\w+)\){)/, '$1utilities.onTick(this,$3,$2);'])
+    .set("Update", [/(this\['update']=function\((\w+),(\w+)\){if\(this\['active']\){)/, '$1utilities.onTick(this,$2);'])
     .set("ui", [/(this,\w+={};this\['frustum'])/, 'utilities.ui=$1'])
     .set("fixHowler", [/(Howler\['orientation'](.+?)\)\),)/, ``])
     .set("clearRec", [/(if\(\w+\['save']\(\),\w+\['scale']\(\w+,\w+\),)\w+\['clearRect']\(0x0,0x0,\w+,\w+\),(\w+\['showDMG']\))/, '$1$2'])
     .set("onRender", [/((\w+)\['render']=function\((\w+,\w+,\w+,\w+,\w+)\){)/, '$1utilities.onRender($2,$3);'])
-    .set("pInfo", [/(if\()(!\w+\['isSeen']\)continue;)/, '$1utilities.settings.espMode==1||utilities.settings.espMode==0&&$2'])
+    .set("pInfo", [/(if\()(!\w+\['cnBSeen']\)continue;)/, '$1utilities.settings.espMode==1||utilities.settings.espMode==0&&$2'])
     .set("wallhack", [/(\(((\w+))=this\['map']\['manager']\['objects']\[(\w+)]\))(.+?)\)/, '$1.penetrable&&$2.active&&!utilities.settings.autoAimWalls)'])
-    .set("socket", [/(new WebSocket)/, 'utilities.socket=$1'])
-    //.set("deathDelay", [/\w+\['deathDelay']/, 'utilities.settings.deathDelay'])
+    //.set("socket", [/(new WebSocket)/, 'utilities.socket=$1'])
     .set("fuckingLame", [/if\(!\w+&&!\w+&&!\w+&&\w+\['isView']\(this\)&&\w+\['isView']\(\w+\)/, 'if(!1'])
 
     for (const [name, item] of patches) {
@@ -687,7 +686,3 @@ TextDecoder.prototype.decode = function() {
 
     return code;
 }
-
-document.addEventListener('DOMContentLoaded', _ => {
-    window.saveAs = saveAs;
-}, false);
