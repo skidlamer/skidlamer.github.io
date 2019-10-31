@@ -2,7 +2,7 @@
 // @name                Krunker.io Skid
 // @namespace           https://github.com/skidlamer
 // @author              SkidLamer
-// @version             1.8.1.1
+// @version             1.8.2
 // @description         A cheat for krunker.io
 // @downloadURL         https://skidlamer.github.io/js/krunker_skid.user.js
 // @supportURL          https://github.com/skidlamer/skidlamer.github.io
@@ -34,13 +34,35 @@ class Utilities {
         this.upKeys = new Set();
         this.menus = new Map();
         this.features = [];
-        this.colors = ['Green', 'Orange', 'DodgerBlue', 'Black', 'Red'];
+        this.colors = {
+                    aqua: '#7fdbff',
+                    blue: '#0074d9',
+                    lime: '#01ff70',
+                    navy: '#001f3f',
+                    teal: '#39cccc',
+                    olive: '#3d9970',
+                    green: '#2ecc40',
+                    red: '#ff4136',
+                    maroon: '#85144b',
+                    orange: '#ff851b',
+                    purple: '#b10dc9',
+                    yellow: '#ffdc00',
+                    fuchsia: '#f012be',
+                    greyDark: '#808080',
+                    greyMed: '#a9a9a9',
+                    greyLight: '#d3d3d3',
+                    white: '#ffffff',
+                    black: '#000000',
+                    silver: '#dddddd',
+                    hostile: '#eb5656',
+                    friendly: '#9eeb56',
+                };
         this.settings = {
             showMenu: true,
             autoAimWalls: 0,
+            aimOffset: -0.6,
             espMode: 4,
-            espColor: 0,
-            espFontSize: 14,
+            espFontSize: 100,
             canShoot: true,
             scopingOut: false,
             isSliding: false,
@@ -61,7 +83,7 @@ class Utilities {
     onLoad() {
         this.menus
         .set('Krunker Skid', [this.newFeature('Self', []), this.newFeature('Weapon', []), this.newFeature('Visual', []), this.newFeature('Settings', [])])
-        .set('Self', [this.newFeature('AutoBhop', ['Off', 'Auto Jump', 'Auto Slide']), this.newFeature('SkidSettings', ['Off', 'On'])])
+        .set('Self', [this.newFeature('AutoBhop', ['Off', 'Auto Jump', 'Key Jump', 'Auto Slide', 'Key Slide']), this.newFeature('SkidSettings', ['Off', 'On'])])
         .set('Weapon', [this.newFeature('AutoAim', ['Off', 'Aim Assist', 'Aim Bot', 'Trigger Bot']), this.newFeature('AutoReload', ['Off', 'On']), this.newFeature('Aim Through Walls', ['Off', 'On']), this.newFeature('UseDeltaForce', ['Off', 'On'])])
         .set('Visual', [this.newFeature('EspMode', ['Off', 'Full', '2d', 'Walls']), this.newFeature('Tracers', ['Off', 'On'])])
         .set('Settings', [this.newFeature('Reset', [], this.resetSettings), this.newFeature('Save game.js', [], _=>{self.saveAs(new Blob([self.GameScript], {type: "text/plain;charset=utf-8"}), `game.js`)})])
@@ -83,6 +105,7 @@ class Utilities {
                 console.dir(this.me);
                 console.dir(this.world);
                 console.dir(this.server);
+                this.server.serverConfig[23].def === "false" ? this.server.serverConfig[23].def = "true" : this.server.serverConfig[23].def = "false";
             }
         })
 
@@ -110,10 +133,13 @@ class Utilities {
     }
 
     onTick(player, world) {
-        if (world && player.isYou) {
+        if (world && player && player.isYou && player.active) {
         this.world = world;
             this.me = player;
         this.server=this.exports.c[7].exports;
+            this.me.weapon.range = Infinity;
+            this.me.weapon.pierce = Infinity;
+
         for (let i = 0, sz = this.features.length; i < sz; i++) {
             const feature = this.features[i];
             switch (feature.name) {
@@ -216,9 +242,9 @@ class Utilities {
     camLookAt(X, Y, Z) {
         const currentXDR = this.world.controls.xDr;
         const currentYDR = this.world.controls.yDr;
+        const camChaseDst = this.server.camChaseDst;
         var xdir = this.getXDir(this.world.controls.object.position.x, this.world.controls.object.position.y, this.world.controls.object.position.z, X, Y, Z),
-            ydir = this.getDirection(this.world.controls.object.position.z, this.world.controls.object.position.x, Z, X),
-            camChaseDst = this.server.camChaseDst;
+            ydir = this.getDirection(this.world.controls.object.position.z, this.world.controls.object.position.x, Z, X);
         this.world.controls.target = {
             xD: xdir,
             yD: ydir,
@@ -228,10 +254,6 @@ class Utilities {
         }
         this.world.controls.xDr = currentXDR;
         this.world.controls.yDr = currentYDR;
-    }
-
-    lookAt(target) {
-        this.camLookAt(target.x2, target.y2 + target.height - 1.5 - 2.5 * target.crouchVal - this.me.recoilAnimY * 0.3 * 25, target.z2);
     }
 
     getStatic(s, d) {
@@ -248,6 +270,7 @@ class Utilities {
     autoAim(value) {
         if (!value) return;
         if (this.me.didShoot) {
+            this.me.inputs.push([6, 0]);
             this.settings.canShoot = false;
         setTimeout(()=>{
             this.settings.canShoot = true; }, this.me.weapon.rate / 1.75);
@@ -261,17 +284,17 @@ class Utilities {
                     /*Aim Assist*/
                     if (this.world.controls.mouseDownR > 0) {
 						this.world.config.deltaMlt = this.settings.delta;
-                        this.lookAt(target);
+                        this.camLookAt(target.x2, target.y2 + target.height + this.settings.aimOffset - this.server.cameraHeight - this.server.crouchDst * target.crouchVal - this.server.recoilMlt * this.me.recoilAnimY * this.me.recoilForce, target.z2);
 						this.world.config.deltaMlt = 1;
                     }
                     break;
                 case 2:
                     /*Aim Bot*/
-					this.Aimbot(target, value, false);
+					this.Aimbot(target, false);
                     break;
                 case 3:
                     /*Trigger Bot*/
-					this.Aimbot(target, value, true);
+					this.Aimbot(target, true);
                     break;
                 default: break;
             }
@@ -283,7 +306,7 @@ class Utilities {
         }
     }
 
-    Aimbot(target, value, autoShoot) {
+    Aimbot(target, autoShoot) {
 
         if (this.world.controls.mouseDownL > 0) {
             this.world.controls.mouseDownL = 0;
@@ -306,7 +329,7 @@ class Utilities {
         this.world.config.deltaMlt = this.settings.delta;
 
         if (autoShoot) {
-            this.camLookAt(target.x2, target.y2 + target.height - this.server.cameraHeight - this.server.crouchDst * target.crouchVal - this.server.recoilMlt * this.me.recoilAnimY * this.me.recoilForce, target.z2);
+            this.camLookAt(target.x, target.y + this.server.playerHeight - this.server.headScale / 2 - target.crouchVal * this.server.crouchDst - this.server.recoilMlt * this.me.recoilAnimY * this.me.recoilForce, target.z);
             this.world.controls.mouseDownR = 2;
             if (this.me.aimVal < 0.2) {
                 this.world.controls.mouseDownL ^= 1;
@@ -314,7 +337,7 @@ class Utilities {
         }
         else {
             this.world.config.deltaMlt = this.settings.delta;
-            this.camLookAt(target.x2, target.y2 + target.height - this.server.cameraHeight - this.server.crouchDst * target.crouchVal - this.server.recoilMlt * this.me.recoilAnimY * this.me.recoilForce, target.z2);
+            this.camLookAt(target.x2, target.y2 + target.height + this.settings.aimOffset - this.server.cameraHeight - this.server.crouchDst * target.crouchVal - this.server.recoilMlt * this.me.recoilAnimY * this.me.recoilForce, target.z2);
             if (target.cnBSeen) this.world.controls.mouseDownR = 2;
         }
 
@@ -323,18 +346,20 @@ class Utilities {
 
     autoBhop(value) {
         if (!value) return;
-        if (this.keyDown("Space")) {
+        if (this.keyDown("Space") || value == 1 || value == 3) {
             this.world.controls.keys[this.world.controls.jumpKey] = !this.world.controls.keys[this.world.controls.jumpKey];
-            if (value === 2) {
+            if (value > 2) {
                 if (this.settings.isSliding) {
-                    this.me.inputs.push([8, 1]);
+                    this.world.controls.keys[this.world.controls.crouchKey] = 1;
                     return;
                 }
                 if (this.me.yVel < -0.04 && this.me.canSlide) {
                     this.settings.isSliding = true;
                     setTimeout(() => {
-                        this.settings.isSliding = false;
-                    }, this.me.slideTimer);
+                    this.settings.isSliding = false;
+                        this.world.controls.keys[this.world.controls.crouchKey] = 0;
+                    }, 350);
+                    this.world.controls.keys[this.world.controls.crouchKey] = 1;
                 }
             }
         }
@@ -466,6 +491,8 @@ class Utilities {
 
 	drawEsp(ui, world, myself) {
 		const me = ui.camera.getWorldPosition()
+        const font = this.settings.espFontSize + 'px Sans-serif';
+        const setting = this.getFeature('EspMode').container[this.settings.espMode];
 		for (const entity of world.players.list.filter(x => !x.isYou && x.active)) {
 			//if (!entity.rankIcon && entity.level > 0) {
 			//	let rankVar = entity.level > 0 ? Math.ceil(entity.level / 3) * 3 : entity.level < 0 ? Math.floor(entity.level / 3) * 3 : entity.level;
@@ -474,17 +501,21 @@ class Utilities {
 			//	entity.rankIcon.src = `./img/levels/${rankId}.png`;
 			//}
 			const target = entity.objInstances.position.clone();
+
 			if (ui.frustum.containsPoint(target)) {
 				let screenR = this.world2Screen(ui.camera, entity.objInstances.position.clone());
 				let screenH = this.world2Screen(ui.camera, entity.objInstances.position.clone(), entity.height);
 				let hDiff = ~~(screenR.y - screenH.y);
 				let bWidth = ~~(hDiff * 0.6);
-				const color = this.colors[this.settings.espColor];
-				if (this.settings.espMode > 0 && this.settings.espMode != 3) {
-					this.rect((screenH.x - bWidth / 2) - 7, ~~screenH.y - 1, 0, 0, 4, hDiff + 2, '#000000', false);
-					this.rect((screenH.x - bWidth / 2) - 7, ~~screenH.y - 1, 0, 0, 4, hDiff + 2, '#44FF44', true);
-					this.rect((screenH.x - bWidth / 2) - 7, ~~screenH.y - 1, 0, 0, 4, ~~((entity.maxHealth - entity.health) / entity.maxHealth * (hDiff + 2)), '#000000', true);
-					this.ctx.save();
+
+				if (setting !== 'Walls') {
+                    /*healthBar*/
+                    let health = entity.health;
+                    this.rect((screenH.x - bWidth / 2) - 7, ~~screenH.y - 1, 0, 0, 4, hDiff + 2, this.colors.black, false);
+                    this.rect((screenH.x - bWidth / 2) - 7, ~~screenH.y - 1, 0, 0, 4, hDiff + 2, health > 75 ? this.colors.green : health > 50 ? this.colors.orange : this.colors.red, true);
+                    this.rect((screenH.x - bWidth / 2) - 7, ~~screenH.y - 1, 0, 0, 4, ~~((entity.maxHealth - entity.health) / entity.maxHealth * (hDiff + 2)), this.colors.black, true);
+					/*2d*/
+                    this.ctx.save();
 					this.ctx.lineWidth = 4;
 					this.pixelTranslate(this.ctx, screenH.x - bWidth / 2, screenH.y);
 					this.ctx.beginPath();
@@ -496,10 +527,11 @@ class Utilities {
 					this.ctx.stroke();
 					this.ctx.closePath();
 					this.ctx.restore();
-					if (this.settings.espMode === 1) {
+					if (setting === 'Full') {
+                        /*healthBar*/
 						let playerDist = parseInt(this.getDistance3D(me.x, me.y, me.z, target.x, target.y, target.z) / 10);
 						this.ctx.save();
-						this.ctx.font = this.settings.espFontSize + 'px GameFont';
+						//this.ctx.font = font;
 						let meas = this.getTextMeasurements([" ", playerDist, "m ", entity.level, "©", entity.name]);
 						this.ctx.restore();
 						let grad2 = this.gradient(0, 0, meas[4] * 5, 0, ["rgba(0, 0, 0, 0.25)", "rgba(0, 0, 0, 0)"]);
@@ -511,16 +543,16 @@ class Utilities {
 						//	this.text(`${entity.level}`, `${this.settings.espFontSize}px GameFont`, '#FFFFFF', ~~(screenH.x - bWidth / 2) - 16 - meas[3], ~~screenH.y + meas[4] * 1);
 						//}
 						this.rect(~~(screenH.x + bWidth / 2) + padding, ~~screenH.y - padding, 0, 0, (meas[4] * 5), (meas[4] * 4) + (padding * 2), grad2, true);
-						this.text(entity.name, this.settings.espFontSize+'px GameFont', entity.team === null ? '#FFCDB4' : myself.team === entity.team ? '#B4E6FF' : '#FFCDB4', (screenH.x + bWidth / 2) + 4, screenH.y + meas[4] * 1)
-						if (entity.clan) this.text('['+entity.clan+']', this.settings.espFontSize+'px GameFont', '#AAAAAA', (screenH.x + bWidth / 2) + 8 + meas[5], screenH.y + meas[4] * 1)
-						this.text(entity.health+' HP', this.settings.espFontSize+'px GameFont', "#33FF33", (screenH.x + bWidth / 2) + 4, screenH.y + meas[4] * 2)
-						this.text(entity.weapon.name, this.settings.espFontSize+'px GameFont', "#DDDDDD", (screenH.x + bWidth / 2) + 4, screenH.y + meas[4] * 3)
-						this.text("[", this.settings.espFontSize+'px GameFont', "#AAAAAA", (screenH.x + bWidth / 2) + 4, screenH.y + meas[4] * 4)
-						this.text(playerDist, this.settings.espFontSize+'px GameFont', "#DDDDDD", (screenH.x + bWidth / 2) + 4 + meas[0], screenH.y + meas[4] * 4)
-						this.text("m]", this.settings.espFontSize+'px GameFont', "#AAAAAA", (screenH.x + bWidth / 2) + 4 + meas[0] + meas[1], screenH.y + meas[4] * 4)
+						this.text(entity.name, font, entity.team === null ? '#FFCDB4' : myself.team === entity.team ? '#B4E6FF' : '#FFCDB4', (screenH.x + bWidth / 2) + 4, screenH.y + meas[4] * 1)
+						if (entity.clan) this.text('['+entity.clan+']', font, '#AAAAAA', (screenH.x + bWidth / 2) + 8 + meas[5], screenH.y + meas[4] * 1)
+						this.text(entity.health+' HP', font, "#33FF33", (screenH.x + bWidth / 2) + 4, screenH.y + meas[4] * 2)
+						this.text(entity.weapon.name, font, "#DDDDDD", (screenH.x + bWidth / 2) + 4, screenH.y + meas[4] * 3)
+						this.text("[", font, "#AAAAAA", (screenH.x + bWidth / 2) + 4, screenH.y + meas[4] * 4)
+						this.text(playerDist, font, "#DDDDDD", (screenH.x + bWidth / 2) + 4 + meas[0], screenH.y + meas[4] * 4)
+						this.text("m]", font, "#AAAAAA", (screenH.x + bWidth / 2) + 4 + meas[0] + meas[1], screenH.y + meas[4] * 4)
 					}
 				}
-                const tracers = this.getFeature('Tracers');
+        const tracers = this.getFeature('Tracers');
 				if (tracers && tracers.value) if (this.settings.espMode === 1 || this.settings.espMode === 2) this.line(innerWidth / 2, innerHeight - 1, screenR.x, screenR.y, 2, entity.team === null ? '#FF4444' : myself.team === entity.team ? '#44AAFF' : '#FF4444');
 			}
 		}
@@ -636,7 +668,7 @@ class Utilities {
 			if (world && ui && me )
 			{
 				if ('none' == self.menuHolder.style.display && 'none' == self.endUI.style.display) {
-                    this.drawEsp(ui, world, me);
+                    if (this.settings.espMode > 0) this.drawEsp(ui, world, me);
                     this.drawMenu();
                 }
 			}
