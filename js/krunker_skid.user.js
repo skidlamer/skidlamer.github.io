@@ -1,8 +1,8 @@
-﻿// ==UserScript==
+// ==UserScript==
 // @name                Krunker.io Skid
 // @namespace           https://github.com/skidlamer
 // @author              SkidLamer
-// @version             1.8.2
+// @version             1.8.8
 // @description         A cheat for krunker.io
 // @downloadURL         https://skidlamer.github.io/js/krunker_skid.user.js
 // @supportURL          https://github.com/skidlamer/skidlamer.github.io
@@ -21,13 +21,14 @@
 // @lemons - https://github.com/Lemons1337
 // @funk - https://github.com/funk
 // @masterP - https://github.com/MasterP-kr
-
+// @Nathan - for Krunkers Failed Anti cheat I hear McDonalds Is Hiring.
 class Utilities {
     constructor() {
         this.exports;
         this.ui;
         this.me;
         this.world;
+        this.inputs;
         this.socket;
         this.server;
         this.downKeys = new Set();
@@ -108,7 +109,7 @@ class Utilities {
                 this.server.serverConfig[23].def === "false" ? this.server.serverConfig[23].def = "true" : this.server.serverConfig[23].def = "false";
             }
         })
-
+        window.$.Vector3 = (x, y, z) => { this.x = x || 0; this.y = y || 0; this.z = z || 0; return this; }
     }
 
 	keyDown(code) {
@@ -239,21 +240,17 @@ class Utilities {
         return Math.atan2(Math.sin(end - start), Math.cos(start - end));
     }
 
-    camLookAt(X, Y, Z) {
-        const currentXDR = this.world.controls.xDr;
-        const currentYDR = this.world.controls.yDr;
+    camLookAt(pos) {
         const camChaseDst = this.server.camChaseDst;
-        var xdir = this.getXDir(this.world.controls.object.position.x, this.world.controls.object.position.y, this.world.controls.object.position.z, X, Y, Z),
-            ydir = this.getDirection(this.world.controls.object.position.z, this.world.controls.object.position.x, Z, X);
+        var xdir = this.getXDir(this.world.controls.object.position.x, this.world.controls.object.position.y, this.world.controls.object.position.z, pos.x, pos.y, pos.z),
+            ydir = this.getDirection(this.world.controls.object.position.z, this.world.controls.object.position.x, pos.z, pos.x);
         this.world.controls.target = {
             xD: xdir,
             yD: ydir,
-            x: X + camChaseDst * Math.sin(ydir) * Math.cos(xdir),
-            y: Y - camChaseDst * Math.sin(xdir),
-            z: Z + camChaseDst * Math.cos(ydir) * Math.cos(xdir)
+            x: pos.x + camChaseDst * Math.sin(ydir) * Math.cos(xdir),
+            y: pos.y - camChaseDst * Math.sin(xdir),
+            z: pos.z + camChaseDst * Math.cos(ydir) * Math.cos(xdir)
         }
-        this.world.controls.xDr = currentXDR;
-        this.world.controls.yDr = currentYDR;
     }
 
     getStatic(s, d) {
@@ -270,10 +267,14 @@ class Utilities {
     autoAim(value) {
         if (!value) return;
         if (this.me.didShoot) {
-            this.me.inputs.push([6, 0]);
+            this.inputs[5] = 0;
             this.settings.canShoot = false;
-        setTimeout(()=>{
-            this.settings.canShoot = true; }, this.me.weapon.rate / 1.75);
+            setTimeout(()=>{ this.settings.canShoot = true; }, this.me.weapon.rate / 1.75);
+        } else if (!this.me.aimVal) {
+            this.inputs[6] = this.world.controls.mouseDownL;
+            this.inputs[5] = this.world.controls.mouseDownR;
+        } else {
+            this.inputs[6] = this.world.controls.mouseDownR;
         }
 
         const enemies = this.world.players.list.filter(x => { return x.active && x.cnBSeen && !x.isYou && (!x.team || x.team !== this.me.team); }).sort((p1, p2) => this.getDistance(this.me, p1) - this.getDistance(this.me, p2));
@@ -328,8 +329,13 @@ class Utilities {
 
         this.world.config.deltaMlt = this.settings.delta;
 
+        let pos = self.$.Vector3(target.x2, target.y2 + this.server.playerHeight - this.server.headScale / 2 - target.crouchVal * this.server.crouchDst, target.z2);
+        let xDr = this.getXDir(this.world.controls.object.position.x, this.world.controls.object.position.y, this.world.controls.object.position.z, target.x2, pos.y, target.z2);
+        let yDr = this.getDirection(this.world.controls.object.position.z, this.world.controls.object.position.x, target.z2, target.x2);
+        this.inputs[2] = yDr;
+        this.inputs[3] = xDr;
         if (autoShoot) {
-            this.camLookAt(target.x, target.y + this.server.playerHeight - this.server.headScale / 2 - target.crouchVal * this.server.crouchDst - this.server.recoilMlt * this.me.recoilAnimY * this.me.recoilForce, target.z);
+            this.camLookAt(pos);
             this.world.controls.mouseDownR = 2;
             if (this.me.aimVal < 0.2) {
                 this.world.controls.mouseDownL ^= 1;
@@ -337,7 +343,7 @@ class Utilities {
         }
         else {
             this.world.config.deltaMlt = this.settings.delta;
-            this.camLookAt(target.x2, target.y2 + target.height + this.settings.aimOffset - this.server.cameraHeight - this.server.crouchDst * target.crouchVal - this.server.recoilMlt * this.me.recoilAnimY * this.me.recoilForce, target.z2);
+            this.camLookAt(pos);
             if (target.cnBSeen) this.world.controls.mouseDownR = 2;
         }
 
@@ -681,18 +687,35 @@ function patchGame(source) {
     window.GameScript = source;
     source = Utilities.toString().concat(source);
     const patches = new Map()
+    // replace obfuscated strings
+    .set("procInputs", [/igKRxJyx/gm, 'procInputs'])
+    .set("objInstances", [/eKoEYKcC/gm, 'objInstances'])
+    .set("isYou", [/OFnPTTpe/gm, 'isYou'])
+    .set("cnBSeen", [/lhYWIWew/gm, 'cnBSeen'])
+    .set("canSee", [/BwftfwWS/gm, 'canSee'])
+    //.set("playerHeight", [/CRMPwyVw/gm, 'playerHeight'])
+    //.set("playerScale", [/playerScale/gm, 'playerScale'])
+    .set("getD3D", [/OmPMwAzs/gm, 'getD3D'])
+    .set("getDistance", [/kwpNBTcj/gm, 'getDistance'])
+    .set("getXDire", [/SbPUccYE/gm, 'getXDire'])
+    .set("getDir", [/ujHYahTl/gm, 'getDir'])
+    .set("socket", [/eXZfoTjts/gm, 'socket'])
+    .set("mouseDownR", [/hhLaRzBY/gm, 'mouseDownR'])
+    .set("mouseDownL", [/sMTFGWrl/gm, 'mouseDownL'])
+    .set("pitchObject", [/vKPtJVFI/gm, 'pitchObject'])
+    .set("recoilAnimY", [/psKrGopm/gm, 'recoilAnimY'])
+
     .set("exports", [/(\['__CANCEL__']=.*?\(\w+,\w+,(\w+)\){)(let)/, '$1window.utilities=new Utilities();utilities.exports=$2;$3'])
     .set("controlView", [/(if\(this\['target']\){)/, '$1this.object.rotation.y=this.target.yD;this.pitchObject.rotation.x=this.target.xD;const half=Math.PI/2;this.yDr=Math.max(-half,Math.min(half,this.target.xD))%Math.PI;this.xDr=this.target.yD%Math.PI;'])
-    //.set("procInputs", [/(this\['procInputs']=function\((\w+),(\w+),(\w+),(\w+)\){)/, '$1utilities.onTick(this,$3,$2);'])
     .set("Update", [/(this\['update']=function\((\w+),(\w+)\){if\(this\['active']\){)/, '$1utilities.onTick(this,$2);'])
     .set("ui", [/(this,\w+={};this\['frustum'])/, 'utilities.ui=$1'])
     .set("fixHowler", [/(Howler\['orientation'](.+?)\)\),)/, ``])
     .set("clearRec", [/(if\(\w+\['save']\(\),\w+\['scale']\(\w+,\w+\),)\w+\['clearRect']\(0x0,0x0,\w+,\w+\),(\w+\['showDMG']\))/, '$1$2'])
     .set("onRender", [/((\w+)\['render']=function\((\w+,\w+,\w+,\w+,\w+)\){)/, '$1utilities.onRender($2,$3);'])
-    .set("pInfo", [/(if\()(!\w+\['cnBSeen']\)continue;)/, '$1utilities.settings.espMode==1||utilities.settings.espMode==0&&$2'])
+    .set("Inputs", [/(!\w+\['moveLock']&&\w+\['tmpInpts']\['push']\((\w+)\))/, "utilities.inputs=$2,$1"])
+    .set("pInfo", [/(if\((\w+)\['isYou']\|\|!\w+\['objInstances']\)continue;)/, 'if(utilities.settings.espMode==1||utilities.settings.espMode==0)continue;$1'])
     .set("wallhack", [/(\(((\w+))=this\['map']\['manager']\['objects']\[(\w+)]\))(.+?)\)/, '$1.penetrable&&$2.active&&!utilities.settings.autoAimWalls)'])
-    //.set("socket", [/(new WebSocket)/, 'utilities.socket=$1'])
-    .set("fuckingLame", [/if\(!\w+&&!\w+&&!\w+&&\w+\['isView']\(this\)&&\w+\['isView']\(\w+\)/, 'if(!1'])
+    .set("Nathan Is A Fag", [/\['send']\('rt'\)/, ""])
 
     for (const [name, item] of patches) {
         const patched = source.replace(item[0], item[1]);
@@ -706,7 +729,7 @@ function patchGame(source) {
     return source;
 }
 
-// Hook - Lemons1337
+// Hook - Lemons1337 - Nathan Is NOT 1337
 const decode = TextDecoder.prototype.decode;
 TextDecoder.prototype.decode = function() {
     var code = decode.apply(this, arguments);
