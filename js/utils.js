@@ -13,7 +13,7 @@ var utils =
             return 0 < this ? Math.ceil(this / t) * t : 0 > this ? Math.floor(this / t) * t : this
         }, isURL = function(t) {
             try {
-                return /^(https?:\/\/)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(\:\d+)?(\/[-a-z\d%@_.~+&:]*)*(\?[;&a-z\d%@_.,~+&:=-]*)?(\#[-a-z\d_]*)?$/i.test(t)
+                return /^(https?:\/\/)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(\:\d+)?(\/[-a-z\d%@_.~+&:]*)*(\?[;&a-z\d%@_.,~+&:=-]*)?(\#[-a-z\d_]*)?$/RegExp.test(t)
             } catch (t) {}
             return !1
         }, arrayAverage = function(t) {
