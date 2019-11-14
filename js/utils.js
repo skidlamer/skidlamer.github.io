@@ -272,22 +272,5 @@ var utils =
                 return e.map(t).reduce(r, [])
             }(t, this)
         };
-        var s = i(25);
-        encodeNetworkMessage = function(e, i) {
-            let n = s.encode(e),
-                r = new Uint8Array(n.length + 2);
-            return r.set(encodeShort(i), 0), r.set(n, 2), r
-        }, decodeNetworkMessage = function(e) {
-            e = new Uint8Array(e);
-            let i = decodeShort(e[0], e[1]),
-                n = e.slice(2);
-            return [s.decode(n), i]
-        }, rotateNumber = function(t, e) {
-            return 255 & t + e
-        }, encodeShort = function(t) {
-            return [15 & t >> 4, 15 & t]
-        }, decodeShort = function(t, e) {
-            return (t << 4) + e
-        }
     }).call(this)
  global.utils = utils;
