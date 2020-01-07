@@ -63,17 +63,7 @@ function downloadURL(url) {
 };
 
 function updateButton() {
-    if (install_btn.textContent === ' Install') {
-        paragraph.textContent = 'Installing Krunker Skid Utilities';
-		install_btn.textContent = "Download";
-		sleep(2000);
-		window.open('js/krunker_skid.user.js');
-    } else {
-        paragraph.textContent = 'Downloading Krunker Skid Utilities';
-		install_btn.textContent = "Install";
-		sleep(2000);
-        downloadURL('js/krunker_skid.user.js');
-    }
+    downloadURL('js/krunker_skid.user.js');
 }
 </script>
 
