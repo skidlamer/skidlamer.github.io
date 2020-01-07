@@ -191,6 +191,42 @@
 
     }
 
+    function onRender(canvas, scale, world, renderer, me, scale2) {
+        if (world && world.players) {
+             world.players.list.map((entity, index, array)=> {
+                if (defined(entity[vars.objInstances]) && entity[vars.objInstances]) {
+                    for (let i = 0; i < entity[vars.objInstances].children.length; i++) {
+                        const object3d = entity[vars.objInstances].children[i];
+                        for (let j = 0; j < object3d.children.length; j++) {
+                            const mesh = object3d.children[j];
+                            if (mesh && mesh.type == "Mesh") {
+                                const material = mesh.material;
+                                material.depthTest = false;
+                                material.colorWrite = true;
+                                material.transparent = true;
+                                material.opacity = 1.0;
+                                material.wireframe = 1;
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        if (me) {
+            // onTick Hook
+            if (!defined(me.procInputs)) {
+                // Do once:
+                me.procInputs = me[vars.procInputs];
+                me[vars.procInputs] = function() {
+                    const inputs = arguments[0];
+                    //const world = arguments[1];
+                    onTick(this, world, inputs, renderer);
+                    return me.procInputs(...arguments);
+                }
+            }
+        }
+    }
+
     function findVariables(script) {
         // uncomment to save game script file - skid
         //self.saveAs(new Blob([script], {type: "text/plain;charset=utf-8"}), `game.js`)
@@ -261,31 +297,12 @@
         count++;
     });
 
-    const original_measureText = CanvasRenderingContext2D.prototype.measureText;
-    CanvasRenderingContext2D.prototype.measureText = function() {
+    const original_CRC2dSave = CanvasRenderingContext2D.prototype.save;
+    CanvasRenderingContext2D.prototype.save = function() {
         const args = arguments.callee.caller.arguments;
-        const scale = args[0];
-        const world = args[1];
-        const renderer = args[2];
-        const player = args[3];
-        //const scale2 = args[4];
-        const returnValue = original_measureText.apply(this, arguments);
-
-        if (player) {
-            if (!defined(player.procInputs)) {
-                // Do once:
-                player.procInputs = player[vars.procInputs];
-                player[vars.procInputs] = function() {
-                    //const player = this;
-                    const inputs = arguments[0];
-                    //const world = arguments[1];
-                    onTick(this, world, inputs, renderer);
-                    return player.procInputs(...arguments);
-                }
-            }
-        }
-
-        return returnValue;
+        onRender(this.canvas, args[0], args[1], args[2], args[3], args[4]);
+        return original_CRC2dSave.apply(this, arguments);
     }
+
     //======================================================================================>
 })();
