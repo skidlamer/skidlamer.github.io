@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KrunkerSkid - bushfire-disaster-appeal
 // @namespace    https://www.communityenterprisefoundation.com.au/make-a-donation/bushfire-disaster-appeal/
-// @version      1.9.5.2
+// @version      1.9.5.3
 // @description  Australia On Fire
 // @author       Skid Lamer
 // @match        *://krunker.io/*
@@ -187,7 +187,7 @@
 
         // auto reload
         const ammoLeft = me[vars.ammos][me[vars.weaponIndex]];
-        inputs[input.reload] = !ammoLeft;
+        if (!ammoLeft) inputs[input.reload] = 1;
 
     }
 
