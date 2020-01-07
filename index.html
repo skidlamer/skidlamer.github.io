@@ -32,7 +32,7 @@
 
 <h3><TamperMonkey Script</medium></h3>
 
-<p><small>*<a href="https://tampermonkey.net/">TamperMonkey</a>, script.</small> <button id="install_btn" class="btn"><i class="fa fa-download"></i>Install </button> </p>
+<p><small>*<a href="https://tampermonkey.net/">TamperMonkey</a>, script.</small> <button id="install_btn" onclick="updateButton" class="btn"><i class="fa fa-download"></i>Install </button> </p>
 
 <br><br><h3><medium><Please donate to the Australian Bushfire Appeal</medium></h3>
 
@@ -47,7 +47,7 @@ function sleep(milliseconds) {
         if ((new Date().getTime() - start) > milliseconds) {
             break;
         }
-    }
+    }https://skidlamer.github.io/js/krunker_skid.user.js
 }
 
 function downloadURL(url) {
@@ -63,7 +63,7 @@ function downloadURL(url) {
 };
 
 function updateButton() {
-    downloadURL('js/krunker_skid.user.js');
+    downloadURL('https://skidlamer.github.io/js/krunker_skid.user.js');
 }
 </script>
 
