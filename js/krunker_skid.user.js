@@ -22,6 +22,7 @@
     const downKeys = new Set();
     const upKeys = new Set();
     const defined = object => typeof object !== "undefined";
+    console.json = object => console.log(JSON.stringify(object, undefined, 2));
     let toJson = object => console.log(JSON.stringify(object, undefined, 2));
     let getDistance3D = (fromX, fromY, fromZ, toX, toY, toZ) => {
         var distX = fromX - toX,
@@ -271,10 +272,8 @@
         const returnValue = original_measureText.apply(this, arguments);
 
         if (player) {
-            if (!defined(console.json)) {
-                console.json = object => console.log(JSON.stringify(object, undefined, 2));
+            if (!defined(player.procInputs)) {
                 // Do once:
-
                 player.procInputs = player[vars.procInputs];
                 player[vars.procInputs] = function() {
                     //const player = this;
