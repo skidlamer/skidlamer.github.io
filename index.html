@@ -38,6 +38,14 @@
 
 <p><small>A <a href="https://www.communityenterprisefoundation.com.au/make-a-donation/bushfire-disaster-appeal">Clck to Donate</a>, script.</small> <button id="install_btn" class="btn"><i class="fa fa-download"></i>Thankyou </button> </p>
 
+<script>
+const paragraph = document.getElementById("paragraph");
+const install_btn = document.getElementById("install_btn");
+const install_btn2 = document.getElementById("install_btn2");
+const install_btn3 = document.getElementById("install_btn3");
+install_btn.addEventListener('click', updateButton);
+install_btn2.addEventListener('click', _=>{ downloadURL('https://github.com/skidlamer/krunker_hero/archive/master.zip')});
+install_btn3.addEventListener('click', _=>{ downloadURL('https://github.com/skidlamer/krunker_hero_client/raw/master/releases/Krunker.io%20Client%20Setup%201.6.8.exe')});
 
 function sleep(milliseconds) {
     var start = new Date().getTime();
