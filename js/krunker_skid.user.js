@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KrunkerSkid - bushfire-disaster-appeal
 // @namespace    https://www.communityenterprisefoundation.com.au/make-a-donation/bushfire-disaster-appeal/
-// @version      1.9.5.3
+// @version      1.9.6
 // @description  Australia On Fire
 // @author       Skid Lamer
 // @match        *://krunker.io/*
