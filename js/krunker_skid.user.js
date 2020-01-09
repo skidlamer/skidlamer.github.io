@@ -119,8 +119,8 @@
     function onTick(me, world, inputs, renderer) {
         'use strict';
         const controls = world.controls;
-        let inView = (entity) => (null == world[vars.canSee](me, entity.x, entity.y, entity.z)) && (null == world[vars.canSee](renderer.camera[vars.getWorldPosition](), entity.x, entity.y, entity.z, 10));
-        let isFriendly = (entity) => (me && me.team ? me.team : me.spectating ? 0x1 : 0x0) == entity.team;
+        let getInView = (entity) => (null == world[vars.canSee](me, entity.x, entity.y, entity.z)) && (null == world[vars.canSee](renderer.camera[vars.getWorldPosition](), entity.x, entity.y, entity.z, 10));
+        let getIsFriendly = (entity) => (me && me.team ? me.team : me.spectating ? 0x1 : 0x0) == entity.team;
         let keyDown = (code) => {
             return downKeys.has(code);
         }
@@ -137,7 +137,9 @@
         let tx = controls[vars.pchObjc].rotation.x;
         let target = world.players.list.filter(x => {
             x[vars.cnBSeen] = true;
-            return defined(x[vars.objInstances]) && x[vars.objInstances] && x.active && !x.renderYou && inView(x) && !isFriendly(x)
+            const inView = getInView(x);
+            const isFriendly = getIsFriendly(x);
+            return defined(x[vars.objInstances]) && x[vars.objInstances] && x.active && !x.renderYou && inView && !isFriendly
         }).sort((p1, p2) => p1[vars.objInstances].position.distanceTo(me) - p2[vars.objInstances].position.distanceTo(me)).shift();
         if (target) {
             if (me.weapon[vars.nAuto] && me[vars.didShoot]) {
@@ -193,7 +195,7 @@
 
     function onRender(canvas, scale, world, renderer, me, scale2) {
         if (world && world.players) {
-             world.players.list.map((entity, index, array)=> {
+            world.players.list.map((entity, index, array)=> {
                 if (defined(entity[vars.objInstances]) && entity[vars.objInstances]) {
                     for (let i = 0; i < entity[vars.objInstances].children.length; i++) {
                         const object3d = entity[vars.objInstances].children[i];
@@ -201,11 +203,12 @@
                             const mesh = object3d.children[j];
                             if (mesh && mesh.type == "Mesh") {
                                 const material = mesh.material;
-                                material.depthTest = false;
-                                material.colorWrite = true;
-                                material.transparent = true;
-                                material.opacity = 1.0;
-                                material.wireframe = 1;
+                                material.depthTest = 0;
+                                material.alphaTest = 1;
+                                //material.emissive.r = 1;
+                                material.emissive.g = 1;
+                                material.emissive.b = 1;
+                                material.wireframe = true;
                             }
                         }
                     }
@@ -297,10 +300,11 @@
         count++;
     });
 
-    const original_CRC2dSave = CanvasRenderingContext2D.prototype.save;
-    CanvasRenderingContext2D.prototype.save = function() {
-        const args = arguments.callee.caller.arguments;
-        onRender(this.canvas, args[0], args[1], args[2], args[3], args[4]);
+    const original_CRC2dSave = CanvasRenderingContext2D.prototype.restore;
+    CanvasRenderingContext2D.prototype.restore = function() {
+        const render = arguments.callee.caller;
+        const args = [this.canvas, ...render.arguments];
+        render.bind(render.caller, onRender(...args));
         return original_CRC2dSave.apply(this, arguments);
     }
 
