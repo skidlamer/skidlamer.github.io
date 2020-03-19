@@ -1,89 +1,33 @@
+
 <!DOCTYPE html>
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- Add icon library -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <style>
-.btn {
-  background-color: DodgerBlue;
-  border: none;
-  color: white;
-  padding: 12px 30px;
-  cursor: pointer;
-  font-size: 20px;
-}
-.topright {
-  position: absolute;
-  top: 8px;
-  right: 16px;
-  font-size: 18px;
+body, html {
+  height: 100%;
+  margin: 0;
 }
 
-/* Darker background on mouse-over */
-.btn:hover {
-  background-color: RoyalBlue;
+.bg {
+  /* The image used */
+  background-image: url("https://sophosnews.files.wordpress.com/2018/02/screen-shot-2018-02-08-at-17-45-33.png");
+
+  /* Full height */
+  height: 100%; 
+
+  /* Center and scale the image nicely */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 </style>
 </head>
 <body>
-<h1 style="text-align: center;"><span style="color: #333333;"><strong>Krunker Skid&nbsp;</strong></span></h1>
-<h2 style="text-align: center;"><em>a simplistic cheat chromium browser addon for&nbsp;<a href="https://krunker.io/">Krunker Patch 2.0.0</a></em></h2>
-<blockquote>
 
-<p style="font-size: 1.5em; text-align: center;"><em><span style="color: #003366;">Brought to you by Skid Lamer</span></em></p>
+<div class="bg"></div>
+
 <p style="font-size: 1.5em; text-align: center;"><a title="Join" href="https://discord.gg/69FBaAA"><em><span style="color: #003366;"><img src="https://discordapp.com/assets/e4923594e694a21542a489471ecffa50.svg" alt="" width="91" height="31" /></span></em></a></p>
-</blockquote>
-<p style="font-size: 1.5em; text-align: center;"><em><span style="color: #d92121;">Chrome itself will cause a disconnect use <a href="https://brave.com/">BRAVE</a> or <a href="https://www.slimjet.com/">SLIMJET</a> Browsers</span></em></p>
-<p style="text-align: center;"><small>Instructions to install an unpacked addon <a href="https://webkul.com/blog/how-to-install-the-unpacked-extension-in-chrome/">INSTRUCTIONS</a>, For Chrome or Brave.</small></p>
-<p style="text-align: center;"><button id="install_btn" class="btn"> Download Zip</button></p>
-<p style="text-align: center;">THIS KEY WILL TOGGLE THE MENU</p>
-<p id="paragraph">&nbsp;<img style="display: block; margin-left: auto; margin-right: auto;" src="https://cdn.discordapp.com/attachments/676025087312527360/685467509696364577/0lHnvi4.png" onmouseover="" style="cursor: pointer;" onclick="window.open(this.src)" width="400" height="200" /></p>
-<p id="paragraph">&nbsp;</p>
-<p style="text-align: center;">THIS BUTTON WILL TOGGLE THE MENU TOO</p>
-<p id="paragraph">&nbsp;<img style="display: block; margin-left: auto; margin-right: auto;" src="https://s14635.pcdn.co/wp-content/uploads/2010/03/middlemousebuttonpress.png" onmouseover="" style="cursor: pointer;" onclick="window.open(this.src)" width="400" height="200" /></p>
-<p id="paragraph">&nbsp;</p>
-  </body>
+
+</body>
 </html>
-
-<script>
-const paragraph = document.getElementById("paragraph");
-const install_btn = document.getElementById("install_btn");
-
-install_btn.addEventListener('click', updateButton);
-
-function sleep(milliseconds) {
-    var start = new Date().getTime();
-    for (var i = 0; i < 1e7; i++) {
-        if ((new Date().getTime() - start) > milliseconds) {
-            break;
-        }
-    }
-}
-
-function downloadURL(url) {
-    var hiddenIFrameID = 'hiddenDownloader',
-        iframe = document.getElementById(hiddenIFrameID);
-    if (iframe === null) {
-        iframe = document.createElement('iframe');
-        iframe.id = hiddenIFrameID;
-        iframe.style.display = 'none';
-        document.body.appendChild(iframe);
-    }
-    iframe.src = url;
-};
-
-function updateButton() {
-    if (install_btn.textContent === ' Install') {
-        paragraph.textContent = 'Installing Krunker Mod';
-		install_btn.textContent = "Download";
-		sleep(2000);
-		window.open('ext/Krunker Skid 2.0.zip');
-    } else {
-        paragraph.textContent = 'Downloading Krunker Mod';
-		install_btn.textContent = "Install";
-		sleep(2000);
-        downloadURL('ext/Krunker Skid 2.0.zip');
-    }
-}
-</script>
