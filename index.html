@@ -1,18 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-img {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-}
-</style>
+<link rel="stylesheet" href="/discord/discordInvite.css"/>
 </head>
 <body>
-
-<img src="https://discordapp.com/assets/e4923594e694a21542a489471ecffa50.svg" alt="Paris" style="width:50%;" onclick="window.open("https://discord.gg/69FBaAA")>
-
+<script src="/discord/discordInvite.js"></script>
+<script>
+  discordInvite.init({
+  inviteCode: '69FBaAA',
+  title: '𝙂𝙖𝙢𝙞𝙣𝙜 𝙂𝙪𝙧𝙪𝙨',
+  miniMode: false,
+  joinText : 'Join',
+  joinedText: 'Joined',
+  introText: 'Join the creator SkidLamer',
+  hideIntro: false
+});
+discordInvite.render();
+</script>
+<div id="discordInviteBox"></div>
 </body>
 </html>
