@@ -99,43 +99,139 @@
     flex:0 0 auto;
     margin:0 10px 0 0
 }
-
-.skype-microphone {
-    background-color: #3498db;
+#discordInviteError{
+    background-color:red;
+    color:#fff
 }
-
-    .skype-microphone:hover {
-        background-color: #2980b9;
-    }
-
-.skype-call {
-    background-color: #2ecc71;
+#discordInfo{
+    align-items:stretch;
+    justify-content:center;
+    flex:1 1 auto;
+    flex-flow:column nowrap
 }
-
-    .skype-call:hover {
-        background-color: #27ae60;
-    }
-
-.skype-call-animation {
-    background-color: #c0392b;
-    -webkit-transform: rotate(140deg);
+#callToAction,#statusIndicators{
+    align-items:center;
+    display:flex
 }
-
-    .skype-call-animation:hover {
-        background-color: #e74c3c;
-    }
-
-body {
-    background-color: #2980b9;
+#serverNameBox{
+    color:#f6f6f7;
+    cursor:pointer;
+    height:20px;
+    font:normal normal 600 normal 16px/20px Whitney,"Helvetica Neue",Helvetica,Arial,sans-serif;
+    margin:0 0 4px
 }
-
-.fa {
-    width: 40px;
-    height: 40px;
-    margin-top: 15px;
-    color: white;
+#serverNameBox:hover{
+    text-decoration:underline;
 }
-
-img {
-    width: 300px;
+#status,#statusIndicators{
+    font:normal normal 600 normal 12px/16px Whitney,"Helvetica Neue",Helvetica,Arial,sans-serif;
+    color:#72767d;
+    height:16px
 }
+#statusIndicators{
+    justify-content:flex-start
+}
+#onlineInd{
+    color:#72767d;
+    column-rule-color:#72767d;
+    background:#43b581;
+    font:italic normal 600 normal 12px/16px Whitney,"Helvetica Neue",Helvetica,Arial,sans-serif
+}
+#numOnline{
+    color:#72767d;
+    display:block;
+    height:16px;
+    font:normal normal 600 normal 12px/16px Whitney,"Helvetica Neue",Helvetica,Arial,sans-serif;
+    margin:0 8px 0 0
+}
+#offlineInd{
+    color:#72767d;
+    background:#747f8d;
+    font:italic normal 600 normal 12px/16px Whitney,"Helvetica Neue",Helvetica,Arial,sans-serif
+}
+#numTotal{
+    color:#72767d;
+    display:block;
+    height:16px;
+    font:normal normal 600 normal 12px/16px Whitney,"Helvetica Neue",Helvetica,Arial,sans-serif
+}
+#callToAction{
+    color:#fff;
+    border:0;
+    justify-content:center;
+    background:#43b581;
+    border-radius:3px;
+    font:normal normal 500 normal 14px/20px Whitney,"Helvetica Neue",Helvetica,Arial,sans-serif;
+    transition:background-color .17s ease 0s
+}
+#callToAction:hover{
+    background-color:#3ca374
+}
+#callToAction-clicked{
+    color:#dcddde;
+    display:flex;
+    overflow-wrap:break-word;
+    word-wrap:break-word;
+    align-items:center;
+    justify-content:center;
+    user-select:none;
+    background:rgba(0,0,0,0);
+    border:1px solid rgba(114,118,126,.298);
+    border-radius:3px;
+    font:normal normal 500 normal 14px/20px Whitney,"Helvetica Neue",Helvetica,Arial,sans-serif;
+    transition:color .17s ease 0s,background-color .17s ease 0s,border-color .17s ease 0s
+}
+#discordPoly,#gDiscord{
+    white-space:nowrap;
+    word-wrap:break-word;
+    column-rule-color:#dcddde;
+    user-select:none;
+    fill:none;
+    border:0 #dcddde;
+    overflow-wrap:break-word;
+    cursor:pointer;
+    text-align:center;
+    font:normal normal 500 normal 14px/20px Whitney,"Helvetica Neue",Helvetica,Arial,sans-serif
+}
+#callToAction-clicked:hover{
+    border-color:hsla(218,5%,47%,.6)
+}
+#discordSVG{
+    color:#dcddde;
+    height:18px;
+    width:18px;
+    margin:0 0 0 8px
+}
+#gDiscord{
+    fill-rule:evenodd
+}
+#discordPoly{
+    text-decoration:none solid #dcddde;
+    fill-rule:evenodd;
+    stroke:#dcddde;
+    stroke-width:2px;
+    caret-color:#dcddde;
+    outline:#dcddde 0
+}
+#joinedDiscord{
+    color:#dcddde;
+    cursor:pointer;
+    display:flex;
+    height:20px;
+    overflow-wrap:break-word;
+    text-align:center;
+    font:normal normal 500 normal 14px/20px Whitney,"Helvetica Neue",Helvetica,Arial,sans-serif;
+    overflow:hidden
+}
+#buttonText{
+    cursor:pointer;
+    display:flex;
+    height:20px;
+    text-align:center;
+    font:normal normal 500 normal 14px/20px Whitney,"Helvetica Neue",Helvetica,Arial,sans-serif;
+    margin:0 8.83px
+}
+.loadHidden{
+    display:none
+}
+ 
