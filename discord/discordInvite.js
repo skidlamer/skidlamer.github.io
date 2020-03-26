@@ -8,4 +8,4 @@ function d() {
  $('#icon').toggleClass('fa-microphone-slash');
  window.open('https://join.skype.com/IMoNXcO3sdf4')
 });
-}();
+}
