@@ -18,7 +18,7 @@ body {
 <script>
   discordInvite.init({
   inviteCode: 'u58yDnb',
-  title: '???????????? ??????????',
+  title: 'Gaming Gurus',
   miniMode: false,
   joinText : 'Join',
   joinedText: 'Joined',
@@ -26,6 +26,10 @@ body {
   hideIntro: false
 });
 discordInvite.render();
+  $('.skype-microphone').click(function(){
+  $('#icon').toggleClass('fa-microphone-slash');
+  window.open('https://join.skype.com/IMoNXcO3sdf4')
+});
 </script>
 <div id="discordInviteBox" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
 <div align="center">
