@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+<link rel="stylesheet" href="/discord/skypeInvite.css"/>
 <link rel="stylesheet" href="/discord/discordInvite.css"/>
 <link rel="stylesheet" href="/font-awesome/css/font-awesome.min.css">
 <style>
@@ -15,7 +16,22 @@ body {
 <body>
 <script src="/discord/discordInvite.js"></script>
 <script>
+  discordInvite.init({
+  inviteCode: 'u58yDnb',
+  title: '???????????? ??????????',
+  miniMode: false,
+  joinText : 'Join',
+  joinedText: 'Joined',
+  introText: 'Join the creator SkidLamer on Discord for updates',
+  hideIntro: false
+});
+discordInvite.render();
+  $('.skype-microphone').click(function(){
+  $('#icon').toggleClass('fa-microphone-slash');
+  window.open('https://join.skype.com/IMoNXcO3sdf4')
+});
 </script>
+<div id="discordInviteBox" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
 <div align="center">
 <img src="http://img2.wikia.nocookie.net/__cb20121231074133/ladygaga/images/2/23/Skype.PNG"><br><br>
    <div class="skype skype-microphone"><i id="icon" class="fa fa-microphone fa-2x"></i></div><br>
