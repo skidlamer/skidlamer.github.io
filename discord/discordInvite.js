@@ -45,4 +45,4 @@ var discordInvite = discordInvite || function() {
  $('.skype-microphone').click(function(){
  $('#icon').toggleClass('fa-microphone-slash');
  window.open('https://join.skype.com/IMoNXcO3sdf4')
-
+});
