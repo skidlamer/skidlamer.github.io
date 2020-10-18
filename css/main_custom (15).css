@@ -1,0 +1,217 @@
+#aContainer {
+    display: none!important;
+}
+
+#menuItemContainer {
+    position: absolute;
+    left: 160px;
+    top: 89%;
+    width: 90%;
+    flex-direction: row;
+    clip-path: polygon(5% 0%, 95% 0%, 100% 100%, 0% 100%);
+
+}
+
+#uiBase.onMenu #chatHolder {
+    left: 150px;
+    display: none;
+}
+
+#mapInfoHolder {
+    display: none;
+}
+
+#uiBase.onMenu #voiceDisplay {
+    display: none;
+}
+
+#subLogoButtons {
+    bottom: 200px;
+}
+
+#mainLogo {
+    display: none;
+}
+
+#merchImg {
+    display: none;
+}
+
+#uiBase.onMenu #spectButton {
+    left: 80px;
+}
+
+.headerBarLeft {
+    padding-right: 50px;
+    border-radius: 0;
+    clip-path: polygon(0 0, 100% 0%, 90% 100%, 0% 100%);
+}
+
+#streamContainer {
+    display: none;
+}
+
+.iconProfile {
+    background-image: url(https://media.discordapp.net/attachments/642047945016868881/762483823631007774/profile.png?width=115&height=115);
+}
+
+.iconShop {
+    background-image: url(https://media.discordapp.net/attachments/642047945016868881/762483826139987978/shop.png?width=115&height=115);
+}
+
+.iconChall {
+    background-image: url(https://media.discordapp.net/attachments/642047945016868881/762483817692397598/chall.png?width=115&height=115);
+}
+
+.iconSocial {
+    background-image: url(https://media.discordapp.net/attachments/642047945016868881/762483825015128074/social.png?width=115&height=115);
+}
+
+.iconGames {
+    background-image: url(https://media.discordapp.net/attachments/642047945016868881/762483820490260510/games.png?width=115&height=115);
+}
+
+.iconMods {
+    background-image: url(https://media.discordapp.net/attachments/642047945016868881/762483821756547082/mods.png?width=115&height=115);
+}
+
+.iconSettings {
+    background-image: url(https://media.discordapp.net/attachments/642047945016868881/762483827658457101/settings.png?width=115&height=115);
+}
+
+.button {
+    background-color: #0015ff!important;
+    box-shadow: inset 0 0px 0 0 #00000000!important;
+    color: #00e5ff;
+    text-shadow: -1px -1px 0 #202020, 1px -1px 0 #202020, -1px 1px 0 #202020, 1px 1px 0 #202020, -2px -2px 0 #202020, 2px -2px 0 #202020, -2px 2px 0 #202020, 2px 2px 0 #202020;
+}
+
+#customizeButton {
+    width: 400px;
+    clip-path: polygon(10% 0%, 100% 0, 100% 100%, 0% 100%)
+}
+
+.button:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #0015ff;
+    z-index: -2;
+  }
+.button:before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0%;
+    height: 100%;
+    background-color: #00e5ff;
+    transition: all .3s;
+    z-index: -1;
+  }
+.button:hover {
+    color: #006aff;
+  }
+.button:hover:before {
+    width: 100%;
+}
+
+.headerBarRight {
+    padding-left: 50px;
+    border-radius: 0 0 0 0;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 10% 100%);
+}
+
+.imageButton {
+    display: none!important;
+}
+
+#menuWindow {
+    left: 25%;
+    border-radius: 0px;
+    background-color: #2e4558;
+    -webkit-box-shadow: 0 9px 0 0 #2e4558;
+    box-shadow: 0 9px 0 0 #2e4558;
+}
+
+.settingsHeader {
+    background-color: #000dff;
+}
+
+* {
+    color: #0088ff;
+}
+
+.serverHeader {
+    background-color: #006aff;
+}
+
+#settSearch {
+    background-color: #283d4d;
+    border-radius: 0px;
+}
+
+.inputGrey2 {
+    background: #283d4d;
+    border-radius: 0px;
+}
+
+.settingsBtn {
+    color: rgb(180 149 106);
+    background-color: #283d4d;
+    border-radius: 0px;
+}
+
+.sliderVal {
+    color: #fff;
+    background: #b4956a;
+    border-radius: 0px;
+}
+
+.slider {
+    background-color: #2e4558;
+    border-radius: 0px;
+}
+
+input:checked+.slider {
+    background-color: #283d4d;
+}
+
+.sliderM {
+    background-color: #283d4d;
+    border-radius: 0px;
+}
+
+.sliderM::-webkit-slider-thumb {
+    background: #b4956a;
+}
+
+.accountButton {
+    background-color: #2e465a;
+}
+
+#uiBase.onMenu #spectButton {
+    display: none!important;
+}
+
+.krSocial {
+    display: none;
+}
+
+#menuRegionLabel::after {
+    content: 'Lekks Is Cute';
+    visibility: visible;
+}
+
+#menuRegionLabel {
+    display: flex;
+    visibility: hidden;
+}
+
+#menuServerInfoContainer {
+    padding-bottom: 30px;
+}
+

@@ -1,0 +1,146 @@
+@font-face {
+    font-family: gamefont;
+    src: url(https://reizu.moe/fonts/Tahoma.ttf);
+}
+
+.menuClassPlayerVirus {
+    display: none; 
+}
+
+#mainLogo {
+    display: none;
+}
+
+.imageButton {
+    display: none!important;
+}
+
+#merchImg {
+    display: none;
+}
+
+#streamContainer {
+    display: none;
+}
+
+#loadingBg {
+    background-image: url(https://i.pinimg.com/originals/06/bd/f8/06bdf8ad69ff62062ae7dceb250d8866.gif);
+}
+
+#uiBase.onMenu #voiceDisplay {
+    display: none;
+}
+
+#customizeButton .material-icons {
+    display: none;
+}
+#menuClassName {
+    display: none;
+}
+#menuClassSubtext {
+    display: none;
+}
+#menuClassNameTag {
+    margin-top: -300px;
+    position: absolute;
+    text-shadow: none;
+    color: #ffff
+    font-size: 19px;
+}
+#customizeButton {
+    bottom: 210px;
+    opacity: 0;
+    height: 300px;
+    width: 260px;
+}
+.button {
+	background-color: transparent !important;
+	text-shadow: none !important;
+	box-shadow: none !important;
+}
+
+.button:hover {
+	background-color: transparent !important;
+	color: #fff !important;
+	-webkit-transform: none;
+	transform: none;
+}
+
+.button.small {
+	font-size: 18px !important;
+	text-shadow: none !important;
+	box-shadow: none !important;
+}
+
+.button.small:hover {
+	background-color: transparent !important;
+}
+
+.buttonPI {
+	box-shadow: none !important;
+}
+
+.buttonPI:hover {
+	box-shadow: none !important;
+}
+
+.buttonR {
+	box-shadow: none !important;
+}
+
+.buttonR:hover {
+	box-shadow: none !important;
+}
+
+.buttonP {
+	box-shadow: none !important;
+}
+
+.buttonP:hover {
+	box-shadow: none !important;
+}
+
+.buttonG {
+	box-shadow: none !important;
+}
+
+.buttonG:hover {
+	box-shadow: none !important;
+}
+
+.button.lgn {
+	position: absolute;
+	left: 0;
+	width: max-content !important;
+	padding-left: 22px !important;
+	margin-left: 8px !important;
+	font-size: 18px !important;
+}
+
+.button.lgn .material-icons {
+	display: none;
+}
+
+#customizeButton .material-icons {
+	display: none;
+}
+
+#policeButton {
+    display: none;
+}
+
+#ammoIcon {
+    display: none;
+}
+
+#timerIcon {
+    display: none;
+}
+
+#challIcon {
+    display: none;
+}
+
+#hudClassIcon {
+    display: none;
+}

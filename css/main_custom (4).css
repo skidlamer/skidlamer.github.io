@@ -1,0 +1,644 @@
+.menuItem {
+    color: #fff;
+    flex-grow: 1;
+    display: flex;
+    transition: all .1s;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    background: rgb(0 0 0 / 0%);
+    text-align: center;
+    pointer-events: all;
+      cursor: url('https://i.imgur.com/4efO62I.png'), pointer ;
+   
+      
+  box-shadow: 0 0 16px 0 rgb(208 20 236);
+  border-right: solid 2px #0cf4f5b0;
+  border-bottom: solid 2px #c91affb0;
+  
+}
+.menuItem .menuItemTitle {
+    margin-top: -20%;
+     background: -webkit-linear-gradient(  #f100ab, #09cfef);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+
+
+.menuItem:hover {
+color: $color-black;
+  
+  border-left: solid 10px #0cf4f5;
+ filter: drop-shadow(0px 0px 10px #b61bff);
+ 
+ 
+}
+element.style {
+    border-radius: 0px;
+}
+.headerBarLeft {
+    left: 0;
+    padding-right: 15px;
+    border-radius: 0 0 6px 0;
+}
+.headerBar {
+
+    position: absolute;
+    top: 0;
+    height: 70px;
+    padding: 0 12px;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    align-items: center;
+      background-image: linear-gradient(to right, #d800ff59 , #00dcffc2);
+    cursor: url('https://i.imgur.com/4efO62I.png'), pointer ;
+     pointer-events: auto;
+     filter: drop-shadow(0px 0px 10px #b61bff);
+     transition: width 2s;
+}
+
+.headerBar div {
+    color: #00dcff4f;
+    cursor: url('https://i.imgur.com/DQz16Po.png'), pointer ;
+}
+#menuKRCount {
+    color: #00dcff4f;
+}
+element.style {
+    color: #b61bff;
+}
+
+
+.krSocial {
+    text-align: center;
+    line-height: 24px;
+    width: 27px;
+    height: 32px;
+    margin-left: 6px;
+    margin-bottom: 0;
+     background-color:#e64aa0;
+  filter: drop-shadow(0px 0px 10px #fa50ae);
+    color: #fff;
+    font-size: 15px;
+    border-radius: 2px;
+     cursor: url('https://i.imgur.com/4efO62I.png'), pointer ;
+    -webkit-transform: scale(.8);
+    transform: scale(.8);
+    text-shadow: -1px -1px 0 #000000, 1px -1px 0 #000000, -1px 1px 0 #000000, 1px 1px 0 #000000, -2px -2px 0 #721290, 2px -2px 0 #2c4b89, -2px 2px 0 #740b92, 2px 2px 0 #2f498b;
+    box-shadow: inset 0 -5px 0 0 #992b2b00;
+    -webkit-transition: .1s;
+    transition: .1s;
+}
+.krSocial:hover {
+    background-color: #2d4b87;
+    box-shadow: inset 0 -5px 0 0 #b3b3b300;
+    -webkit-transform: scale(.7);
+    transform: scale(.7)
+}
+
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgb(0 0 0 / 3%);
+    box-shadow: inset 0 0 6px rgb(0 0 0 / 4%);
+    border-radius: 10px;
+    background-color: #f5f5f50a
+}
+
+::-webkit-scrollbar {
+    width: 12px
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background: #868686;
+    -webkit-box-shadow: inset 0 0 2px rgba(0,0,0,.6);
+    box-shadow: inset 0 0 2px rgba(0,0,0,.6)
+}
+element.style {
+    color: #d3bada;
+    font-size: 37px;
+}
+
+#mailIcon:hover {
+	cursor: url('https://i.imgur.com/DQz16Po.png'), pointer ;
+ color:#14a8d8;
+    opacity: .75;
+    transform: scale(1.2)
+}
+#mLevelCont {
+    position: absolute;
+    font-size: 30px;
+    line-height: 70px;
+       background: -webkit-linear-gradient(  #f100ab, #09cfef);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+    text-align: left;
+  
+    border-bottom-right-radius: 6px;
+    padding-left: 15px;
+    padding-right: 15px;
+    height: 70px;
+}
+#menuMiniProfilePic {
+    width: 32px;
+    height: 32px;
+    image-rendering: pixelated;
+    margin-right: 10px;
+    border-radius: 6px;
+cursor: url('https://i.imgur.com/DQz16Po.png'), pointer ;
+}
+.progressBarInner {
+    height: 100%;
+    background: linear-gradient(to right, #19a5da , #fa50ae);
+    border-radius: 3px;
+}
+#menuRegionLabel {
+    cursor: url('https://i.imgur.com/DQz16Po.png'), pointer ;
+}
+#merchImg {
+   display:none;
+}
+
+#claimTimer {
+   background-image: linear-gradient(to right, #fa50ae , #15a5d7);
+    cursor: url('https://i.imgur.com/DQz16Po.png'), pointer ;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+    font-size: 18px;
+    margin-top: -3px;
+}
+#claimImg {
+    cursor: url('https://i.imgur.com/DQz16Po.png'), pointer ;
+}
+.sliderSml {
+    position: absolute;
+     cursor: url('https://i.imgur.com/4efO62I.png'), pointer ;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #e458b2;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 34px;
+    pointer-events: all;
+}
+.sliderSml:before {
+    position: absolute;
+    content: "";
+    height: 13px;
+    width: 13px;
+    left: 2px;
+    bottom: 2px;
+    background-color: #16a5d8;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+.buttonG {
+    background-color: #fa50ae03!important;
+    box-shadow: inset 0 -7px 0 0 #fa50ae03!important}
+.buttonG:hover {
+     border-left: solid 10px #0cf4f5;
+      border-right: solid 10px #fa50ae;
+   
+      background-color: #fa50ae03!important;
+    box-shadow: inset 0 -7px 0 0 #2196f300!important
+}
+.bigShadowT {
+    text-shadow: -1px -1px 0 #202020,1px -1px 0 #202020,-1px 1px 0 #202020,1px 1px 0 #202020,-2px -2px 0 #202020,2px -2px 0 #202020,-2px 2px 0 #202020,2px 2px 0 #202020,-3px -3px 0 #202020,3px -3px 0 #202020,-3px 3px 0 #202020,3px 3px 0 #202020!important;
+}
+.button {
+border-top:solid;
+border-left:solid;
+border-right:solid;
+border-bottom:solid;
+  border-right: solid 2px #2196f3;
+  border-bottom: solid 2px #c91affb0;
+border-left: solid 2px #2196f3;
+  border-top: solid 2px #c91affb0;
+box-shadow: 0 0 16px 0 rgb(208 20 236);
+filter: drop-shadow(8px 0px 10px #720e92);
+    position: relative;
+    display: inline-block;
+    box-sizing: border-box;
+    border-radius: 4px;
+    padding: 12px 18px;
+    padding-top: 14px;
+    margin-bottom: 6px;
+    background-color: #ffc14700;
+    box-shadow: inset 0 -7px 0 0 #b08531;
+    text-align: center;
+    color: #fff;
+    text-shadow: -1px -1px 0 #202020, 1px -1px 0 #202020, -1px 1px 0 #202020, 1px 1px 0 #202020, -2px -2px 0 #202020, 2px -2px 0 #202020, -2px 2px 0 #202020, 2px 2px 0 #202020;
+    pointer-events: all;
+     cursor: url('https://i.imgur.com/DQz16Po.png'), pointer ;
+    -webkit-transition: all .1s;
+    transition: all .1s;
+}
+.button:hover {
+    border-left: solid 10px #0cf4f5;
+      border-right: solid 10px #fa50ae;
+   
+      background-color: #fa50ae03!important;
+    box-shadow: inset 0 -7px 0 0 #2196f300!important
+}
+.buttonPI {
+     background-color: #fa50ae03!important;
+    box-shadow: inset 0 -7px 0 0 #fa50ae03!important
+}
+
+.buttonPI:hover {
+    border-left: solid 10px #0cf4f5;
+      border-right: solid 10px #fa50ae;
+   
+      background-color: #fa50ae03!important;
+    box-shadow: inset 0 -7px 0 0 #2196f300!important
+}
+
+.buttonR {
+     background-color: #fa50ae03!important;
+    box-shadow: inset 0 -7px 0 0 #fa50ae03!important
+}
+
+.buttonR:hover {
+    border-left: solid 10px #0cf4f5;
+      border-right: solid 10px #fa50ae;
+   
+      background-color: #fa50ae03!important;
+    box-shadow: inset 0 -7px 0 0 #2196f300!important
+}
+
+.buttonP {
+    background-color: #fa50ae03!important;
+    box-shadow: inset 0 -7px 0 0 #fa50ae03!important
+}
+
+.buttonP:hover {
+    border-left: solid 10px #0cf4f5;
+      border-right: solid 10px #fa50ae;
+   
+      background-color: #fa50ae03!important;
+    box-shadow: inset 0 -7px 0 0 #2196f300!important
+}
+#infoHolder {
+    color: #690981;
+    font-size: 30px;
+}
+#termsInfo {
+    background-color: rgb(0 0 0 / 0%);
+    padding: 5px 15px 15px 20px;
+    border-top-left-radius: 6px;
+    margin-right: -15px;
+}
+.standout {
+    color: #fff;
+}
+.terms {
+    font-size: 18px;
+    vertical-align: middle;
+   cursor: url('https://i.imgur.com/DQz16Po.png'), pointer ;
+     background-image: linear-gradient(to right, #2196f3 , #fa50ae);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+    text-decoration: none;
+    pointer-events: all;
+    display: inline-block;
+}
+#instructions {
+cursor: url('https://i.imgur.com/DQz16Po.png'), pointer ;
+    background-image: linear-gradient(to right, #2196f3 , #fa50ae);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+ 
+}
+
+#healthValueHolder {
+    background-color: rgba(0, 0, 0, 0);
+    margin-left: 780px;
+    margin-right: 0;
+    margin-bottom: 125px;
+    padding: 0;
+    padding-right: 0;
+    padding-left: 0;
+    padding-bottom: 8px;
+}
+
+#ammoDisplay {
+    background-color: rgba(0, 0, 0, 0);
+    margin-bottom: 160px;
+    margin-right: 780px;
+    padding: 0;
+    padding-top: 0;
+    padding-left: 10px;
+    padding-bottom: 17px;
+}
+.weapKey {
+    display: none;
+}
+#weapDisplay {
+   filter: brightness(0.5) sepia(1) saturate(10000%) opacity(50%) hue-rotate(240deg);
+     filter: drop-shadow(8px 8px 10px #fa50ae);
+    position: absolute;
+    z-index: 1;
+    left: 35px;
+    bottom: 0;
+}
+#healthValue {
+color:#fa50ae;
+    font-size: 46px;
+    text-shadow: 0 0 1px #000, 0 0 3px #000, 0 0 5px #000, 0 0 7px #000;
+    text-align: center;
+}
+#maxHP {
+color:#2196f3;
+    font-size: 16px;
+    text-shadow: 0 0 1px #000, 0 0 3px #000, 0 0 5px #000, 0 0 7px #000;
+    margin-left: -13px;
+}
+#challIcon {
+    display: none;
+}
+#ammoVal {
+color:#fa50ae;
+    font-size: 46px;
+    text-shadow: 0 0 1px #000, 0 0 3px #000, 0 0 5px #000, 0 0 7px #000;
+}
+#ammoMax {
+color:#2195f2;
+    font-size: 16px;
+    text-shadow: 0 0 1px #070804, 0 0 3px #13221c, 0 0 5px #0f181c, 0 0 7px #000;
+    margin-left: -6px;
+}
+#ammoIcon {
+    display: none;
+}
+#reloadMsg {
+    position: absolute;
+    margin-right: -50%;
+    left: 50%;
+    transform: translate(-50%, 0);
+    bottom: 45%;
+    font-size: 14px;
+    line-height: 0;
+    padding-left: 0;
+    padding-right: 0;
+    color: #eb5656;
+    text-shadow: 0 0 1px #000, 0 0 3px #000;
+    z-index: 2 !important;
+}
+#healthBar {
+    display:none;
+}
+
+.healthBarSeg {
+    width: 20px;
+    display: inline-block;
+    border-radius: 0;
+    margin-right: 4px;
+    margin-top: -9px;
+    margin-bottom: 9px;
+    box-shadow: 0 0 3px red;
+    height: 14px;
+    background-color: red;
+}
+.hpBSeg {
+    height: 14px;
+    border-radius: 0;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    background-color: none;
+    box-shadow: 0 0 3px #00d2ff;
+}
+
+#hudClassIcon {
+   display:none;
+}
+
+#killsVal,#deathsVal,#streakVal,#myScoreVal {
+    color: rgb(250 80 174)
+}
+#timerVal {
+    color: #f64fab;
+    padding-left: 3px;
+    font-size: 32px;
+    will-change: transform;
+    transform: translateZ(0)
+}
+#chatInput {
+    width: 100%;
+    padding: 5px;
+    padding-left: 10px;
+    color: #fa50ae;
+    font-size: 18px;
+    box-sizing: border-box;
+    border: none;
+    background-color: rgb(250 80 174 / 25%);
+    border-radius: 6px;
+    pointer-events: all;
+    border-radius: 50px;
+}
+
+#chatHolder {
+transition:0.2s;
+    position: absolute;
+    z-index: 1;
+    width: 280px;
+    bottom: 20px;
+    
+    padding: 5px;
+    padding-left: 0px;
+}
+element.style {
+    background-color: rgb(191 40 93);
+}
+.chatTextOutline {
+    text-shadow: -1px -1px 0 rgba(0,0,0,.5), 1px -1px 0 rgba(0,0,0,.5), -1px 1px 0 rgba(0,0,0,.5), 1px 1px 0 rgba(0,0,0,.5);
+}
+#menuWindow {
+	cursor: url('https://i.imgur.com/4efO62I.png'), pointer ;
+    position: absolute;
+    left: 50%;
+    bottom: 220px;
+    border-radius: 6px;
+    max-height: calc(100% - 480px);
+    transform: translateX(-50%);
+    z-index: 2;
+    overflow-y: auto;
+    display: inline-block;
+    text-align: left;
+    pointer-events: auto;
+    padding: 20px;
+    width: 705px;
+    font-size: 20px;
+  filter: drop-shadow(18px 0px 10px #fa50ae);
+    background-color:#f950ae47;
+    -webkit-box-shadow: 0 9px 0 0 #b1b0b0;
+    -moz-box-shadow: 0 9px 0 0 #e64ba1;
+    box-shadow: 0 9px 0 0 #cc418e;
+}
+.stickyHeader {
+     cursor: url('https://i.imgur.com/4efO62I.png'), pointer ;
+    padding-top: 1px!important;
+    max-height: calc(100% - 461px)!important;
+}
+.sliderM {
+	 cursor: url('https://i.imgur.com/DQz16Po.png'), pointer ;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 15px;
+    background-color: #fa50ae;
+    outline: none;
+    border-radius: 4px;
+}
+.settingsHeader {
+    width: 100%;
+    padding-top: 19px;
+    position: -webkit-sticky;
+    position: sticky;
+    top: -.5px;
+    z-index: 999999999;
+    filter: drop-shadow(18px 0px 10px #fa50ae);
+    background-color:#f950ae47;
+    padding-left: 20px;
+    margin-left: -20px;
+    cursor: url('https://i.imgur.com/4efO62I.png'), pointer ;
+}
+#settSearch {
+    width: 100%;
+    text-align: left;
+    font-size: 16px;
+    box-sizing: border-box;
+    border: none;
+    background-color: #983766;
+    border-radius: 4px;
+    padding: 6px 10px 5px;
+}
+.inputGrey2 {
+    border: none;
+    background: #d64796;
+    padding: 6px;
+    padding-bottom: 6px;
+    float: right;
+    margin-left: 10px;
+    font-size: 12px;
+    border-radius: 4px;
+}
+.sliderVal {
+    float: right;
+    display: inline-block;
+    position: relative;
+    width: 50px;
+    color: #fff;
+    line-height: 24px;
+    font-size: 18px;
+    text-align: center;
+    background: #d64796;
+    padding: 5px 10px;
+    margin-left: 8px;
+    margin-right: -10px;
+    border-radius: 6px;
+}
+.sliderVal {
+    float: right;
+    display: inline-block;
+    position: relative;
+    width: 50px;
+    color: #fff;
+    line-height: 24px;
+    font-size: 18px;
+    text-align: center;
+    background: #d64796;
+    padding: 5px 10px;
+    margin-left: 8px;
+    margin-right: -10px;
+    border-radius: 6px;
+}
+input:checked+.slider {
+    background-color: #fa50ae;
+}
+.settingsBtn {
+    color: rgba(255,255,255,.7);
+    text-align: center;
+    display: inline-block;
+    width: 75px;
+     cursor: url('https://i.imgur.com/4efO62I.png'), pointer ;
+    background-color: #d64796;
+    font-size: 17px;
+    padding: 4px 8px;
+    margin-left: 8px;
+    float: right;
+    border-radius: 4px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+.setHed {
+    margin-top: 15px;
+    font-size: 22px;
+    cursor: url('https://i.imgur.com/DQz16Po.png'), pointer ;
+}
+.joinQueue {
+    border-radius: 5px;
+    color: #fff;
+    text-align: center;
+    margin-top: 10px;
+    display: inline-block;
+    -webkit-transition: .1s;
+    transition: .1s;
+    width: 705px;
+    height: 60px;
+    line-height: 50px;
+    cursor: url('https://i.imgur.com/DQz16Po.png'), pointer ;
+    box-shadow: inset 0 -10px 0 0 #1b76bf;
+    background-color: #2196f3;
+    font-size: 25px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    text-shadow: -1px -1px 0 #202020, 1px -1px 0 #202020, -1px 1px 0 #202020, 1px 1px 0 #202020, -2px -2px 0 #202020, 2px -2px 0 #202020, -2px 2px 0 #202020, 2px 2px 0 #202020, -3px -3px 0 #202020, 3px -3px 0 #202020, -3px 3px 0 #202020, 3px 3px 0 #202020;
+}
+.slider {
+    position: absolute;
+     cursor: url('https://i.imgur.com/DQz16Po.png'), pointer ;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #a8a8a8;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 6px;
+}
+.mapListThumb {
+     cursor: url('https://i.imgur.com/DQz16Po.png'), pointer ;
+    
+}
+.menuTabNew {
+   
+    cursor: url('https://i.imgur.com/DQz16Po.png'), pointer ;
+    
+}
+.menuLink {
+    font-size: 22px;
+    cursor: url('https://i.imgur.com/DQz16Po.png'), pointer ;
+}
+.menuTabNew {
+    
+    cursor: url('https://i.imgur.com/DQz16Po.png'), pointer ;
+}
+.endCard {
+    padding: 10px;
+    background-color: rgb(252 3 236);
+    border-collapse: collapse;
+    box-sizing: border-box;
+    text-align: left;
+    border-radius: 6px;
+    height: min-content;
+    display: inline-block;
+    vertical-align: top;
+    max-height: 100%;
+    min-width: 100%;
+}

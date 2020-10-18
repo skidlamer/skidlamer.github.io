@@ -1,0 +1,199 @@
+:root {
+	/* Purple (Default) */
+	/* --base-hue: 266 */
+
+	/* Yellow */
+	/* --base-hue: 43 */
+
+	/* Blue */
+	--base-hue: 200
+
+	/* Green */
+	/* --base-hue: 115 */
+
+	/* Pink */
+	/* --base-hue: 333 */
+}
+
+* {
+	color: #fff
+}
+
+#chatInput {
+	background-color: hsla(var(--base-hue), 10%, 15%, .4)
+}
+
+#chatInput::placeholder {
+	color: hsl(var(--base-hue), 10%, 60%)
+}
+
+#menuItemContainer {
+	background-color: hsla(var(--base-hue), 10%, 15%, .75)
+}
+
+#menuWindow b {
+	color: hsla(var(--base-hue), 40%, 80%, .6) !important
+}
+
+#menuWindow, .stickyHeader>div {
+	background-color: hsl(var(--base-hue), 10%, 15%)
+}
+
+#menuWindow>div,
+#menuWindow span:not([class]),
+#menuKRCount {
+	color: #fff !important
+}
+
+#watermark {
+	color: hsl(var(--base-hue), 10%, 60%) !important
+}
+
+.button {
+	background-color: #29b;
+	box-shadow: 0 3px #1a7690, 0 4px 3px rgba(0, 0, 0, .25)
+}
+
+.button:active {
+	transform: translateY(2px);
+	box-shadow: 0 1px #1a7690, 0 2px 3px rgba(0, 0, 0, .25) !important
+}
+
+.button:focus {
+	background-color: #26abd1
+}
+
+.button:hover {
+	background-color: #36b6da;
+	box-shadow: 0 1px 0 0 #b3b3b3, 0 2px 3px rgba(0, 0, 0, .25) !important
+}
+
+.buttonP {
+	background-color: #88b300 !important;
+	box-shadow: 0 3px #618000, 0 4px 3px rgba(0, 0, 0, .25) !important
+}
+
+.buttonP:active {
+	transform: translateY(2px);
+	box-shadow: 0 1px #618000, 0 2px 3px rgba(0, 0, 0, .25) !important
+}
+
+.buttonP:focus {
+	background-color: #9bcc00 !important
+}
+
+.buttonP:hover {
+	background-color: #afe600 !important
+}
+
+.buttonR {
+	background-color: #b17 !important;
+	box-shadow: 0 3px #8c0d59, 0 4px 3px rgba(0, 0, 0, .25) !important
+}
+
+.buttonR:active {
+	transform: translateY(2px);
+	box-shadow: 0 1px #8c0d59, 0 2px 3px rgba(0, 0, 0, .25) !important
+}
+
+.buttonR:focus {
+	background-color: #d21386 !important
+}
+
+.buttonR:hover {
+	background-color: #ea1595 !important
+}
+
+.chatItem {
+	background-color: hsla(var(--base-hue), 10%, 15%, .2)
+}
+
+.clsXPBarC {
+	background-color: #fc2
+}
+
+.headerBar {
+	background-image: linear-gradient(hsla(var(--base-hue), 50%, 45%, .48), hsla(var(--base-hue), 50%, 45%, .5) 37.5%, hsla(var(--base-hue), 50%, 45%, .5) 50%, hsla(var(--base-hue), 50%, 45%, .5) 0, hsla(var(--base-hue), 50%, 45%, .5))
+}
+
+.joinQueue {
+	background-color: hsl(var(--base-hue), 50%, 45%);
+	color: #fff;
+	box-shadow: none
+}
+
+.joinQueue:active,
+.joinQueue:focus,
+.joinQueue:hover {
+	background-color: hsl(var(--base-hue), 100%, 70%);
+	box-shadow: none
+}
+
+.menuItem:hover {
+	border-right: 5px solid hsl(var(--base-hue), 100%, 70%)
+}
+
+.progressBar,
+.clsXPBar {
+	background-color: hsl(var(--base-hue), 10%, 10%)
+}
+
+.progressBarInner,
+.xpBarB {
+	background-color: hsl(var(--base-hue), 100%, 70%)
+}
+
+.purBtn {
+	background-color: hsla(var(--base-hue), 100%, 70%, .5)
+}
+
+.selctBtn,
+.selctInfoBtn {
+	background-color: hsl(var(--base-hue), 50%, 45%)
+}
+
+.selctBtn:active,
+.selctBtn:focus,
+.selctBtn:hover,
+.selctInfoBtn:active,
+.selctInfoBtn:focus,
+.selctInfoBtn:active {
+	background-color: hsl(var(--base-hue), 100%, 70%)
+}
+
+.settName.b {
+	color: #fff !important
+}
+
+.shopSale {
+	color: #999
+}
+
+.terms:hover,
+.rankedParty,
+.strmLink,
+.strmViews {
+	color: hsl(var(--base-hue), 40%, 80%)
+}
+
+.xpBar {
+	background-color: hsla(var(--base-hue), 10%, 10%, .75)
+}
+
+a, .terms {
+	color: hsl(var(--base-hue),40%,80%);
+}
+
+input,
+.inputGrey,
+.inputGrey2:not(.menuLink),
+.smlInput {
+	color: #fff;
+	background-color: hsla(var(--base-hue), 10%, 10%, .5)
+}
+
+input::placeholder,
+.settName:not(.b),
+.settNameSmall {
+	color: hsl(var(--base-hue), 10%, 60%)
+}

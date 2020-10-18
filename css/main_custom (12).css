@@ -1,0 +1,107 @@
+#mainLogo {
+    transform: scale(1.8)
+}
+
+.button {
+    position: relative;
+    display: inline-block;
+    box-sizing: border-box;
+    border-radius: 64px;
+    padding: 12px 18px;
+    padding-top: 14px;
+    margin-bottom: 6px;
+    background-color: #ffc147;
+    box-shadow: inset 0 -7px 0 0 #b08531;
+    text-align: center;
+    color: #fff;
+    text-shadow: -1px -1px 0 #202020, 1px -1px 0 #202020, -1px 1px 0 #202020, 1px 1px 0 #202020, -2px -2px 0 #202020, 2px -2px 0 #202020, -2px 2px 0 #202020, 2px 2px 0 #202020;
+    pointer-events: all;
+    cursor: pointer;
+    -webkit-transition: all .1s;
+    transition: all .1s;
+}
+
+.buttonB {
+    background-color: #000000!important;
+    box-shadow: inset 0 -7px 0 0 #fff!important;
+}
+
+.buttonPI {
+    background-color: #000!important;
+    box-shadow: inset 0 -7px 0 0 #ffffff!important;
+}
+
+.buttonG {
+    background-color: #000!important;
+    box-shadow: inset 0 -7px 0 0 #ffffff!important;
+}
+
+.buttonR {
+    background-color: #000!important;
+    box-shadow: inset 0 -7px 0 0 #ffffff!important;
+}
+
+.buttonP {
+    background-color: #000!important;
+    box-shadow: inset 0 -7px 0 0 #ffffff!important;
+}
+
+.leaderNameM {
+    animation: rainbowT .5s linear infinite;
+    animation-duration: 0.5s;
+    animation-timing-function: linear;
+    animation-delay: 0s;
+    animation-iteration-count: infinite;
+    animation-direction: normal;
+    animation-fill-mode: none;
+    animation-play-state: running;
+    animation-name: rainbowT;
+}
+
+@font-face {
+    font-family: gamefont;
+    src: url(./fonts/font2.ttf)
+}
+
+@font-face {
+    font-family: headerfont;
+    src: url(./fonts/header.ttf)
+}
+
+@font-face {
+    font-family: material-icons;
+    src: url(https://fonts.gstatic.com/s/materialicons/v50/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2)
+}
+
+.leaderNameM span[style] {
+    webkit-animation: rainbowT .5s linear infinite;
+    animation: rainbowT .5s linear infinite;
+}
+
+.iconProfile {
+   background-image: url(https://media.discordapp.net/attachments/709042064721182781/740297435422654515/profile.png);
+}
+
+.iconShop {
+   background-image: url(https://media.discordapp.net/attachments/709042064721182781/740297444885266573/shop.png)
+}
+
+.iconChall {
+      background-image: url(https://media.discordapp.net/attachments/709042064721182781/740297099551309834/chall.png);
+}
+
+.iconSocial {
+         background-image: url(https://media.discordapp.net/attachments/709042064721182781/740297457132503151/social.png);
+}
+
+.iconSettings {
+    background-image: url(https://media.discordapp.net/attachments/709042064721182781/740297423834054806/settings.png);
+}
+
+.iconMods {
+    background-image: url(https://media.discordapp.net/attachments/709042064721182781/740297205130330213/mods.png);
+}
+
+.iconGames {
+    background-image: url(https://media.discordapp.net/attachments/709042064721182781/729780305384177754/games1.png);
+}

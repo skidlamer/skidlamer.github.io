@@ -1,0 +1,29 @@
+.menuItem:hover .iconProfile {
+    background-image: url(https://media.discordapp.net/attachments/709042064721182781/755895020472762378/profile-white.png?width=96&height=96);
+}
+
+.menuItem:hover .iconShop {
+    background-image: url(https://media.discordapp.net/attachments/709042064721182781/755895023182282894/shop-white.png?width=96&height=96);
+}
+
+.menuItem:hover .iconChall {
+    background-image: url(https://media.discordapp.net/attachments/709042064721182781/755895015309574344/chall-white.png?width=96&height=96);
+}
+
+.menuItem:hover .iconSocial {
+    background-image: url(https://media.discordapp.net/attachments/706914511000698890/757595423551651969/downloaden.png?width=96&height=96);
+}
+
+
+.menuItem:hover .iconGames {
+    background-image: url(https://media.discordapp.net/attachments/709042064721182781/755895017595469894/games-white.png?width=96&height=96);
+}
+
+.menuItem:hover .iconMods {
+    background-image: url(https://media.discordapp.net/attachments/709042064721182781/755895018979328041/mods-white.png?width=96&height=96);
+}
+
+.menuItem:hover .iconSettings {
+    background-image: url(https://media.discordapp.net/attachments/709042064721182781/755895021894631554/settings-white.png?width=96&height=96);
+}
+

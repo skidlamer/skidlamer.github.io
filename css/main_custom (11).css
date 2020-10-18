@@ -1,0 +1,1149 @@
+/*
+
+This file was generated using krunker-css v1.0 (https://css.szv.moe/), a project by szv (szv#0001), cxii (cxii#0001), maple (maple#9999) and other contributors.
+Join the Discord server (https://discord.gg/xnFxRgJ).
+
+The following sequence of characters is used when importing this file using krunker-css. Do not remove it, otherwise this file will be unreadable.
+
+eLpAmIiXcVzSeyJwYWxldHRlLTAiOiJyZ2IoMCwgMTM4LCAyNTUpIiwibWVudS1iYWNrZ3JvdW5kLWNvbG9yIjoicmdiYSgwLCAwLCAwLCAwLjc1KSIsIm1lbnUtaG92ZXItYmFja2dyb3VuZC1jb2xvciI6InJnYigwLCAxMzgsIDI1NSkiLCJob21lLW1lbnUtdGV4dC1jb2xvciI6InJnYigyNTUsIDI1NSwgMjU1KSIsInRvcGJhci1iYWNrZ3JvdW5kLWNvbG9yIjoicmdiYSgwLCAwLCAwLCAwLjY5KSIsInRvcGJhci10ZXh0LWNvbG9yIjoicmdiKDI1NSwgMjU1LCAyNTUpIiwidG9wYmFyLWxpZ2h0LXRleHQtY29sb3IiOiJyZ2JhKDI1NSwgMjU1LCAyNTUsIDAuNikiLCJ0b3AtYmFyLXJvdW5kbmVzcyI6IjI3LjIiLCJtZW51LWZwcy1jb2xvciI6InJnYigwLCAxMzgsIDI1NSkiLCJtZW51LXBpbmctY29sb3IiOiJyZ2IoMCwgMTM4LCAyNTUpIiwidG9wYmFyLWNvdW50ZXJzLXRleHQtY29sb3IiOiJyZ2JhKDI1NSwgMjU1LCAyNTUsIDAuNzUpIiwiaG9tZS1wcm9ncmVzcy1iYXIiOiJyZ2IoMCwgMTM4LCAyNTUpIiwiaG9tZS1wcm9ncmVzcy1iYXItYmFja2dyb3VuZCI6InJnYmEoMCwgMCwgMCwgMC43NSkiLCJtYXBpbmZvLWNvbG9yIjoicmdiKDI1NSwgMjU1LCAyNTUpIiwibWFwaW5mby1kaXNwbGF5IjoidHJ1ZSIsInRlcm1zLWNvbG9yIjoicmdiKDg2LCAxNTMsIDIzNSkiLCJhZHZlcnRpc2UtY29sb3IiOiJyZ2IoMCwgMTM4LCAyNTUpIiwic2hvdy1sZWdhbC1saW5rcyI6InRydWUiLCJtZW51LXBsYXllci1uYW1lLWNvbG9yIjoicmdiKDI1NSwgMjU1LCAyNTUpIiwiaG9tZS1wcmVtaXVtLWNvbG9yIjoicmdiKDI1MSwgMTkyLCA0NSkiLCJob21lLXZlcmlmaWVkLWNvbG9yIjoicmdiKDY0LCAxOTYsIDI1NSkiLCJpbnN0cnVjdGlvbnMtY29sb3IiOiJyZ2JhKDI1NSwgMjU1LCAyNTUsIDAuOCkiLCJzaG93LWxvZ28iOiJ0cnVlIiwibG9nby1zaXplIjoiMjI1LjAwMDAwMDAwMDAwMDAzIiwic2hvdy1tZW51LXByb2ZpbGUtcGljIjoidHJ1ZSIsInNob3ctbGV2ZWwtaWNvbiI6InRydWUiLCJzaG93LWJ1eS1rci1idXR0b24iOiJ0cnVlIiwic2hvdy1zb2NpYWwtYnV0dG9ucyI6InRydWUiLCJzaG93LWFjdGl2ZS1zdHJlYW1zIjoidHJ1ZSIsInNob3ctZnJlZS1rci1idXR0b24iOiJ0cnVlIiwic2hvdy1tZXJjaC1idXR0b24iOiJmYWxzZSIsIm1lbnUtYmFja2dyb3VuZCI6InJnYigyNTUsIDI1NSwgMjU1KSIsIm1lbnUtc2hhZG93IjoicmdiKDE2NiwgMTY2LCAxNjYpIiwibWVudS1yb3VuZG5lc3MiOiIxMy4yODI3NTg2MjA2ODk2NTYiLCJtZW51LXRleHQtY29sb3IiOiJyZ2IoNTMsIDUzLCA1MykiLCJtZW51LWxpZ2h0LXRleHQtY29sb3IiOiJyZ2JhKDAsIDAsIDAsIDAuNSkiLCJzbGlkZXItYmFja2dyb3VuZCI6InJnYigxNjgsIDE2OCwgMTY4KSIsInNsaWRlci10aHVtYi1jb2xvciI6InJnYigzMywgMTUwLCAyNDMpIiwic3dpdGNoLXRodW1iIjoicmdiKDI1NSwgMjU1LCAyNTUpIiwiaW5wdXQtdGV4dCI6InJnYigyNTUsIDI1NSwgMjU1KSIsImlucHV0LWZpZWxkIjoicmdiKDIzOCwgMjM4LCAyMzgpIiwiaW5wdXQtZmllbGQtcGxhY2Vob2xkZXIiOiJyZ2IoMjM4LCAyMzgsIDIzOCkiLCJpbnB1dC1maWVsZC10ZXh0IjoicmdiKDUzLCA1MywgNTMpIiwic2Nyb2xsYmFyIjoicmdiKDEzNCwgMTM0LCAxMzQpIiwic2Nyb2xsYmFyLXRyYWNrIjoicmdiKDI0MCwgMjQwLCAyNDApIiwibGluayI6InJnYigzMywgMTUwLCAyNDMpIiwicmFua2VkLXJlYWR5IjoicmdiKDAsIDEzOCwgMjU1KSIsInJhbmtlZC1yZWFkeS1zaGFkb3ciOiJyZ2IoMCwgOTcsIDE3OSkiLCJyYW5rZWQtdW5yZWFkeSI6InJnYigyNTUsIDcxLCA3MSkiLCJyYW5rZWQtdW5yZWFkeS1zaGFkb3ciOiJyZ2IoMTUzLCA0MywgNDMpIiwicmFua2VkLXJlYWR5LWJvcmRlci1jb2xvciI6InJnYigwLCAxMzgsIDI1NSkiLCJyYW5rZWQtdW5yZWFkeS1ib3JkZXItY29sb3IiOiJyZ2JhKDAsIDAsIDAsIDAuMikiLCJyYW5rZWQtdGV4dCI6InJnYigyNTUsIDI1NSwgMjU1KSIsInByZXNldHMtZGlzcGxheSI6InRydWUiLCJpbnB1dCI6InJnYigwLCAxMzgsIDI1NSkiLCJwcm9maWxlLXRhYnMtYmFja2dyb3VuZC1jb2xvciI6InJnYmEoMCwgMCwgMCwgMC4xMikiLCJwcm9maWxlLXRhYnMtc2VsZWN0ZWQtaGlnaGxpZ2h0LWNvbG9yIjoicmdiYSgwLCAwLCAwLCAwLjcpIiwicHJvZmlsZS10YWJzLXNlbGVjdGVkLWhvdmVyLWNvbG9yIjoicmdiYSgwLCAwLCAwLCAwLjIpIiwicHJvZ3Jlc3MtYmFyLWZpbGxlZCI6InJnYigwLCAxMzgsIDI1NSkiLCJwcm9ncmVzcy1iYXItdW5maWxsZWQiOiJyZ2IoMzYsIDM2LCAzNikiLCJwcm9ncmVzcy1iYXItdGV4dCI6InJnYigyNTUsIDI1NSwgMjU1KSIsInRpbWVyLWljb24tZGlzcGxheSI6InRydWUiLCJoZWFsdGgtaWNvbi1kaXNwbGF5IjoidHJ1ZSIsImFtbW8taWNvbi1kaXNwbGF5IjoidHJ1ZSIsImh1ZC1iYWNrZ3JvdW5kLWNvbG9yIjoicmdiYSgwLCAwLCAwLCAwLjIpIiwiaHVkLXRleHQtY29sb3IiOiJyZ2JhKDI1NSwgMjU1LCAyNTUsIDAuNykiLCJodWQtYm9sZC10ZXh0LWNvbG9yIjoicmdiKDI1NSwgMjU1LCAyNTUpIiwiaHVkLXJvdW5kbmVzcyI6IjE2LjYyMDY4OTY1NTE3MjQxMyIsImxlYWRlcmJvYXJkLW1lLWNvbG9yIjoicmdiKDI1NSwgMjU1LCAyNTUpIiwibGVhZGVyYm9hcmQtdGVhbS1jb2xvciI6InJnYmEoMjU1LCAyNTUsIDI1NSwgMC42KSIsImxlYWRlcmJvYXJkLWVuZW15LWNvbG9yIjoicmdiKDIzNSwgODYsIDg2KSIsImxlYWRlcmJvYXJkLWNsYW4tY29sb3IiOiJyZ2IoMjU1LCAyNTUsIDI1NSkiLCJsZWFkZXJib2FyZC12ZXJpZmllZC1jbGFuLWNvbG9yIjoicmdiKDI1MSwgMTkyLCA0NSkiLCJwcmVtaXVtLWNvbG9yIjoicmdiKDI1MSwgMTkyLCA0NSkiLCJ2ZXJpZmllZC1jb2xvciI6InJnYig2NCwgMTk2LCAyNTUpIiwiZW5lbXktc2NvcmUtY29sb3IiOiJyZ2IoMjM1LCA4NiwgODYpIiwidGVhbS1zY29yZS1jb2xvciI6InJnYigyNTUsIDI1NSwgMjU1KSIsImZwcy1jb2xvciI6InJnYigwLCAxMzgsIDI1NSkiLCJwaW5nLWNvbG9yIjoicmdiKDAsIDEzOCwgMjU1KSIsInZvdGVraWNrLWtleXMtY29sb3IiOiJyZ2IoMjUxLCAxOTIsIDQ1KSIsImhlYWx0aC1iYXItcm91bmRuZXNzIjoiMTIuMDYyMDY4OTY1NTE3MjQxIiwibWFpbi1idXR0b24tY29sb3IiOiJyZ2IoMCwgMTM4LCAyNTUpIiwibWFpbi1idXR0b24tc2hhZG93LWNvbG9yIjoicmdiKDAsIDY5LCAxMjcpIiwibWFpbi1idXR0b24taG92ZXItY29sb3IiOiJyZ2IoMjU1LCAyNTUsIDI1NSkiLCJtYWluLWJ1dHRvbi1ob3Zlci1zaGFkb3ctY29sb3IiOiJyZ2IoMTc5LCAxNzksIDE3OSkiLCJtYWluLWJ1dHRvbi10ZXh0LWNvbG9yIjoicmdiKDI1NSwgMjU1LCAyNTUpIiwibWFpbi1idXR0b24tY29ybmVyLXJvdW5kbmVzcyI6IjIyLjUzNzkzMTAzNDQ4Mjc2Iiwic2Vjb25kYXJ5LWJ1dHRvbiI6InJnYigwLCAxMzgsIDI1NSkiLCJzZWNvbmRhcnktYnV0dG9uLWhvdmVyIjoicmdiKDEwMSwgMTg0LCAyNTUpIiwic2Vjb25kYXJ5LWJ1dHRvbi10ZXh0IjoicmdiKDI1NSwgMjU1LCAyNTUpIiwic2Vjb25kYXJ5LWJ1dHRvbi1yb3VuZG5lc3MiOiIxNi4zNzI0MTM3OTMxMDM0NDgiLCJjaGF0LWJhY2tncm91bmQtY29sb3IiOiJyZ2JhKDAsIDAsIDAsIDAuMikiLCJjaGF0LWlucHV0LWJhY2tncm91bmQtY29sb3IiOiJyZ2JhKDAsIDAsIDAsIDAuNCkiLCJjaGF0LXRleHQtY29sb3IiOiJyZ2JhKDI1NSwgMjU1LCAyNTUsIDAuNykiLCJjaGF0LWJvbGQtdGV4dC1jb2xvciI6InJnYigyNTUsIDI1NSwgMjU1KSIsImNoYXQteW91LWNvbG9yIjoicmdiKDI1NSwgMjU1LCAyNTUpIiwiY2hhdC10ZWFtLWNvbG9yIjoicmdiKDE1OCwgMjM1LCA4NikiLCJjaGF0LWVuZW15LWNvbG9yIjoicmdiKDIzNSwgODYsIDg2KSIsImNoYXQtbGVhdmUtdGV4dC1jb2xvciI6InJnYigwLCAxMzgsIDI1NSkiLCJjaGF0LW1pYy1kaXNwbGF5IjoiZmFsc2UiLCJjaGF0LXJvdW5kbmVzcyI6IjE5Ljg2MjA2ODk2NTUxNzI0MiIsImNoYXQtaW5wdXQtcm91bmRuZXNzIjoiMTMuNDYyMDY4OTY1NTE3MjQyIiwiY2hhdC1hbmltYXRlIjoidHJ1ZSIsImNsYXNzLW5hbWUtY29sb3IiOiJyZ2IoMjU1LCAyNTUsIDI1NSkiLCJjbGFzcy13ZWFwb24tY29sb3IiOiJyZ2JhKDI1NSwgMjU1LCAyNTUsIDAuNykiLCJjbGFzcy1ocC12YWx1ZS1jb2xvciI6InJnYigwLCAxMzgsIDI1NSkiLCJjbGFzcy1ocC11bml0LWNvbG9yIjoicmdiKDE2OSwgMjE1LCAyNTUpIiwiY2xhc3MtbGV2ZWwtY29sb3IiOiJyZ2IoMjU1LCAyNTUsIDI1NSkiLCJjbGFzcy1wcm9ncmVzcy1iYXItY29sb3IiOiJyZ2IoMCwgMTM4LCAyNTUpIiwiY2xhc3MtcHJvZ3Jlc3MtYmFyLWJhY2tncm91bmQtY29sb3IiOiJyZ2IoMzYsIDM2LCAzNikiLCJnYW1lZm9udCI6IiIsImhlYWRlcmZvbnQiOiIifQ==eLpAmIiXcVzS
+
+*/
+
+:root {
+	--menu-background-color: rgba(0, 0, 0, 0.75);
+	--menu-hover-background-color: rgb(0, 138, 255);
+	--home-menu-text-color: rgb(255, 255, 255);
+	--topbar-background-color: rgba(0, 0, 0, 0.69);
+	--topbar-text-color: rgb(255, 255, 255);
+	--topbar-light-text-color: rgba(255, 255, 255, 0.6);
+	--top-bar-roundness: 27.2px;
+	--menu-fps-color: rgb(0, 138, 255);
+	--menu-ping-color: rgb(0, 138, 255);
+	--topbar-counters-text-color: rgba(255, 255, 255, 0.75);
+	--home-progress-bar: rgb(0, 138, 255);
+	--home-progress-bar-background: rgba(0, 0, 0, 0.75);
+	--mapinfo-color: rgb(255, 255, 255);
+	--mapinfo-display: block;
+	--terms-color: rgb(86, 153, 235);
+	--advertise-color: rgb(0, 138, 255);
+	--legal-links-display: block;
+	--menu-player-name-color: rgb(255, 255, 255);
+	--home-premium-color: rgb(251, 192, 45);
+	--home-verified-color: rgb(64, 196, 255);
+	--instructions-color: rgba(255, 255, 255, 0.8);
+	--show-logo: flex;
+	--logo-size: 225.00000000000003px;
+	--show-menu-profile-pic: block;
+	--level-icon-display: block;
+	--buy-kr-button-display: block;
+	--social-buttons-display: block;
+	--active-streams-display: block;
+	--free-kr-display: block;
+	--merch-button-display: none;
+	--menu-background: rgb(255, 255, 255);
+	--menu-shadow: rgb(166, 166, 166);
+	--menu-roundness: 13.282758620689656px;
+	--menu-text-color: rgb(53, 53, 53);
+	--menu-light-text-color: rgba(0, 0, 0, 0.5);
+	--slider-background: rgb(168, 168, 168);
+	--slider-thumb-color: rgb(33, 150, 243);
+	--switch-thumb: rgb(255, 255, 255);
+	--input-text: rgb(255, 255, 255);
+	--input-field: rgb(238, 238, 238);
+	--input-field-placeholder: rgb(238, 238, 238);
+	--input-field-text: rgb(53, 53, 53);
+	--scrollbar: rgb(134, 134, 134);
+	--scrollbar-track: rgb(240, 240, 240);
+	--link: rgb(33, 150, 243);
+	--ranked-ready: rgb(0, 138, 255);
+	--ranked-ready-shadow: rgb(0, 97, 179);
+	--ranked-unready: rgb(255, 71, 71);
+	--ranked-unready-shadow: rgb(153, 43, 43);
+	--ranked-ready-border-color: rgb(0, 138, 255);
+	--ranked-unready-border-color: rgba(0, 0, 0, 0.2);
+	--ranked-text: rgb(255, 255, 255);
+	--presets-display: inline-block;
+	--input: rgb(0, 138, 255);
+	--profile-tabs-background-color: rgba(0, 0, 0, 0.12);
+	--profile-tabs-selected-highlight-color: rgba(0, 0, 0, 0.7);
+	--profile-tabs-selected-hover-color: rgba(0, 0, 0, 0.2);
+	--progress-bar-filled: rgb(0, 138, 255);
+	--progress-bar-unfilled: rgb(36, 36, 36);
+	--progress-bar-text: rgb(255, 255, 255);
+	--timer-icon-display: inline-block;
+	--health-icon-display: inline-block;
+	--ammo-icon-display: inline-block;
+	--hud-background-color: rgba(0, 0, 0, 0.2);
+	--hud-text-color: rgba(255, 255, 255, 0.7);
+	--hud-bold-text-color: rgb(255, 255, 255);
+	--hud-roundness: 16.620689655172413px;
+	--leaderboard-me-color: rgb(255, 255, 255);
+	--leaderboard-team-color: rgba(255, 255, 255, 0.6);
+	--leaderboard-enemy-color: rgb(235, 86, 86);
+	--leaderboard-clan-color: rgb(255, 255, 255);
+	--leaderboard-verified-clan-color: rgb(251, 192, 45);
+	--premium-color: rgb(251, 192, 45);
+	--verified-color: rgb(64, 196, 255);
+	--enemy-score-color: rgb(235, 86, 86);
+	--team-score-color: rgb(255, 255, 255);
+	--fps-color: rgb(0, 138, 255);
+	--ping-color: rgb(0, 138, 255);
+	--votekick-keys-color: rgb(251, 192, 45);
+	--health-bar-roundness: 12.062068965517241px;
+	--main-button-color: rgb(0, 138, 255);
+	--main-button-shadow-color: rgb(0, 69, 127);
+	--main-button-hover-color: rgb(255, 255, 255);
+	--main-button-hover-shadow-color: rgb(179, 179, 179);
+	--main-button-text-color: rgb(255, 255, 255);
+	--main-button-corner-roundness: 22.53793103448276px;
+	--secondary-button: rgb(0, 138, 255);
+	--secondary-button-hover: rgb(101, 184, 255);
+	--secondary-button-text: rgb(255, 255, 255);
+	--secondary-button-roundness: 16.372413793103448px;
+	--chat-background-color: rgba(0, 0, 0, 0.2);
+	--chat-input-background-color: rgba(0, 0, 0, 0.4);
+	--chat-text-color: rgba(255, 255, 255, 0.7);
+	--chat-bold-text-color: rgb(255, 255, 255);
+	--chat-you-color: rgb(255, 255, 255);
+	--chat-team-color: rgb(158, 235, 86);
+	--chat-enemy-color: rgb(235, 86, 86);
+	--chat-leave-text-color: rgb(0, 138, 255);
+	--chat-mic-display: none;
+	--chat-roundness: 19.862068965517242px;
+	--chat-input-roundness: 13.462068965517242px;
+	--chat-animate: 0.2s ease-in-out;
+	--class-name-color: rgb(255, 255, 255);
+	--class-weapon-color: rgba(255, 255, 255, 0.7);
+	--class-hp-value-color: rgb(0, 138, 255);
+	--class-hp-unit-color: rgb(169, 215, 255);
+	--class-level-color: rgb(255, 255, 255);
+	--class-progress-bar-color: rgb(0, 138, 255);
+	--class-progress-bar-background-color: rgb(36, 36, 36);
+}
+
+* {
+    color: var(--menu-text-color);
+}
+
+.progressBarInner {
+	background: var(--home-progress-bar) !important;
+}
+
+.imageButton {
+	display: var(--social-buttons-display) !important;
+}
+
+.headerBarRight .verticalSeparator {
+	display: var(--social-buttons-display) !important;
+}
+
+.headerBar {
+    background-color: rgb(255 0 0 / 0%) !important;
+}
+
+#streamContainer {
+	display: var(--active-streams-display) !important;
+}
+
+#claimHolder {
+	display: var(--free-kr-display) !important;
+}
+
+.headerBarRight {
+    border-radius: 0 0 0 var(--top-bar-roundness);
+}
+
+#mLevelCont {
+    position: absolute;
+    font-size: 30px;
+    line-height: 70px;
+    color: rgb(0 137 255);
+    text-align: left;
+    background-color: rgb(0 0 0 / 0%);
+    border-bottom-right-radius: 6px;
+    padding-left: 15px;
+    padding-right: 15px;
+    height: 70px;
+}
+
+.settName, .settNameSmall, span[style*='color: rgba(255, 255, 255, 1)'], #accResp, #requiresRestart {
+    color: rgb(255 255 255) !important;
+}
+
+#merchHolder {
+	display: var(--merch-button-display) !important;
+}
+
+    padding: 10px;
+    background-color: rgb(0 0 0 / 0%);
+    border-collapse: collapse;
+    box-sizing: border-box;
+    text-align: left;
+    border-radius: 6px;
+    height: min-content;
+    display: inline-block;
+    vertical-align: top;
+    max-height: 100%;
+    min-width: 100%;
+}
+
+input:checked+.sliderSml {
+    background-color: #ffffff;
+}
+
+#mapInfo + div {
+	display: var(--legal-links-display) !important;
+}
+
+.inputGrey2 {
+    background: rgb(0 137 255) !important;
+    color: rgb(255 255 255) !important;
+}
+
+.tabHeader.selected {
+    color: rgb(0, 138, 255);
+    border-bottom: 4px solid rgb(0, 138, 255);
+}
+
+span[style*="color: rgba(0, 0, 0, 0.8)"], .menuTabNew {
+    color: rgb(0, 137, 255) !important;
+}
+
+#claimTimer {
+    color: rgb(0 137 255);
+    font-size: 18px;
+    margin-top: -3px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: #fff;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 50px;
+}
+
+.sliderSml {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ffffff;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 34px;
+    pointer-events: all;
+}
+
+element.style {
+    color: #0089ff;
+    font-size: 37px;
+}
+
+.headerBar div {
+    color: rgb(255, 255, 255);
+}
+
+.verticalSeparatorInline {
+    display: inline-block;
+    border-left: 4px solid rgb(255 255 255 / 0%);
+    height: 45px;
+    transform: translateY(9px);
+}
+
+.button {
+	background-color: var(--main-button-color) !important;
+	box-shadow: inset 0 -7px 0 0 var(--main-button-shadow-color) !important;
+	color: var(--main-button-text-color) !important;
+	border-radius: var(--main-button-corner-roundness) !important;
+}
+
+.button:hover {
+	background-color: var(--main-button-hover-color) !important;
+	box-shadow: inset 0 -7px 0 0 var(--main-button-hover-shadow-color) !important;
+}
+
+#customSnameTeam1 {
+    background: rgb(0 137 255) !important;
+}
+
+#customSnameTeam2 {
+    background: rgb(0 137 255) !important;
+}
+
+element.style {
+    border-radius: 50px;
+    margin-left: 10px;
+    border: none;
+    background: rgb(0 137 255);
+    padding: 6px;
+    padding-bottom: 6px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.accountButton {
+	background-color: var(--secondary-button) !important;
+	color: var(--secondary-button-text) !important;
+	border-radius: var(--secondary-button-roundness) !important;
+}
+
+.accountButton:hover {
+	background-color: var(--secondary-button-hover) !important;
+}
+
+.mapLoadButton {
+	background-color: var(--secondary-button) !important;
+	color: var(--secondary-button-text) !important;
+	border-radius: var(--secondary-button-roundness) !important;
+}
+
+.mapLoadButton:hover {
+	background-color: var(--secondary-button-hover) !important;
+}
+
+.updDisN {
+	background-color: var(--secondary-button) !important;
+	color: var(--secondary-button-text) !important;
+	border-radius: var(--secondary-button-roundness) !important;
+}
+
+.updDisN:hover {
+	background-color: var(--secondary-button-hover) !important;
+	transform: none;
+}
+
+.subPassChg {
+	background-color: var(--secondary-button) !important;
+	color: var(--secondary-button-text) !important;
+	border-radius: var(--secondary-button-roundness) !important;
+}
+
+#weapDisplay {
+    display: flex !important;
+    flex-direction: row !important;
+    bottom: 20px;
+    right: 50%;
+    transform: translateX(50%);
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #424242;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 50px;
+}
+
+#menuKRCount {
+    color: rgb(0 137 255);
+}
+
+.sliderSml:before {
+    position: absolute;
+    content: "";
+    height: 13px;
+    width: 13px;
+    left: 2px;
+    bottom: 2px;
+    background-color: rgb(0 137 255 / 1);
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+.verticalSeparator {
+    background: rgb(255 255 255 / 0%);
+    width: 4px;
+    height: 55px;
+    margin: 0 10px;
+}
+
+#termsInfo {
+    background-color: rgb(0 0 0 / 0%);
+    padding: 5px 15px 15px 20px;
+    border-top-left-radius: 6px;
+    margin-right: -15px;
+}
+
+#mapInfo {
+    color: rgb(255 255 255 / 0%) !important;
+    display: var(--mapinfo-display) !important;
+}
+
+.weapIcon {
+    width: 175px;
+    height: 84px
+}
+
+.subPassChg:hover {
+	background-color: var(--secondary-button-hover) !important;
+	transform: none;
+}
+
+.creatorCodeBtn {
+	background-color: var(--secondary-button) !important;
+	color: var(--secondary-button-text);
+	border-radius: var(--secondary-button-roundness) !important;
+}
+
+#loadingBg {
+    background-image: url(https://cdn.discordapp.com/attachments/727526422381461514/753416316995764405/Hyperrealistic_AK_1_more_glow_.png);
+}
+
+.creatorCodeBtn:hover {
+	background-color: var(--secondary-button-hover) !important;
+	filter: none !important;
+}
+
+* {
+    color: rgb(255 255 255);
+}
+
+.settingsHeader {
+    background-color: rgb(255 255 255 / 0%) !important;
+    border-radius: var(--menu-roundness) !important;
+}
+
+.redVouchBtn {
+	background-color: var(--secondary-button) !important;
+	color: var(--secondary-button-text) !important;
+	border-radius: var(--secondary-button-roundness) !important;
+}
+
+.creatorCodeBtn:hover {
+	background-color: var(--secondary-button-hover) !important;
+}
+
+.hostToggle {
+	background-color: var(--secondary-button) !important;
+	color: var(--secondary-button-text) !important;
+	border-radius: var(--secondary-button-roundness) !important;
+}
+
+.hostToggle:hover {
+	background-color: var(--secondary-button-hover) !important;
+}
+
+--home-premium-color: rgb(0 138 255);
+}
+
+--home-verified-color: rgb(0 137 255 / 1);
+}
+
+.hostPresetBtn {
+	background-color: var(--secondary-button) !important;
+	color: var(--secondary-button-text) !important;
+	border-radius: var(--secondary-button-roundness) !important;
+}
+
+.hostPresetBtn:hover {
+	color: var(--secondary-button-text) !important;
+	background-color: var(--secondary-button-hover) !important;
+}
+
+.quickJoin {
+	background-color: var(--secondary-button) !important;
+	color: var(--secondary-button-text) !important;
+	border-radius: var(--secondary-button-roundness) !important;
+}
+
+.quickJoin:hover {
+	background-color: var(--secondary-button-hover) !important;
+}
+
+.searchBtn {
+	background-color: var(--secondary-button) !important;
+	color: var(--secondary-button-text) !important;
+	border-radius: var(--secondary-button-roundness) !important;
+}
+
+.searchBtn:hover {
+	background-color: var(--secondary-button-hover) !important;
+	transform: none !important;
+	filter: none !important;
+}
+
+.joinQueue {
+	color: var(--ranked-text) !important;
+	background-color: var(--ranked-ready) !important;
+	box-shadow: inset 0 -10px 0 0 var(--ranked-ready-shadow) !important;
+}
+
+.joinQueue:hover {
+	box-shadow: inset 0 -7px 0 0 var(--ranked-ready-shadow) !important;
+}
+
+.jQR {
+	background-color: var(--ranked-unready) !important;
+	box-shadow: inset 0 -10px 0 0 var(--ranked-unready-shadow) !important;
+}
+
+.jQR:hover {
+	box-shadow: inset 0 -7px 0 0 var(--ranked-unready-shadow) !important;
+}
+
+.krSocial {
+    display: none;
+}
+
+#menuLevelIcon {
+	display: var(--level-icon-display) !important;
+}
+
+.sliderVal {
+    float: right;
+    display: inline-block;
+    position: relative;
+    width: 50px;
+    color: #fff;
+    line-height: 24px;
+    font-size: 18px;
+    text-align: center;
+    background: #2196f3;
+    padding: 5px 10px;
+    margin-left: 8px;
+    margin-right: -10px;
+    border-radius: 50px;
+}
+
+.sliderM {
+    background-color: rgb(255, 255, 255) !important;
+}
+
+.sliderM::-webkit-slider-thumb {
+	background-color: var(--input) !important;
+}
+
+input:checked+.slider {
+	background-color: var(--input) !important;
+}
+
+#passCode {
+    background: rgb(0, 137, 255) !important;
+}
+
+.formInput {
+    background: #0089ff !important;
+}
+
+#presetSelect {
+    background: rgb(0, 137, 255) !important;
+}
+
+.slider:before {
+	background-color: var(--switch-thumb) !important;
+}
+
+input:checked+.optCheck {
+	background-color: var(--input) !important;
+}
+
+.xpBar {
+	background-color: var(--progress-bar-unfilled) !important;
+}
+
+.xpBarB {
+	background-color: var(--progress-bar-filled) !important;
+}
+
+.xpBarV {
+	color: var(--progress-bar-text) !important;
+}
+
+.inputGrey2 {
+	background: var(--input-field) !important;
+	color: var(--input-field-text) !important;
+}
+
+.inputGrey2::placeholder {
+	color: var(--input-field-placeholder) !important;
+}
+
+.formInput {
+	background: var(--input-field) !important;
+}
+
+.formInput::placeholder {
+	color: var(--input-field-placeholder) !important;
+}
+
+#passCode {
+	background: var(--input-field) !important;
+}
+
+#passCode::placeholder {
+	color: var(--input-field-placeholder) !important;
+}
+
+#presetSelect {
+	background: var(--input-field) !important;
+}
+
+#presetSelect::placeholder {
+	color: var(--input-field-placeholder) !important;
+}
+
+.sliderM::-webkit-slider-thumb {
+	background-color: var(--slider-thumb-color) !important;
+}
+
+::-webkit-scrollbar-track {
+	-webkit-box-shadow: none;
+	box-shadow: none;
+	border-radius: 0;
+	background-color: var(--scrollbar-track) !important;
+}
+
+::-webkit-scrollbar-thumb {
+	background: var(--scrollbar) !important;
+}
+
+#menuWindow {
+	background-color: var(--menu-background) !important;
+	box-shadow: 0 9px 0 0 var(--menu-shadow) !important;
+	border-radius: var(--menu-roundness) !important;
+}
+
+.serverHeader {
+	background-color: var(--menu-background) !important;
+	border-radius: var(--menu-roundness) !important;
+}
+
+.settingsBtn {
+    color: rgb(255, 255, 255);
+    text-align: center;
+    display: inline-block;
+    width: 75px;
+    cursor: pointer;
+    background-color: rgb(33, 150, 243);
+    font-size: 17px;
+    margin-left: 8px;
+    float: right;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 4px 8px;
+    border-radius: 50px;
+    overflow: hidden;
+}
+
+.settingsHeader {
+    background-color: rgba(255, 255, 255, 0) !important;
+}
+
+.settingPreset {
+	display: var(--presets-display) !important;
+}
+
+.inputGrey2 {
+    background: rgb(0 137 255) !important;
+    color: rgb(255 255 255) !important;
+}
+
+.tabANew {
+    box-shadow: inset 0 -5px rgb(0 0 0 / 0%);
+}
+
+.tabANew {
+    cursor: default;
+    border-bottom: 5px solid rgb(0 137 255 / 1);
+}
+
+#settSearch {
+    width: 100%;
+    text-align: left;
+    font-size: 16px;
+    box-sizing: border-box;
+    border: none;
+    background-color: rgb(0 137 255 / 1);
+    border-radius: 4px;
+    padding: 6px 10px 5px;
+}
+
+element.style {
+    border-radius: 50px;
+    border: none;
+    background: rgb(0 137 255);
+    padding: 6px;
+    padding-bottom: 6px;
+    float: right;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+#timerIcon {
+    display: none;
+}
+
+#challIcon {
+	display: var(--health-icon-display) !important;
+}
+
+#ammoIcon {
+	display: var(--ammo-icon-display) !important;
+}
+
+a {
+	color: var(--link);
+}
+
+a:visited {
+	color: var(--link);
+}
+
+.weapKey {
+    display: none;
+}
+
+.weapItem {
+    margin-top: 0;
+}
+
+a:active {
+	color: var(--link);
+}
+
+.chatItem {
+	color: var(--chat-bold-text-color) !important;
+	background-color: var(--chat-background-color) !important;
+	border-radius: var(--chat-roundness);
+}
+
+element.style {
+    border: none;
+    background: rgb(0 137 255);
+    padding-bottom: 6px;
+    float: left;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.chatMsg {
+	color: var(--chat-text-color) !important;
+}
+
+#voiceDisplay {
+	display: var(--chat-mic-display) !important;
+}
+
+#chatInput {
+	color: var(--chat-text-color) !important;
+	border-radius: var(--chat-input-roundness);
+}
+
+.chatMsg[style*='color: #fc03ec'] {
+	color: var(--chat-leave-text-color) !important;
+}
+
+.leaderName, .newLeaderName, .newLeaderNameF, .endTableN[style*='color: #eb5656;'] {
+	color: var(--leaderboard-enemy-color) !important;
+}
+
+.leaderName span, .newLeaderName span, .leaderNameM span, .newLeaderNameM span, .leaderNameF span, .newLeaderNameF span {
+	color: var(--leaderboard-clan-color) !important;
+}
+
+#hudClassIcon {
+    display: none;
+}
+
+.leaderName span[style*='color:#FBC02D'], .newLeaderName span[style*='color:#FBC02D'], .leaderNameM span[style*='color:#FBC02D'], .newLeaderNameM span[style*='color:#FBC02D'], .newLeaderNameF span[style*='color:#FBC02D'] {
+	color: var(--leaderboard-verified-clan-color) !important;
+}
+
+.leaderNameM, .newLeaderNameM, .endTableN[style*='color: #fff;'] {
+	color: var(--leaderboard-me-color) !important;
+}
+
+.leaderNameF, .newLeaderNameF, .endTableN[style*='color: rgba(255,255,255,0.6);'] {
+	color: var(--leaderboard-team-color) !important;
+}
+
+.countIcon, #leaderDisplay, #ammoDisplay, #timerDisplay, #teamScores, #voteToKick, #hudClassIcon, #healthValueHolder {
+	background-color: var(--hud-background-color) !important;
+	border-radius: var(--hud-roundness);
+}
+
+#ammoVal, #curGameInfo, #timerVal, #healthValue, #reloadMsg {
+	color: var(--hud-bold-text-color) !important;
+}
+
+element.style {
+    color: rgb(0 137 255);
+}
+
+#killsVal, #deathsVal, #streakVal, #myScoreVal, #ammoMax, .weapKey, #pingDisplay, #fpsDisplay, #ingressDisplay, #egressDisplay, #pingText, #ingressPacketCount, #ingressDataSize, #egressPacketCount, #egressDataSize, #curGameInfo div, .tScoreT, #voteKickNum, #voteKickName, #voteKickKeys, #maxHP {
+	color: var(--hud-text-color) !important;
+}
+
+#ingameFPS {
+	color: rgb(0 137 255) !important;
+}
+
+#timerDisplay {
+    text-align: center;
+    position: fixed;
+    transform: translateX(-50%);
+    top: 80%;
+    left: 50%;
+    padding: 0;
+    padding-left: 0;
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    margin-left: 0;
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    border-radius: 0;
+    background-color: transparent;
+    will-change: unset;
+}
+
+#voteKickKeys span {
+	color: var(--votekick-keys-color) !important;
+}
+
+.partyAvatar {
+	border-color: var(--ranked-unready-border-color);
+}
+
+.partyAvatar.ready {
+	border-color: var(--ranked-ready-border-color);
+}
+
+#chatInput {
+	background-color: var(--chat-input-background-color) !important;
+}
+
+.chatMsg span[style*='color:#eb5656'] {
+	color: var(--chat-enemy-color) !important;
+}
+.chatMsg span[style*='color: #9eeb56'] {
+	color: var(--chat-team-color) !important;
+}
+
+.chatMsg span[style*='color:#fff'] {
+	color: var(--chat-you-color) !important;
+}
+
+.menuItem {
+    background: rgb(0 0 0 / 0%) !important;
+}
+
+.headerBar {
+    background-color: rgba(0, 0, 0, 0) !important;
+}
+
+span[style*="color: rgba(0, 0, 0, 0.8)"], .menuTabNew {
+    color: rgb(255, 255, 255) !important;
+}
+
+#instructions {
+	color: var(--instructions-color) !important;
+}
+
+.progressBar {
+	background-color: var(--home-progress-bar-background) !important;
+}
+
+.menuItem:hover {
+	background: var(--menu-hover-background-color) !important;
+}
+
+.menuItem .menuItemTitle {
+	color: var(--home-menu-text-color) !important;
+}
+
+#menuFPS {
+	color: var(--menu-fps-color) !important;
+}
+
+#mapInfo {
+	color: var(--mapinfo-color) !important;
+	display: var(--mapinfo-display) !important;
+}
+
+.terms {
+	color: var(--terms-color) !important;
+}
+
+.standout {
+	color: var(--advertise-color) !important;
+}
+
+#menuPingIcon {
+	color: var(--menu-ping-color) !important;
+}
+
+#pingIcon {
+	color: var(--ping-color) !important;
+}
+
+.tScoreC {
+    background-color: var(--enemy-score-color) !important;
+}
+
+.tScoreC.you {
+    background-color: var(--team-score-color) !important;
+}
+
+#menuMiniProfilePic {
+	display: var(--show-menu-profile-pic) !important;
+}
+
+#gameNameHolder {
+	display: var(--show-logo) !important;
+}
+
+.classCard {
+	color: var(--class-name-color) !important;
+}
+
+.classWeap {
+	color: var(--class-weapon-color) !important;
+}
+
+.classHP {
+	color: var(--class-hp-value-color) !important;
+}
+
+.classHP span {
+	color: var(--class-hp-unit-color) !important;
+}
+
+.classLvl {
+	color: var(--class-level-color) !important;
+}
+
+.clsXPBarC {
+	background-color: var(--class-progress-bar-color) !important;
+}
+
+.classXPBar {
+	background-color: var(--class-progress-bar-background-color) !important;
+}
+
+.rankedType, .rankedELOTxt {
+	color: var(--ranked-text) !important;
+}
+
+.menuTabsNew {
+    background-color: var(--profile-tabs-background-color);
+}
+
+.tabANew {
+    box-shadow: inset 0 -5px var(--profile-tabs-selected-highlight-color);
+}
+
+.menuTabNew:hover {
+    box-shadow: inset 0 -5px var(--profile-tabs-hover-highlight-color);
+}
+
+span[style*='color: rgba(0, 0, 0, 1)'], .menuTabNew {
+    color: rgb(255 255 255) !important;
+}
+
+.hpBSeg, .healthBarSeg {
+	border-radius: var(--health-bar-roundness);
+}
+
+.headerBarRight {
+    border-radius: 0 0 0 var(--top-bar-roundness);
+}
+
+.headerBarLeft {
+	border-radius: 0 0 var(--top-bar-roundness) 0;
+}
+
+#uiBase.onMenu #chatHolder {
+    transition: var(--chat-animate);
+}
+
+#mainLogo {
+    height: 350px;
+}
+
+.menuClassPlayerName {
+    color: var(--menu-player-name-color);
+}
+
+#leaderContainer i[style*="color:#FBC02D"] {
+	color: var(--premium-color) !important;
+}
+
+#leaderContainer i[style*="color:#40C4FF"] {
+	color: var(--verified-color) !important;
+}
+
+.menuClassPlayerPremium {
+	color: var(--home-premium-color) !important;
+}
+
+.menuClassPlayerVerified {
+	color: var(--home-verified-color) !important;
+}
+
+#menuPingText, #menuFPSDisplay {
+	color: var(--topbar-counters-text-color);
+}
+
+.headerBar div {
+    color: var(--topbar-text-color);
+}
+
+#menuKRCount {
+    color: var(--topbar-light-text-color);
+}
+
+.iconProfile {
+    background-image: url(../img/menu-icons/profile.png) 
+}
+
+.iconShop {
+    background-image: url(../img/menu-icons/shop.png) 
+}
+
+.iconMods {
+    background-image: url(../img/menu-icons/mods.png) 
+}
+
+.iconSettings {
+    background-image: url(../img/menu-icons/settings.png) 
+}
+
+.iconChall {
+    background-image: url(../img/menu-icons/chall.png) 
+}
+
+@font-face {
+    font-family: headerfont;
+    src: url(./fonts/header.ttf)
+}
+
+@font-face {
+    font-family: material-icons;
+    src: url(https://fonts.gstatic.com/s/materialicons/v50/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2)
+}
+
+.iconSocial { background-image: url(../img/menu-icons/social.png) }
+
+.iconMaps { background-image: url(../img/menu-icons/maps.png) }
+
+.iconGames { background-image: url(../img/menu-icons/games.png) }
+
+#healthValue {
+	color: #008aff !important;
+	font-family: hpammo;
+	font-size: 48px;
+	text-align: center;
+	text-shadow: 2px 2px 3px rgba(30, 30, 30, .5);
+	margin-top: 0;
+	will-change: unset;
+}
+
+.leaderNameM span[style] {
+    color: #008aff!important;
+}
+
+#hudClassIcon {
+    display: none;
+}
+
+#healthValueHolder {
+	background-color: transparent !important;
+	width: 100px;
+	height: 65px;
+	border-radius: 0;
+	position: fixed;
+	left: 30%;
+	bottom: 25%;
+	padding: 0;
+	margin-bottom: 0;
+	padding-right: 0;
+	padding-left: 0;
+	align-items: center;
+}
+
+#maxHP {
+	display: none;
+}
+
+#healthIcon {
+	display: none;
+}
+
+#ammoDisplay {
+	background-color: transparent !important;
+	letter-spacing: 0;
+	width: 100px;
+	height: 65px;
+	border-radius: 0;
+	position: fixed;
+	right: 31%;
+	bottom: 25%;
+	padding: 0;
+	padding-top: 0;
+	padding-left: 0;
+	transform: none;
+        color: var(--ammo-color);
+}
+
+#ammoVal {
+	color: #008aff !important;
+	font-family: hpammo;
+	font-size: 48px;
+	margin-left: 12px;
+	text-shadow: 2px 2px 3px rgba(30, 30, 30, .5);
+}
+
+
+#ammoMax {
+	display: none;
+}
+
+#ammoIcon {
+	display: none !important;
+}
+
+#reloadMsg {
+	bottom: 100px;
+	background: transparent !important;
+}
+
+#challIcon {
+	display: none !important;
+}
+
+#healthBar {
+     display: none;
+}
+
+@font-face {
+    font-family: gamefont;
+    src: url(./fonts/font1.ttf)
+}
+
+@font-face {
+    font-family: hpammo;
+    src: url(https://reizu.moe/fonts/Renogare.ttf);
+}
+
+#menuWindow {
+    background-color: rgb(255 255 255 / 0%) !important;
+    box-shadow: 0 9px 0 0 rgb(166 166 166 / 0%) !important;
+    border-radius: var(--menu-roundness) !important;
+}
+

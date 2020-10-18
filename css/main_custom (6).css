@@ -1,0 +1,135 @@
+#aContainer {
+    position:fixed;
+    transform:scale(0.6);
+    opacity:0.5;
+}
+
+#hudClassIcon, .weapKey, #challIcon, #maxHP, #healthBar, #timerIcon, #merchImg, #termsInfo, #voiceDisplay, #ammoMax, #ammoIcon, .strmCat.twitch, .strmCat.youtube, .strmLink.blackShad, .strmViews, .strmIcn, .material-icons.streamPartner {
+	display:none;
+}
+
+.button {
+    background-color: #f00!important;
+    box-shadow: inset 0 0px 0 0 #000!important
+}
+
+#mainLogo {
+	position:fixed; top:-20px;
+    transform:scale(0.7)
+}
+
+#menuClassContainer {
+   margin-bottom:-200px;
+   margin-right:-80px
+}
+
+#menuFPS, #menuPingText, #menuFPSDisplay, #menuPingIcon {
+	color: #f00!important;
+}
+
+.menuItem {
+	background:#fff0!important;
+}
+
+#endAContainer {
+	opacity:0.4;
+	transform:scale(0.6);
+}
+
+#menuBtnProfile.menuItemTitle, #menuBtnShop.menuItemTitle, #menuBtnChall.menuItemTitle, #menuBtnSocial.menuItemTitle, #menuBtnMaps.menuItemTitle, #menuBtnMods.menuItemTitle, #menuBtnSettings.menuItemTitle {
+	color:#f00;
+}
+
+#fpsDisplay, #fpsMax {
+    color: #f00;
+}
+
+#timerDisplay{
+	background-color:#fff0
+}
+
+@font-face {
+    font-family: gamefont;
+    src: url(./fonts/font2.ttf)
+}
+
+@font-face {
+    font-family: headerfont;
+    src: url(./fonts/header.ttf)
+}
+
+@font-face {
+    font-family: material-icons;
+    src: url(https://fonts.gstatic.com/s/materialicons/v50/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2)
+}
+
+#menuWindow, .settingsHeader {
+	background-color:#171717;
+	opacity:0.95;
+
+}
+
+.settName, #requiresRestart {
+	color:#353535;
+}
+
+#menuWindow {
+    background-color: #171717;
+    box-shadow: 0 0px 0 0 #a6a6a6;
+}
+
+.slider {
+	background-color:#353535;
+}
+
+input:checked+.slider {
+    background: #f00;
+}
+
+.settingsBtn, .sliderVal {
+	background-color: #f00;
+}
+
+#settSearch {
+	background-color:#353535;
+
+}
+
+.menuTabNew, .grey {
+	color:#353535
+}
+
+#timerDisplay {
+    position:relative;
+    left:859px;
+    text-shadow: 0 0 1px black, 0px 0 3px black, 0 0 5px black, 0px 0 7px #000;
+}
+
+.weapIcon {
+    transform:scale(0.6)
+}
+
+.chatItem, #chatList {
+    color: #f00;
+    text-shadow: 0 0 1px black, 0px 0 3px black, 0 0 5px black, 0px 0 7px #000;
+}
+
+
+#healthValue {
+	position:relative; top:-213px;
+	margin-left:700px;
+	font-size: 50px;
+    text-shadow: 0 0 1px black, 0px 0 3px black, 0 0 5px black, 0px 0 7px #000;
+}
+
+#ammoVal {
+	position:relative; top:-229px;
+	margin-right:752px;
+	font-size: 50px;
+	text-shadow: 0 0 1px black, 0px 0 3px black, 0 0 5px black, 0px 0 7px #000;
+}
+
+#ammoDisplay, #healthValueHolder {
+	background-color:#fff0;
+	background-image: url(https://cdn.discordapp.com/attachments/387104044868567043/754279870711988234/blank_2.png);
+}

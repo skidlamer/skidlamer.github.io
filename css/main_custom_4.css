@@ -1,0 +1,1446 @@
+.terms{
+	font-size:18px;
+	vertical-align:middle;
+	cursor:pointer;
+	color: #00adff;
+	text-decoration:none;
+	pointer-events:all;
+	display:inline-block;
+	transform:translateY(1.5px);
+}
+
+.grey{
+	color: white;
+}
+
+.grey:active{
+	color:rgba(255, 255, 255, 0.5)
+}
+
+.grey:visited{
+	color: red;
+}
+
+*{
+	outline:none;
+	font-family:gamefont;
+	-webkit-touch-callout:none;
+	-webkit-user-select:none;
+	-khtml-user-select:none;
+	-moz-user-select:none;
+	-ms-user-select:none;
+	user-select:none;
+	color: #ffffff;
+}
+
+#voiceDisplay{
+	opacity:.5;
+	z-index: 0;
+	position:absolute;
+	bottom:18px;
+	left:-10000px;
+}
+
+#uiBase.onMenu #voiceDisplay{
+	left: -10000px;
+}
+
+#chatList::-webkit-scrollbar-track{
+	-webkit-box-shadow:unset;
+	box-shadow:unset;
+	border-radius:unset;
+	background-color: rgba(51, 51, 51, 1);
+}
+
+#chatList::-webkit-scrollbar-thumb{
+	border-radius:unset;
+	-webkit-box-shadow:unset;
+	box-shadow:unset;
+	border-color: #000000;
+}
+
+#chatList::-webkit-scrollbar-thumb{
+	border-radius:unset;
+	-webkit-box-shadow:unset;
+	box-shadow:unset;
+	border-color: #000000;
+}
+
+.chatMsg{
+	color:rgba(255,255,255,1)
+}
+
+#serverSearch,#settSearch{
+	float:right;
+	width:200px;
+	text-align:right;
+	font-size:20px;
+	box-sizing:border-box;
+	border:none;
+	border-bottom: 3px solid rgb(0, 0, 0);
+	background-color: black;
+	color: white;
+}
+
+#timerDisplay{
+	text-align:left;
+	z-index:3;
+	padding:10px;
+	padding-right:20px;
+	margin-right:10px;
+	margin-bottom:10px;
+	will-change:transform;
+	transform:translateZ(0);
+	border-radius:10px;
+	vertical-align:top;
+	height: 55px;
+}
+
+#timerVal{
+	color:#fff;
+	padding-left: 5px;
+	font-size: 32px;
+	will-change: transform;
+	vertical-align: text-bottom;
+	text-align: -webkit-center;
+}
+
+#timerIcon{
+	width: 44px;
+	height: 44px;
+	image-rendering:pixelated;
+	transform: translateY(2px);
+	image-rendering:
+	-moz-crisp-edges;
+	image-rendering:crisp-edges;
+}
+
+#pingDisplay .material-icons,#ingressDisplay .material-icons,#egressDisplay .material-icons{
+	vertical-align:top;
+	font-size:23px;
+	margin-right:-5px;
+	color: #00dcff!important;
+}
+
+.tScoreT{
+	color:rgba(255,255,255,.6);
+	font-size:18px;
+}
+
+.tScoreF{
+	vertical-align:sub;
+	font-size:30px!important;
+	color:#E500FF;
+	padding-left:5px;
+	padding-right:5px
+}
+
+.tScoreF.you{
+	vertical-align:sub;
+	font-size:30px!important;
+	color: #00adff;
+	padding-left:5px;
+	padding-right:5px
+}
+
+.tScoreC{
+	width:20px;
+	height: 20px;
+	display:inline-block;
+	margin-right:10px;
+	background-color:#FF4F4F;
+	transform: translateY(2px);
+}
+
+.tScoreC.you{
+	width:20px;
+	height: 20px;
+	display:inline-block;
+	margin-right:10px;
+	background-color: #00adff;
+}
+
+#healthValue{
+	color:#fff;
+	font-size:25px;
+	will-change:transform;
+	display:inline-block
+}
+
+.weaponChatIcon{
+	width: 48px;
+	height: 23px;
+	margin-right:10px;
+	margin-left:10px;
+	margin-bottom:-5px;
+	transform:scaleX(-1);
+	-webkit-transform:scaleX(-1);
+}
+
+.headShotChatIcon{
+	width:23px;
+	height:23px;
+	margin-right:8px;
+	margin-bottom:-4px;
+	margin-left:-5px
+}
+
+#ammoMax{
+	color:rgba(255,255,255,.7);
+	display:inline-block;
+	transform: translateY(7px);
+}
+#ammoVal{
+	color:#fff;
+	display:inline-block;
+	transform: translateY(7px);
+}
+
+#ammoIcon{
+	margin-right:10px;
+	margin-left:5px;
+	vertical-align: middle;
+	height:55px;
+	transform: translateY(7px);
+}
+
+.smlInput{
+	display:inline-block;
+	width:82%;
+	padding:5px;
+	padding-left:10px;
+	margin-top:10px;
+	font-size:16px;
+	box-sizing:border-box;
+	border:none;
+	background-color: rgba(33, 33, 33, 0.84);
+	color: rgb(255, 255, 255);
+	border-radius:4px;
+}
+
+.accountInput{
+	width:100%;
+	padding:5px;
+	padding-left:10px;
+	font-size:22px;
+	box-sizing:border-box;
+	border:none;
+	border-radius:4px;
+	margin-top:20px;
+	background-color: rgb(19, 19, 19);
+	color: rgb(255, 255, 255);
+}
+
+.accountButton{
+	border-radius: 32px!important;
+	color: rgb(255, 255, 255);
+	text-align:center;
+	margin-top:10px;
+	display:inline-block;
+	width:342px;
+	cursor:pointer;
+	background-color: #00adff;
+	font-size:22px;
+	padding-top:8px;
+	padding-bottom:8px;
+	border-radius:6px;
+	box-shadow: 0px 5px  #005c88;
+	text-shadow: -1px -1px 0 #202020,1px -1px 0 #202020,-1px 1px 0 #202020,1px 1px 0 #202020,-2px -2px 0 #202020,2px -2px 0 #202020,-2px 2px 0 #202020,2px 2px 0 #202020,-3px -3px 0 #202020,3px -3px 0 #202020,-3px 3px 0 #202020,3px 3px 0 #202020!important;
+}
+
+.setHed{
+	margin-top:15px;
+	font-size:22px;
+	color: white;
+}
+
+.menuSelectorHeader{
+	margin-bottom:5px;
+	font-size:22px;
+	width:588px;
+	display:inline-block;
+	color: white;
+}
+
+.formInput{
+	pointer-events:auto;
+	font-size:12px;
+	padding:10px;
+	box-shadow:none;
+	outline:none;
+	border:none;
+	background: #000;
+	float:right;
+	border-radius: 1px;
+}
+
+.b{
+	color: rgba(0, 173, 255, 1)!important;
+}
+
+.settName,.settNameSmall{
+	clear:both;
+	margin-top:3px;
+	font-size:22px;
+	color: rgba(255, 255, 255, 0.52);
+}
+
+.settNameSmall{
+	font-size:18px;
+	margin: 10px!important;
+}
+
+.gButton{
+	border-radius: 32px;
+	text-transform:uppercase;
+	font-size:30px;
+	color:#00adff!important;
+	text-shadow:0 1px 0 #ae853b,0 2px 0 #ae853b,0 3px 0 #ae853b,0 4px 0 #ae853b,0 5px 0 #ae853b,0 6px 0 #ae853b!important
+}
+
+.mailObj{
+	border-radius:6px;
+	padding-left:10px;
+	padding-top:10px;
+	padding-bottom:10px;
+	background-color: rgba(21, 21, 21, 1);
+	margin-top:10px;
+	color: rgba(255, 255, 255, 0.5);
+	font-size:15px;
+	cursor:pointer;
+}
+
+.menuItem:hover{
+	background:#00adff
+}
+
+.menuItem:active{
+	background:#005c88
+}
+
+.menuClassPlayerClan{
+	margin-top:-120px;
+	text-shadow:none;
+	vertical-align:middle;
+	margin-right:3px;
+	color: #00adff!important;
+}
+
+#customizeButton{
+	width:300px;
+	text-align:center;
+	padding:15px;
+	font-size: 32px;
+	pointer-events:all;
+	padding-bottom:22px;
+}
+
+.iconProfile{
+	background-image:url(../img/menu-icons/profile.png)
+}
+.menuItem:hover .iconProfile{
+	background-image:url(../img/menu-icons/profile-white.png)
+}
+.iconRanked{
+	background-image:url(../img/menu-icons/ranked.png)
+}
+.menuItem:hover .iconRanked{
+	background-image:url(../img/menu-icons/ranked-white.png)
+}
+.iconShop{
+	background-image:url(../img/menu-icons/shop.png)
+}
+.menuItem:hover .iconShop{
+	background-image:url(../img/menu-icons/shop-white.png)
+}
+.iconSocial{
+	background-image:url(../img/menu-icons/social.png)
+}
+.menuItem:hover .iconSocial{
+	background-image:url(../img/menu-icons/social-white.png)
+}
+.iconGames{
+	background-image:url(../img/menu-icons/maps.png)
+}
+.menuItem:hover .iconGames{
+	background-image:url(../img/menu-icons/maps-white.png)
+}
+.iconMods{
+	background-image:url(../img/menu-icons/mods.png)
+}
+.menuItem:hover .iconMods{
+	background-image:url(../img/menu-icons/mods-white.png)
+}
+.iconSettings{
+	background-image:url(../img/menu-icons/settings.png)
+}
+.menuItem:hover .iconSettings{
+	background-image:url(../img/menu-icons/settings-white.png)
+}
+.iconChall{
+	background-image:url(../img/menu-icons/chall.png)
+}
+.menuItem:hover .iconChall{
+	background-image:url(../img/menu-icons/chall-white.png)
+}
+
+.menuItem:hover .iconGames{
+	background-image:url(../img/menu-icons/maps-white.png)
+}
+
+.button{
+	border-radius: 32px;
+	position:relative;
+	display:inline-block;
+	box-sizing:border-box;
+	border-radius:4px;
+	padding:12px 18px;
+	padding-top:14px;
+	margin-bottom:6px;
+	background-color: #00adff;
+	box-shadow: inset 0 -7px 0 0 #005c88;
+	text-align:center;
+	color:#fff;
+	text-shadow:-1px -1px 0 #202020,1px -1px 0 #202020,-1px 1px 0 #202020,1px 1px 0 #202020,-2px -2px 0 #202020,2px -2px 0 #202020,-2px 2px 0 #202020,2px 2px 0 #202020;
+	pointer-events:all;
+	cursor:pointer;
+	-webkit-transition:all .2s;
+	transition:all .2s;
+}
+
+.buttonR{
+	border-radius: 32px;
+	background-color: #00adff!important;
+	box-shadow: inset 0 -7px 0 0 #005c88!important;
+}
+
+.buttonP{
+	border-radius: 32px;
+	background-color: #00adff!important;
+	box-shadow: inset 0 -7px 0 0 #005c88!important;
+}
+
+.buttonG{
+	border-radius: 32px;
+	background-color: #00adff!important;
+	box-shadow: inset 0 -7px 0 0 #005c88!important;
+}
+	
+.button.small{
+	border-radius: 32px;
+	padding-top: 5px!important;
+	padding-left:22px!important;
+	padding-right:22px!important;
+	font-size:22px!important;
+	margin-left:3px;
+	margin-right:3px;
+	text-shadow:-1px -1px 0 #202020,1px -1px 0 #202020,-1px 1px 0 #202020,1px 1px 0 #202020,-2px -2px 0 #202020,2px -2px 0 #202020,-2px 2px 0 #202020,2px 2px 0 #202020,-3px -3px 0 #202020,3px -3px 0 #202020,-3px 3px 0 #202020,3px 3px 0 #202020!important;
+}
+
+::-webkit-scrollbar-track{
+	-webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+	box-shadow: inset 0 0 6px rgb(0, 0, 0);
+	border-radius:10px;
+	background-color: #000000;
+	background-color: #484848;
+}
+
+::-webkit-scrollbar{
+	width:12px
+}
+
+::-webkit-scrollbar-thumb{
+	border-radius:10px;
+	background: #00adff;
+	-webkit-box-shadow: inset 0 0 2px rgb(255, 255, 255);
+	box-shadow: inset 0 0 2px rgb(0, 0, 0);
+}
+
+.settingsHeader{
+	width:100%;
+	padding-bottom:15px;
+	padding-top:19px;
+	position:-webkit-sticky;
+	position:sticky;
+	top:0;
+	z-index:999999999;
+	background-color: #424242;
+}
+
+.serverHeader{
+	width:100%;
+	padding-top:19px;
+	position:-webkit-sticky;
+	position:sticky;
+	top:0;
+	z-index:999999999;
+	background-color: #fff0;
+}
+
+.reqWLvl{
+	font-size:16px;
+	padding-bottom:5px;
+	color: #ffffff;
+	margin-top: 0px;
+}
+
+.reqWIcon{
+	color: #00c4ff!important;
+	font-size:150px!important;
+	vertical-align:bottom!important;
+	font-weight:999!important;
+}
+
+.reqWTxt{
+	font-size:14px;
+	color: rgb(179, 179, 179);
+}
+
+.setHed{
+	margin-top:15px;
+	font-size:22px;
+	color: white;
+}
+#menuWindow{
+	position:absolute;
+	left:50%;
+	bottom:220px;
+	border-radius:6px;
+	max-height:calc(100% - 480px);
+	transform:translateX(-50%);
+	z-index:2;
+	overflow-y:auto;
+	display:inline-block;
+	text-align:left;
+	pointer-events:auto;
+	padding:20px;
+	width:705px;
+	font-size:20px;
+	background-color: #424242;
+	-webkit-box-shadow: 0 9px 0 0 #000000;
+	-moz-box-shadow:0 9px 0 0 #a6a6a6;
+	box-shadow: 0 9px 0 0 #333333;
+	color: white!important;
+	font-color: white;
+}
+
+.tabANew {
+    cursor: default;
+    box-shadow: inset 0 -5px #00adff;
+}
+
+.menuTabNew:hover {
+    box-shadow: inset 0 -5px rgba(0,0,0,.2);
+}
+.menuTabNew {
+    text-align: center;
+    display: table-cell;
+    height: 40px;
+    line-height: 35px;
+    font-size: 15px;
+    cursor: pointer;
+    color: white;
+}
+
+.inputGrey2 {
+    border: none;
+    background: #252525;
+    padding: 6px;
+    padding-bottom: 6px;
+    float: right;
+    margin-left: 10px;
+    font-size: 12px;
+    border-radius: 6px;
+    color: white;
+}
+
+#loadingBg{
+	position:fixed;
+	left:-16px;
+	right:-16px;
+	top:-16px;
+	bottom:-16px;
+	background-size:cover;
+	background-position:center;
+	pointer-events:none;
+	background-image: url("https://cdn.discordapp.com/attachments/697087943243726918/721445680786178068/ezgif.com-crop.webp");
+}
+
+@font-face{
+	font-family:gamefont;
+	src:url(./fonts/font2.ttf)
+}
+
+.changeText {
+    margin-top: 3px;
+    margin-bottom: 3px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.standout {
+    color: #fbc02d!important;
+}
+
+.serverHeader {
+    width: 100%;
+    padding-top: 19px;
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    z-index: 999999999;
+    background-color: ##424242;
+}
+
+.terms{
+	font-size:18px;
+	vertical-align:middle;
+	cursor:pointer;
+	color: #00adff;
+	text-decoration:none;
+	pointer-events:all;
+	display:inline-block;
+	transform:translateY(1.5px);
+}
+
+.grey{
+	color: white;
+}
+
+.grey:active{
+	color:rgba(255, 255, 255, 0.5)
+}
+
+.grey:visited{
+	color: red;
+}
+
+*{
+	outline:none;
+	font-family:gamefont;
+	-webkit-touch-callout:none;
+	-webkit-user-select:none;
+	-khtml-user-select:none;
+	-moz-user-select:none;
+	-ms-user-select:none;
+	user-select:none;
+	color: #ffffff;
+}
+
+#voiceDisplay{
+	opacity:.5;
+	z-index: 0;
+	position:absolute;
+	bottom:18px;
+	left:-10000px;
+}
+
+#uiBase.onMenu #voiceDisplay{
+	left: -10000px;
+}
+
+#chatList::-webkit-scrollbar-track{
+	-webkit-box-shadow:unset;
+	box-shadow:unset;
+	border-radius:unset;
+	background-color: rgba(51, 51, 51, 1);
+}
+
+#chatList::-webkit-scrollbar-thumb{
+	border-radius:unset;
+	-webkit-box-shadow:unset;
+	box-shadow:unset;
+	border-color: #000000;
+}
+
+#chatList::-webkit-scrollbar-thumb{
+	border-radius:unset;
+	-webkit-box-shadow:unset;
+	box-shadow:unset;
+	border-color: #000000;
+}
+
+.chatMsg{
+	color:rgba(255,255,255,1)
+}
+
+#serverSearch,#settSearch{
+	float:right;
+	width:200px;
+	text-align:right;
+	font-size:20px;
+	box-sizing:border-box;
+	border:none;
+	border-bottom: 3px solid rgb(0, 0, 0);
+	background-color: black;
+	color: white;
+}
+
+#timerDisplay{
+	text-align:left;
+	z-index:3;
+	padding:10px;
+	padding-right:20px;
+	margin-right:10px;
+	margin-bottom:10px;
+	will-change:transform;
+	transform:translateZ(0);
+	border-radius:10px;
+	vertical-align:top;
+	height: 55px;
+}
+
+#timerVal{
+	color:#fff;
+	padding-left: 5px;
+	font-size: 32px;
+	will-change: transform;
+	vertical-align: text-bottom;
+	text-align: -webkit-center;
+}
+
+#timerIcon{
+	width: 44px;
+	height: 44px;
+	image-rendering:pixelated;
+	transform: translateY(2px);
+	image-rendering:
+	-moz-crisp-edges;
+	image-rendering:crisp-edges;
+}
+
+#pingDisplay .material-icons,#ingressDisplay .material-icons,#egressDisplay .material-icons{
+	vertical-align:top;
+	font-size:23px;
+	margin-right:-5px;
+	color: #00dcff!important;
+}
+
+.tScoreT{
+	color:rgba(255,255,255,.6);
+	font-size:18px;
+}
+
+.tScoreF{
+	vertical-align:sub;
+	font-size:30px!important;
+	color:#E500FF;
+	padding-left:5px;
+	padding-right:5px
+}
+
+.tScoreF.you{
+	vertical-align:sub;
+	font-size:30px!important;
+	color: #00adff;
+	padding-left:5px;
+	padding-right:5px
+}
+
+.tScoreC{
+	width:20px;
+	height: 20px;
+	display:inline-block;
+	margin-right:10px;
+	background-color:#FF4F4F;
+	transform: translateY(2px);
+}
+
+.tScoreC.you{
+	width:20px;
+	height: 20px;
+	display:inline-block;
+	margin-right:10px;
+	background-color: #00adff;
+}
+
+#healthValue{
+	color:#fff;
+	font-size:25px;
+	will-change:transform;
+	display:inline-block
+}
+
+.weaponChatIcon{
+	width: 48px;
+	height: 23px;
+	margin-right:10px;
+	margin-left:10px;
+	margin-bottom:-5px;
+	transform:scaleX(-1);
+	-webkit-transform:scaleX(-1);
+}
+
+.headShotChatIcon{
+	width:23px;
+	height:23px;
+	margin-right:8px;
+	margin-bottom:-4px;
+	margin-left:-5px
+}
+
+#ammoMax{
+	color:rgba(255,255,255,.7);
+	display:inline-block;
+	transform: translateY(7px);
+}
+#ammoVal{
+	color:#fff;
+	display:inline-block;
+	transform: translateY(7px);
+}
+
+#ammoIcon{
+	margin-right:10px;
+	margin-left:5px;
+	vertical-align: middle;
+	height:55px;
+	transform: translateY(7px);
+}
+
+.smlInput{
+	display:inline-block;
+	width:82%;
+	padding:5px;
+	padding-left:10px;
+	margin-top:10px;
+	font-size:16px;
+	box-sizing:border-box;
+	border:none;
+	background-color: rgba(33, 33, 33, 0.84);
+	color: rgb(255, 255, 255);
+	border-radius:4px;
+}
+
+.accountInput{
+	width:100%;
+	padding:5px;
+	padding-left:10px;
+	font-size:22px;
+	box-sizing:border-box;
+	border:none;
+	border-radius:4px;
+	margin-top:20px;
+	background-color: rgb(19, 19, 19);
+	color: rgb(255, 255, 255);
+}
+
+.accountButton{
+	border-radius: 32px!important;
+	color: rgb(255, 255, 255);
+	text-align:center;
+	margin-top:10px;
+	display:inline-block;
+	width:342px;
+	cursor:pointer;
+	background-color: #00adff;
+	font-size:22px;
+	padding-top:8px;
+	padding-bottom:8px;
+	border-radius:6px;
+	box-shadow: 0px 5px  #005c88;
+	text-shadow: -1px -1px 0 #202020,1px -1px 0 #202020,-1px 1px 0 #202020,1px 1px 0 #202020,-2px -2px 0 #202020,2px -2px 0 #202020,-2px 2px 0 #202020,2px 2px 0 #202020,-3px -3px 0 #202020,3px -3px 0 #202020,-3px 3px 0 #202020,3px 3px 0 #202020!important;
+}
+
+.setHed{
+	margin-top:15px;
+	font-size:22px;
+	color: white;
+}
+
+.menuSelectorHeader{
+	margin-bottom:5px;
+	font-size:22px;
+	width:588px;
+	display:inline-block;
+	color: white;
+}
+
+.formInput{
+	pointer-events:auto;
+	font-size:12px;
+	padding:10px;
+	box-shadow:none;
+	outline:none;
+	border:none;
+	background: #000;
+	float:right;
+	border-radius: 1px;
+}
+
+.b{
+	color: rgba(0, 173, 255, 1)!important;
+}
+
+.settName,.settNameSmall{
+	clear:both;
+	margin-top:3px;
+	font-size:22px;
+	color: rgba(255, 255, 255, 0.52);
+}
+
+.settNameSmall{
+	font-size:18px;
+	margin: 10px!important;
+}
+
+.gButton{
+	border-radius: 32px;
+	text-transform:uppercase;
+	font-size:30px;
+	color:#00adff!important;
+	text-shadow:0 1px 0 #ae853b,0 2px 0 #ae853b,0 3px 0 #ae853b,0 4px 0 #ae853b,0 5px 0 #ae853b,0 6px 0 #ae853b!important
+}
+
+.mailObj{
+	border-radius:6px;
+	padding-left:10px;
+	padding-top:10px;
+	padding-bottom:10px;
+	background-color: rgba(21, 21, 21, 1);
+	margin-top:10px;
+	color: rgba(255, 255, 255, 0.5);
+	font-size:15px;
+	cursor:pointer;
+}
+
+.menuItem:hover{
+	background:#00adff
+}
+
+.menuItem:active{
+	background:#005c88
+}
+
+.menuClassPlayerClan{
+	margin-top:-120px;
+	text-shadow:none;
+	vertical-align:middle;
+	margin-right:3px;
+	color: #00adff!important;
+}
+
+#customizeButton{
+	width:300px;
+	text-align:center;
+	padding:15px;
+	font-size: 32px;
+	pointer-events:all;
+	padding-bottom:22px;
+}
+
+.iconProfile{
+	background-image:url(../img/menu-icons/profile.png)
+}
+.menuItem:hover .iconProfile{
+	background-image:url(../img/menu-icons/profile-white.png)
+}
+.iconRanked{
+	background-image:url(../img/menu-icons/ranked.png)
+}
+.menuItem:hover .iconRanked{
+	background-image:url(../img/menu-icons/ranked-white.png)
+}
+.iconShop{
+	background-image:url(../img/menu-icons/shop.png)
+}
+.menuItem:hover .iconShop{
+	background-image:url(../img/menu-icons/shop-white.png)
+}
+.iconSocial{
+	background-image:url(../img/menu-icons/social.png)
+}
+.menuItem:hover .iconSocial{
+	background-image:url(../img/menu-icons/social-white.png)
+}
+.iconGames{
+	background-image:url(../img/menu-icons/maps.png)
+}
+.menuItem:hover .iconGames{
+	background-image:url(../img/menu-icons/maps-white.png)
+}
+.iconMods{
+	background-image:url(../img/menu-icons/mods.png)
+}
+.menuItem:hover .iconMods{
+	background-image:url(../img/menu-icons/mods-white.png)
+}
+.iconSettings{
+	background-image:url(../img/menu-icons/settings.png)
+}
+.menuItem:hover .iconSettings{
+	background-image:url(../img/menu-icons/settings-white.png)
+}
+.iconChall{
+	background-image:url(../img/menu-icons/chall.png)
+}
+.menuItem:hover .iconChall{
+	background-image:url(../img/menu-icons/chall-white.png)
+}
+
+.menuItem:hover .iconGames{
+	background-image:url(../img/menu-icons/maps-white.png)
+}
+
+.button{
+	border-radius: 32px;
+	position:relative;
+	display:inline-block;
+	box-sizing:border-box;
+	border-radius:4px;
+	padding:12px 18px;
+	padding-top:14px;
+	margin-bottom:6px;
+	background-color: #00adff;
+	box-shadow: inset 0 -7px 0 0 #005c88;
+	text-align:center;
+	color:#fff;
+	text-shadow:-1px -1px 0 #202020,1px -1px 0 #202020,-1px 1px 0 #202020,1px 1px 0 #202020,-2px -2px 0 #202020,2px -2px 0 #202020,-2px 2px 0 #202020,2px 2px 0 #202020;
+	pointer-events:all;
+	cursor:pointer;
+	-webkit-transition:all .2s;
+	transition:all .2s;
+}
+
+.buttonR{
+	border-radius: 32px;
+	background-color: #00adff!important;
+	box-shadow: inset 0 -7px 0 0 #005c88!important;
+}
+
+.buttonP{
+	border-radius: 32px;
+	background-color: #00adff!important;
+	box-shadow: inset 0 -7px 0 0 #005c88!important;
+}
+
+.buttonG{
+	border-radius: 32px;
+	background-color: #00adff!important;
+	box-shadow: inset 0 -7px 0 0 #005c88!important;
+}
+	
+.button.small{
+	border-radius: 32px;
+	padding-top: 5px!important;
+	padding-left:22px!important;
+	padding-right:22px!important;
+	font-size:22px!important;
+	margin-left:3px;
+	margin-right:3px;
+	text-shadow:-1px -1px 0 #202020,1px -1px 0 #202020,-1px 1px 0 #202020,1px 1px 0 #202020,-2px -2px 0 #202020,2px -2px 0 #202020,-2px 2px 0 #202020,2px 2px 0 #202020,-3px -3px 0 #202020,3px -3px 0 #202020,-3px 3px 0 #202020,3px 3px 0 #202020!important;
+}
+
+::-webkit-scrollbar-track{
+	-webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+	box-shadow: inset 0 0 6px rgb(0, 0, 0);
+	border-radius:10px;
+	background-color: #000000;
+	background-color: #484848;
+}
+
+::-webkit-scrollbar{
+	width:12px
+}
+
+::-webkit-scrollbar-thumb{
+	border-radius:10px;
+	background: #00adff;
+	-webkit-box-shadow: inset 0 0 2px rgb(255, 255, 255);
+	box-shadow: inset 0 0 2px rgb(0, 0, 0);
+}
+
+.settingsHeader{
+	width:100%;
+	padding-bottom:15px;
+	padding-top:19px;
+	position:-webkit-sticky;
+	position:sticky;
+	top:0;
+	z-index:999999999;
+	background-color: #424242;
+}
+
+.serverHeader{
+	width:100%;
+	padding-top:19px;
+	position:-webkit-sticky;
+	position:sticky;
+	top:0;
+	z-index:999999999;
+	background-color: #fff0;
+}
+
+.reqWLvl{
+	font-size:16px;
+	padding-bottom:5px;
+	color: #ffffff;
+	margin-top: 0px;
+}
+
+.reqWIcon{
+	color: #00c4ff!important;
+	font-size:150px!important;
+	vertical-align:bottom!important;
+	font-weight:999!important;
+}
+
+.reqWTxt{
+	font-size:14px;
+	color: rgb(179, 179, 179);
+}
+
+.setHed{
+	margin-top:15px;
+	font-size:22px;
+	color: white;
+}
+#menuWindow{
+	position:absolute;
+	left:50%;
+	bottom:220px;
+	border-radius:6px;
+	max-height:calc(100% - 480px);
+	transform:translateX(-50%);
+	z-index:2;
+	overflow-y:auto;
+	display:inline-block;
+	text-align:left;
+	pointer-events:auto;
+	padding:20px;
+	width:705px;
+	font-size:20px;
+	background-color: #424242;
+	-webkit-box-shadow: 0 9px 0 0 #000000;
+	-moz-box-shadow:0 9px 0 0 #a6a6a6;
+	box-shadow: 0 9px 0 0 #333333;
+	color: white!important;
+	font-color: white;
+}
+
+.tabANew {
+    cursor: default;
+    box-shadow: inset 0 -5px #00adff;
+}
+
+.menuTabNew:hover {
+    box-shadow: inset 0 -5px rgba(0,0,0,.2);
+}
+.menuTabNew {
+    text-align: center;
+    display: table-cell;
+    height: 40px;
+    line-height: 35px;
+    font-size: 15px;
+    cursor: pointer;
+    color: white;
+}
+
+.inputGrey2 {
+    border: none;
+    background: #252525;
+    padding: 6px;
+    padding-bottom: 6px;
+    float: right;
+    margin-left: 10px;
+    font-size: 12px;
+    border-radius: 6px;
+    color: white;
+}
+
+#loadingBg{
+	position:fixed;
+	left:-16px;
+	right:-16px;
+	top:-16px;
+	bottom:-16px;
+	background-size:cover;
+	background-position:center;
+	pointer-events:none;
+	background-image: url("https://cdn.discordapp.com/attachments/697087943243726918/721445680786178068/ezgif.com-crop.webp");
+}
+
+@font-face{
+	font-family:gamefont;
+	src:url(./fonts/font2.ttf)
+}
+
+.changeText {
+    margin-top: 3px;
+    margin-bottom: 3px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.standout {
+    color: #fbc02d!important;
+}
+
+.serverHeader {
+    width: 100%;
+    padding-top: 19px;
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    z-index: 999999999;
+    background-color: ##424242;
+}
+
+#customizeButton {
+	border-radius: 32px;
+    width: 300px;
+    text-align: center;
+    font-size: 23px;
+    pointer-events: all;
+    padding: 15px 15px 22px;
+}
+
+.button.lgn {
+	border-radius: 32px;
+    font-size: 18px;
+    padding-top: 0px;
+    margin-top: 0px;
+	text-align:center;
+}
+
+// HERE
+
+#menuPingDisplay .material-icons {
+	vertical-align: bottom;
+	font-size: 20px
+}
+
+.krInfo {
+	display: flex;
+	flex-direction: row;
+	align-items: center
+}
+
+#menuItemContainer {
+	position: absolute;
+	left: 0;
+	top: 70px;
+	bottom: 8px;
+	width: 130px;
+	display: flex;
+	flex-direction: column;
+}
+
+.menuItem:active {
+	background: #00adff
+}
+
+
+.buttonR{
+	border-radius: 32px;
+	background-color: #00adff!important;
+	box-shadow: inset 0 -7px 0 0 #005c88!important;
+}
+
+.buttonP{
+	border-radius: 32px;
+	background-color: #00adff!important;
+	box-shadow: inset 0 -7px 0 0 #005c88!important;
+}
+
+.buttonG{
+	border-radius: 32px;
+	background-color: #00adff!important;
+	box-shadow: inset 0 -7px 0 0 #005c88!important;
+}
+	
+
+.button{
+	border-radius: 32px!important;
+	position:relative;
+	display:inline-block;
+	box-sizing:border-box;
+	border-radius:4px;
+	padding:12px 18px;
+	padding-top:14px;
+	margin-bottom:6px;
+	background-color: #00adff;
+	box-shadow: inset 0 -7px 0 0 #005c88;
+	text-align:center;
+	color:#fff;
+	text-shadow:-1px -1px 0 #202020,1px -1px 0 #202020,-1px 1px 0 #202020,1px 1px 0 #202020,-2px -2px 0 #202020,2px -2px 0 #202020,-2px 2px 0 #202020,2px 2px 0 #202020;
+	pointer-events:all;
+	cursor:pointer;
+	-webkit-transition:all .2s;
+	transition:all .2s;
+}
+
+#menuWindow {
+    position: absolute;
+    left: 50%;
+    bottom: 220px;
+    border-radius: 32px;
+    max-height: calc(100% - 480px);
+    transform: translateX(-50%);
+    z-index: 2;
+    overflow-y: auto;
+    display: inline-block;
+    text-align: left;
+    pointer-events: auto;
+    padding: 20px;
+    width: 705px;
+    font-size: 20px;
+    background-color: rgba(0, 0, 0, 0.2);
+    -webkit-box-shadow: 0 9px 0 0 #a6a6a6;
+    -moz-box-shadow: 0 9px 0 0 #a6a6a6;
+    box-shadow: 0 9px 0 0 #000000;
+}
+
+input:checked+.optCheck {
+    background-color: #00adff;
+}
+
+.serverHeader {
+    width: 100%;
+    padding-top: 19px;
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    z-index: 999999999;
+    background-color: #fff0;
+}
+
+.settingsHeader {
+    width: 95%;
+    padding-bottom: 15px;
+    padding-top: 15px;
+    position: -webkit-sticky;
+    position: sticky;
+    top: 30px;
+    z-index: 999999999;
+    background-color: #000000;
+    border-radius: 0px;
+    text-align: -webkit-center;
+    outline-color: #00adff;
+    outline-width: 10px;
+    outline-style: ridge;
+    left: 15px;
+}
+
+.accountButton {
+    color: rgb(255, 255, 255);
+    text-align: center;
+    margin-top: 10px;
+    display: inline-block;
+    width: 342px;
+    cursor: pointer;
+    font-size: 22px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    border-radius: 6px;
+	border-radius: 32px;
+	text-align: center;
+	text-shadow: rgb(32, 32, 32) -1px -1px 0px, rgb(32, 32, 32) 1px -1px 0px, rgb(32, 32, 32) -1px 1px 0px, rgb(32, 32, 32) 1px 1px 0px, rgb(32, 32, 32) -2px -2px 0px, rgb(32, 32, 32) 2px -2px 0px, rgb(32, 32, 32) -2px 2px 0px, rgb(32, 32, 32) 2px 2px 0px;
+}
+
+.slider {
+    border-radius:32px!important
+}
+
+.slider::before {
+    border-radius:32px!important
+}
+
+.sliderVal {
+    border-radius:32px!important
+}
+
+.settingPreset {
+	border-radius:32px!important;
+	font-size:19px;
+}
+
+.menuItem:hover{
+	background:#00adff
+}
+
+.menuItem:active{
+	background:#005c88
+}
+
+.menuItem {
+	border-radius: 0px 40px;
+
+	flex-grow: 1;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-around;
+	align-items: center;
+	text-align: center;
+	pointer-events: all;
+	cursor: pointer;
+	background: rgba(0, 0, 0, 0.5);
+	margin-top:7px;
+	margin-bottom:7px;
+	margin-right:5px;
+	margin-left:5px;
+	box-shadow: 0 9px 0 0 #000000;
+}
+
+#serverSearch, #settSearch {
+	border-radius:32px;
+	width: 220px!important;
+	text-align:center;
+}
+
+.headerBar {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.settName, .settNameSmall {
+    clear: both;
+    margin-top: 3px;
+    font-size: 22px;
+    color: rgba(255, 255, 255, 0.48);
+}
+
+.setHed {
+	color:#00adff;
+    margin-top: 15px;
+    font-size: 22px;
+}
+
+.inputGrey2 {
+    float: right;
+    margin-left: 10px;
+    font-size: 12px;
+    border-width: initial;
+    border-style: none;
+    border-color: initial;
+    border-image: initial;
+    background: rgb(0, 0, 0);
+    padding: 6px;
+    border-radius: 4px;
+}
+
+#profilePicM {
+    width: 120px;
+    height: 120px;
+    cursor: pointer;
+    border-radius: 4px;
+    display: inline-block;
+    background-image: url(https://cdn.discordapp.com/attachments/584079136608354304/687292975251980308/foxxey.png)!important;
+    background-size: 100%;
+	filter:none!important;
+	background-color:#00000050
+}
+
+.healthBarE{
+	background-color:#00adff!important
+}
+
+.slide {
+    position: relative;
+    border: 5px solid #00000087;
+    color: #000;
+    float: left;
+    font-size: 20px;
+    height: 100px;
+    text-align: center;
+    width: 213px;
+    transition: all .4s;
+    cursor: pointer;
+}

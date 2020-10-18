@@ -1,0 +1,301 @@
+
+@font-face {
+  font-family: gamefont;
+  src: url(./fonts/font2.ttf)
+}
+
+@font-face {
+  font-family: headerfont;
+  src: url(./fonts/header.ttf)
+}
+
+.iconProfile {
+  background-image: url(https://cdn.discordapp.com/attachments/709042064721182781/736016277960785950/profile-white.png);
+}
+
+.iconShop {
+  background-image: url(https://cdn.discordapp.com/attachments/709042064721182781/736016279647027241/shop-white.png);
+}
+
+.iconChall {
+  background-image: url(https://cdn.discordapp.com/attachments/709042064721182781/736016289889255462/chall-white.png);
+}
+
+.iconSocial {
+  background-image: url(https://cdn.discordapp.com/attachments/709042064721182781/736016280816975972/social-white.png);
+}
+
+.iconGames {
+  background-image: url(https://cdn.discordapp.com/attachments/709042064721182781/736016319379406848/games-white.png);
+}
+
+.iconMods {
+  background-image: url(https://cdn.discordapp.com/attachments/709042064721182781/736016275540541612/mods-white.png);
+}
+
+.iconSettings {
+  background-image: url(https://cdn.discordapp.com/attachments/709042064721182781/736016276526465104/settings-white.png);
+}
+
+.button{
+  background: linear-gradient(to bottom, #e687cd, #18fbff);
+  box-shadow: none!important;
+  border-radius: 60px;
+}
+
+.menuItem{
+  background: linear-gradient(to bottom, #e687cd82, #18faff61);
+  border-radius: 60px;
+}
+
+#menuWindow{
+  border-radius: 22px;
+  background: linear-gradient(to bottom, #e687cd, #18fbff);
+  box-shadow: 0 9px 0 0 #ffffff00;
+}
+
+#chatInput{
+  border-radius: 22px;
+}
+
+#mainLogo{
+  display: none;
+}
+
+.menuClassPlayerVirus {
+  display: none;
+}
+
+#timerIcon {
+  display: none;
+}
+
+#ammoIcon {
+  display: none;
+}
+
+#challIcon {
+  display: none;
+}
+
+#hudClassIcon {
+  display: none;
+}
+
+.imageButton {
+  display: none!important;
+}
+
+#merchImg {
+  display: none;
+}
+
+#streamContainer {
+  display: none;
+}
+
+#aContainer {
+  display: none!important;
+}
+
+.menuItem .menuItemTitle {
+  font-size: 20px!important;
+}
+
+.headerBar{
+  background: linear-gradient(to bottom, #e687cd82, #18faff61);
+}
+
+.button:before {
+  content: '';
+  background: linear-gradient(45deg, #ffffff, #ffffff, #00000000, #00000000, #ffffff, #ffffff, #00000000, #00000000);
+  position: absolute;
+  top: -2px;
+  left:-2px;
+  background-size: 400%;
+  z-index: -1;
+  filter: blur(5px);
+  width: calc(100% + 4px);
+  height: calc(100% + 4px);
+  animation: glowing 20s linear infinite;
+  opacity: 0;
+  transition: opacity .3s ease-in-out;
+  border-radius: 50px;
+}
+
+.button:active {
+  color: rgb(255, 255, 255)
+}
+
+.button:active:after {
+  background: transparent;
+}
+
+.button:hover:before {
+  opacity: 1;
+}
+
+.button:after {
+  z-index: -1;
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0);
+  left: 0;
+  top: 0;
+  border-radius: 50px;
+}
+
+@keyframes glowing {
+  0% { background-position: 0 0; }
+  50% { background-position: 400% 0; }
+  100% { background-position: 0 0; }
+}
+
+.menuItem:hover {
+  background: #ffffff00;
+  box-shadow: 0 0 5px #ddd;
+}
+
+.settingsHeader{
+  background-color: #ffffff00;
+}
+
+.settName, .settNameSmall {
+  color: rgb(255 255 255);
+}
+
+.settingsBtn {
+  color: rgb(0, 0, 0);
+  background-color: #ffffff;
+}
+
+.sliderVal {
+  background: #ffffff;
+  color: #24f3fb;
+  border-radius: 50px;
+}
+
+input:checked+.slider {
+  background-color: #ffffff;
+  border-radius: 50px;
+}
+
+.slider:before {
+  background-color: #00f6ff;
+  border-radius: 50px;
+}
+
+.slider {
+  background-color: #ffffff;
+  border-radius: 50px;
+}
+
+* {
+  color: #00f6ff
+}
+
+.inputGrey2 {
+  background: #ffffff;
+  border-radius: 50px;
+}
+
+.tabANew {
+  border-bottom: 5px solid rgb(255 255 255);
+}
+
+.settingTab:hover {
+  border-bottom: 5px solid rgb(255 255 255);
+}
+
+.sliderM::-webkit-slider-thumb {
+  background: #ffffff
+}
+
+.settingsBtn {
+  color: rgb(210 146 209);
+}
+
+.sliderM {
+  background-color: #ffffff42;
+}
+
+.accountButton {
+  color: rgb(66 227 245);
+  background-color: #ffffff;
+  border-radius: 60px;
+}
+
+.terms {
+  color: #ee81ff;
+}
+
+#uiBase.onMenu #voiceDisplay {
+  display: none;
+}
+
+#menuRegionLabel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  visibility: hidden;
+}
+
+#menuRegionLabel::after {
+  content: 'krunkhub.xyz';
+  visibility: visible;
+  font-size: 20px;
+}
+
+.verticalSeparator {
+  height: 0px;
+}
+
+.headerBarRight {
+  margin-right: -15px;
+  margin-top: -15px;
+}
+
+#menuWindow {
+background: linear-gradient(to bottom, #000000, #3c838469);
+    
+}
+
+.menuItem {
+background: linear-gradient(to bottom, #000000, #18faff61);
+border-radius: 90px;
+}
+
+.button {
+background: linear-gradient(to bottom, #000000, #18fbff);
+border-radius: 22px;
+}
+
+.headerBar {
+background: linear-gradient(to bottom, #00000082, #18faff61);
+}
+
+#menuRegionLabel::after {
+content: 'first made';
+    
+    
+}
+
+.serverHeader {
+background-color: #000;
+    
+}
+
+.terms {
+    color: #000000;
+}
+
+menuWindow {
+border-radius: 60px;
+background: linear-gradient(to bottom, #000000, #3a6b6c73);
+    
+}
+
+

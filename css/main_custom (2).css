@@ -1,0 +1,592 @@
+#menuItemContainer {
+    position: absolute;
+    left: 0;
+    top: 70px;
+    bottom: 0;
+    width: 130px;
+    display: flex;
+    flex-direction: column
+}
+@font-face{
+    font-family:gamefont;
+    src:url(./fonts/font2.ttf)
+}
+
+.menuItem {  
+     color: #02f1f0;
+    border-style:solid;
+    border-radius:32px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    background-color: #03effd00; /* For browsers that do not support gradients */
+   
+  background-image: linear-gradient(0deg, #060303, #ffffff00); /* Standard syntax (must be last) */
+    text-align: center;
+    pointer-events: all;
+    cursor: pointer
+}
+
+.menuItem .menuItemIcon {
+    position: relative;
+    width: 100%;
+    height: 45%;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat
+}
+
+#menuItemRankedIcon img {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: auto;
+    height: 80%;
+    transform: translate(-50%,-50%)
+}
+
+.menuItem .menuItemTitle {
+    margin-top: -20%;
+    color: #fff
+}
+
+.menuItem:hover {
+    background: #000000
+}
+
+.menuItem:active {
+    background: #2196f3
+}
+
+.iconProfile {
+    background-image: url(https://media.discordapp.net/attachments/696370585978273822/734711679010472036/J70tEhP.png?width=103&height=103);
+}
+
+.iconShop {
+    background-image: url(https://media.discordapp.net/attachments/696370585978273822/734711702339321947/Bpo3mhS.png?width=103&height=103);
+}
+
+.iconChall {
+    background-image: url(https://media.discordapp.net/attachments/696370585978273822/734711607573348372/0yPDyS1.png?width=103&height=103);
+}
+
+.iconSocial {
+    background-image: url(https://media.discordapp.net/attachments/696370585978273822/734801637427904612/social.png?width=115&height=115);
+}
+
+.iconGames {
+    background-image: url(https://media.discordapp.net/attachments/696370585978273822/734711631019376720/axVWOlq.png?width=103&height=103);
+}
+
+.iconMods {
+    background-image: url(https://media.discordapp.net/attachments/696370585978273822/734711643157823578/gOHuDn7.png?width=103&height=103);
+}
+
+.iconSettings {
+    background-image: url(https://media.discordapp.net/attachments/696370585978273822/734711659393843291/wdsXWvW.png?width=103&height=103);
+}
+
+
+#customizeButton {
+    width: 300px;
+    text-align: center;
+    padding: 15px;
+    font-size: 23px;
+    pointer-events: all;
+    padding-bottom: 22px
+}
+
+
+.buttonR {
+    background-color: #03effd00!important;
+    box-shadow: inset 0 -7px 0 0 #02e8e6!important
+}
+
+.buttonR:hover {
+    background-color: #080505!important;
+    box-shadow: inset 0 -7px 0 0 #000000!important
+}
+
+.buttonP {
+    background-color: #03effd00!important;
+    box-shadow: inset 0 -7px 0 0 #02e8e6!important
+}
+
+.buttonP:hover {
+     background-color: #080505!important;
+    box-shadow: inset 0 -7px 0 0 #000000!important
+}
+
+.buttonPI {
+   background-color: #03effd00!important;
+    box-shadow: inset 0 -7px 0 0 #02e8e6!important
+}
+
+.buttonPI:hover {
+    background-color: #080505!important;
+    box-shadow: inset 0 -7px 0 0 #000000!important
+}
+.buttonG {
+   background-color: #03effd00!important;
+    box-shadow: inset 0 -7px 0 0 #02e8e6!important
+}
+
+.buttonG:hover {
+    background-color: #080505!important;
+    box-shadow: inset 0 -7px 0 0 #000000!important
+}
+
+
+.button.lgn {
+    font-size: 18px;
+    padding-top: 5px;
+    margin-top: 2px
+}
+
+.button {
+  
+    border-radius:32px;
+    position: relative;
+    display: inline-block;
+    box-sizing: border-box;
+    border-style:solid;
+    padding: 12px 18px;
+    padding-top: 14px;
+    margin-bottom: 6px;
+   background-color: #03effd00;   
+  background-image: linear-gradient(0deg, #060303, #ffffff00); /* Standard syntax (must be last) */
+    box-shadow: inset 0 -7px 0 0 #02e8e6;
+    text-align: center;
+    color: #02f1f0;
+    text-shadow: -1px -1px 0 #202020,1px -1px 0 #202020,-1px 1px 0 #202020,1px 1px 0 #202020,-2px -2px 0 #202020,2px -2px 0 #202020,-2px 2px 0 #202020,2px 2px 0 #202020;
+    pointer-events: all;
+    cursor: pointer;
+    -webkit-transition: all .23s;
+    transition: all .1s
+}
+
+.button:hover:before {
+    content: '';
+    background: linear-gradient(45deg, #000000, #000000, #02e8e6, #000000, #000000, #000000, #02f1f0, #02f1f0);
+    position: absolute;
+    top: 2px;
+    left:1px;
+    background-size: 400%;
+    z-index: -1;
+    filter: blur(9px);
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    animation: glowing 20s linear infinite;
+    opacity: 0;
+    transition: opacity .3s ease-in-out;
+    border-radius: 50px;
+}
+
+.button:hover:active {
+    color: #000
+}
+
+.button:hover:active:after {
+    background: transparent;
+}
+
+.button:hover:hover:before {
+    opacity: 1;
+}
+
+.button:hover:after {
+    z-index: -1;
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #040202;
+    left: 0;
+    top: 0;
+    border-radius: 50px;
+}
+
+@keyframes glowing {
+    0% { background-position: 0 0; }
+    50% { background-position: 400% 0; }
+    100% { background-position: 0 0; }
+}
+
+.button:hover {
+    background-color: rgba(0, 0, 0, 0)!important;
+    box-shadow: inset 0 -0px 0 0 #b3b3b3!important;
+}
+
+
+element.style {
+    overflow-y: auto;
+}
+#menuWindow {
+   filter: drop-shadow(4px 2px 8px #05adab);
+    position: absolute;
+    left: 50%;
+    bottom: 220px;
+    border-radius: 6px;
+    max-height: calc(100% - 480px);
+    transform: translateX(-50%);
+    z-index: 2;
+    overflow-y: auto;
+    display: inline-block;
+    text-align: left;
+    pointer-events: auto;
+    padding: 20px;
+    width: 705px;
+    font-size: 20px;
+     background-color: #03effd00;   
+  background-image: linear-gradient(0deg, #06030308, #030808c9); /* Standard syntax (must be last) */
+    -webkit-box-shadow: 0 9px 0 0 #a6a6a6;
+    -moz-box-shadow: 0 9px 0 0 #000000;
+    box-shadow: 0 9px 0 0 #0e0606;
+}
+
+.setHed {
+    margin-top: 15px;
+    font-size: 22px;
+    cursor: pointer;
+}
+* {
+    outline: none;
+    font-family: gamefont;    
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    color: #09bdbc;
+
+}
+user agent stylesheet
+div {
+    display: block;
+}
+input:checked+.slider {
+    background-color: #04bab8;
+}
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #0c0606;
+    -webkit-transition: .4s;
+    transition: .3s;
+    border-radius: 4px;
+}
+
+element.style {
+    float: right;
+}
+input[type=color] {
+    -webkit-appearance: none;
+    border: 5px solid #06080a;
+    padding: 0;
+    width: 55px;
+    height: 24px;
+    border-radius: 6px;
+}
+
+.sliderVal {
+    float: right;
+    display: inline-block;
+    position: relative;
+    width: 50px;
+    color: #02eceb;
+    line-height: 24px;
+    font-size: 18px;
+    text-align: center;
+    background: #050606;
+    padding: 5px 10px;
+    margin-left: 8px;
+    margin-right: -10px;
+    border-radius: 6px;
+}
+
+.sliderM {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 15px;
+    background-color: #0c0404;
+    outline: none;
+    border-radius: 4px;
+}
+
+.inputGrey2 {
+    border: none;
+    background: #020101;
+    padding: 6px;
+    padding-bottom: 6px;
+    float: right;
+    margin-left: 10px;
+    font-size: 12px;
+    border-radius: 4px;
+}
+
+.settingsHeader {
+    width: 100%;
+    padding-top: 19px;
+    border-style:solid;
+    position: -webkit-sticky;
+    position: sticky;
+    top: -.5px;
+    z-index: 999999999;
+    background-color: #ffffff17;
+    padding-left: 2px;
+    margin-left: -2px;
+}
+
+.settingsBtn {
+    color: rgb(5 198 196);
+    text-align: center;
+    display: inline-block;
+    width: 75px;
+    cursor: pointer;
+    background-color: #020101;
+    font-size: 17px;
+    padding: 4px 8px;
+    margin-left: 8px;
+    float: right;
+    border-radius: 4px;
+}
+
+.mailFrom {
+    font-size: 18px;
+    color: #01f0ef;
+}
+
+.changeText {
+    margin-top: 3px;
+    margin-bottom: 3px;
+    color: rgb(167 216 224 / 74%);
+}
+
+.imageButton {
+    display: none!important;
+}
+
+#merchImg {
+    display: none;
+}
+
+#instructions {
+    color: #02ede7;
+}
+.sliderM::-webkit-slider-thumb {
+    background: #000000;
+}
+
+.headerBarLeft {
+    border-style:dash
+    left: 0;
+    padding-right: 5px;
+    border-radius:  9px;
+}
+
+.headerBar {
+    position: absolute;
+    top: 0;
+    height: 70px;
+    padding: 0 12px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background-color: #03effd00;   
+  background-image: linear-gradient(0deg, #060303, #ffffff00); /* Standard syntax (must be last) */
+    pointer-events: auto;
+}
+.headerBarRight {
+    border-style:solid;
+    right: 0;
+    padding-left: 20px;
+    border-radius: 8px;
+}
+.terms {
+    font-size: 18px;
+    vertical-align: middle;
+    cursor: pointer;
+    color: #02f1f0;
+    text-decoration: none;
+    pointer-events: all;
+    display: inline-block;
+}
+
+#mapInfo {
+    color: #02f1f0;
+    font-size: 19px;
+}
+
+#chatInput {
+    width: 100%;
+    padding: 5px;
+    padding-left: 10px;
+    color: #091515;
+    font-size: 18px;
+    box-sizing: border-box;
+    border: none;
+    background-color: rgb(6 14 14);
+    border-radius: 32px;
+    pointer-events: all;
+  
+}
+
+    background-color: rgb(10 9 5);
+}
+
+.chatTextOutline {
+    text-shadow: -1px -1px 0 rgba(0,0,0,.5), 1px -1px 0 rgba(0,0,0,.5), -1px 1px 0 rgba(0,0,0,.5), 1px 1px 0 rgba(0,0,0,.5);
+}
+.chatItem {
+    max-width: 260px;
+    word-wrap: break-word;
+    display: inline-block;
+    margin-bottom: 10px;
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-radius: 34px;
+    color: #05c4c3;
+    font-size: 14px;
+    background-color: rgba(0,0,0,.2);
+    max-width: 240px;
+    margin-left: 10px;
+}
+
+#ammoDisplay {
+    margin-right: -15px;
+    display: inline-block;
+    padding: 7px;
+    padding-top: 18px;
+    padding-left: 20px;
+    font-size: 35px;
+    letter-spacing: -2px;
+    border-radius: 10px;
+    height: 65px;
+    background-repeat: no-repeat;
+    background-size: 0% 100%;
+    background-image: unset;
+    -webkit-transform: translateZ(0);
+    -moz-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    -o-transform: translateZ(0);
+    transform: translateZ(0)
+}
+#killsVal,#deathsVal,#streakVal,#myScoreVal {
+    color: rgb(25 227 232)
+}
+#timerVal {
+    color: #19e3e8;
+    padding-left: 3px;
+    font-size: 32px;
+    will-change: transform;
+    transform: translateZ(0)
+}
+
+#ammoVal {
+    color: #19e3e8;
+    display: inline-block
+}
+
+#healthValueHolder {
+    background-color: rgba(0, 0, 0, 0);
+    margin-left: 780px;
+    margin-right: 0;
+    margin-bottom: 125px;
+    padding: 0;
+    padding-right: 0;
+    padding-left: 0;
+    padding-bottom: 8px;
+}
+
+#ammoDisplay {
+    background-color: rgba(0, 0, 0, 0);
+    margin-bottom: 160px;
+    margin-right: 780px;
+    padding: 0;
+    padding-top: 0;
+    padding-left: 10px;
+    padding-bottom: 17px;
+}
+.weapKey {
+    display: none;
+}
+#weapDisplay {
+    position: absolute;
+    z-index: 1;
+    right: 20px;
+    bottom: 0;
+}
+#healthValue {
+    font-size: 46px;
+    text-shadow: 0 0 1px #000, 0 0 3px #000, 0 0 5px #000, 0 0 7px #000;
+    text-align: center;
+}
+#maxHP {
+    font-size: 16px;
+    text-shadow: 0 0 1px #000, 0 0 3px #000, 0 0 5px #000, 0 0 7px #000;
+    margin-left: -13px;
+}
+#challIcon {
+    display: none;
+}
+#ammoVal {
+    font-size: 46px;
+    text-shadow: 0 0 1px #000, 0 0 3px #000, 0 0 5px #000, 0 0 7px #000;
+}
+#ammoMax {
+    font-size: 16px;
+    text-shadow: 0 0 1px #000, 0 0 3px #000, 0 0 5px #000, 0 0 7px #000;
+    margin-left: -6px;
+}
+#ammoIcon {
+    display: none;
+}
+#reloadMsg {
+    position: absolute;
+    margin-right: -50%;
+    left: 50%;
+    transform: translate(-50%, 0);
+    bottom: 45%;
+    font-size: 14px;
+    line-height: 0;
+    padding-left: 0;
+    padding-right: 0;
+    color: #eb5656;
+    text-shadow: 0 0 1px #000, 0 0 3px #000;
+    z-index: 2 !important;
+}
+#healthBar {
+    display: inline-block;
+    z-index: 3;
+    height: 14px;
+    transform: translate(780px, -140px);
+}
+.healthBarSeg {
+    width: 20px;
+    display: inline-block;
+    border-radius: 0;
+    margin-right: 4px;
+    margin-top: -9px;
+    margin-bottom: 9px;
+    box-shadow: 0 0 3px red;
+    height: 14px;
+    background-color: red;
+}
+.hpBSeg {
+    height: 14px;
+    border-radius: 0;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    background-color: none;
+    box-shadow: 0 0 3px #00d2ff;
+}
+
