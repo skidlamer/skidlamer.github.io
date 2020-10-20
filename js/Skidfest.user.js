@@ -1,11 +1,11 @@
 // ==UserScript==
-// @name         Skidfest
+// @name         SkidFest
 // @description  A Player aid in the game Krunker.io!
 // @author       SkidLamer
 // @version      0.3
 // @homepage     https://skidlamer.github.io/
-// @updateURL    https://skidlamer.github.io/Skidfest.user.js
-// @downloadURL  https://skidlamer.github.io/Skidfest.user.js
+// @updateURL    https://skidlamer.github.io/js/Skidfest.user.js
+// @downloadURL  https://skidlamer.github.io/js/Skidfest.user.js
 // @match        *.krunker.io/*
 // @exclude      *.krunker.io/social*
 // @run-at       document-body
