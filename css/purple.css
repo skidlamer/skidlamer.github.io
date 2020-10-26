@@ -1,0 +1,245 @@
+@font-face {
+	font-family: gamefont;
+	src: url(https://fonts.gstatic.com/s/inter/v2/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuFuYAZ9hiA.woff2) format('woff2');
+}
+
+@font-face {
+	font-family: hpammo;
+	src: url(https://fonts.gstatic.com/s/inter/v2/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuFuYAZ9hiA.woff2) format('woff2');
+}
+
+.iconProfile {
+    background-image: url(https://cdn.discordapp.com/attachments/717771741476421653/736647945570484344/profile.png);
+}
+
+.iconShop {
+    background-image: url(https://cdn.discordapp.com/attachments/717771741476421653/736647949664124948/shop.png);
+}
+
+.iconChall {
+    background-image: url(https://cdn.discordapp.com/attachments/717771741476421653/736647942190006343/chall.png);
+}
+
+.iconSocial {
+    background-image: url(https://cdn.discordapp.com/attachments/717771741476421653/736647948485525506/social.png);
+}
+
+.iconGames {
+    background-image: url(https://cdn.discordapp.com/attachments/717771741476421653/736647943179731004/games.png);
+}
+
+.iconMods {
+    background-image: url(https://cdn.discordapp.com/attachments/717771741476421653/736647944928886814/mods.png);
+}
+
+.iconSettings {
+    background-image: url(https://cdn.discordapp.com/attachments/717771741476421653/736647947584012478/settings.png);
+}
+
+.button {
+    background-color: #2F2E2F!important;
+    box-shadow: inset 0 -7px 0 0 #050000!important;
+    color: #E152ED;
+    border-radius: 50px;
+}
+
+.settName, .settNameSmall {
+    color: #E152ED;
+}
+
+#menuWindow {
+    border-radius: 50px;
+    background-color: rgb(47 46 47 / 70%);
+    box-shadow: 0 9px 0 0 #000000;
+}
+
+.settingsHeader {
+    background-color: rgb(47 46 47 / 70%);
+}
+
+.menuItem {
+    background: rgb(0 0 0 / 0%);
+}
+
+.accountButton {
+    background-color: #e152ed;
+    border-radius: 50px;
+}
+
+.headerBar {
+    background-color: rgb(0 0 0 / 0%);
+}
+
+* {
+    color: #03D5FF;
+}
+
+.sliderVal {
+    background: #FF00FF;
+    border-radius: 50px;
+}
+
+.sliderM {
+    background-color: #413F41;
+}
+
+.slider {
+    background-color: #2F2E30;
+    -webkit-transition: 1.4s;
+    transition: 1.4s;
+    border-radius: 50px;
+}
+
+.slider:before {
+    background-color: #000;
+    transition: .8s;
+    border-radius: 50px;
+}
+
+.inputGrey2 {
+    background: #2E2E31;
+}
+
+.sliderM::-webkit-slider-thumb {
+    background: #F801F6;
+}
+
+a:visited {
+    color: #F801F6;
+}
+
+#aContainer {
+    background-color: rgb(0, 0, 0);
+    display: none!important;
+}
+
+.menuItem:hover {
+    background: #ffffff2c;
+    border-radius: 50px;
+}
+
+a {
+    color: #03d5ff;
+}
+
+.xpBarB {
+    background-color: #03D5FF;
+}
+
+.menuClassPlayerVirus {
+    display: none;
+}
+
+#mainLogo {
+    display: none;
+}
+
+#timerIcon {
+    display: none;
+}
+
+#ammoIcon {
+    display: none;
+}
+
+#challIcon {
+    display: none;
+}
+
+.hpBSeg {
+    border-radius: 50px;
+}
+
+.healthBarSeg {
+    border-radius: 50px;
+}
+
+#hudClassIcon {
+    display: none;
+}
+
+#hudClassIcon {
+    display: none;
+}
+
+#merchImg {
+    display: none;
+}
+
+#streamContainer {
+    display: none;
+}
+
+#menuKRCount {
+    color: #03D5FF;
+}
+
+.krSocial {
+    background-color: #f9b8ff;
+    border-radius: 50px;
+    box-shadow: inset 0 -5px 0 0 #f9b8ff;
+    color: #ffffff!important;
+}
+
+.headerBar div {
+    color: #e152ed;
+}
+
+.settingsBtn {
+    background-color: #e152ed;
+}
+
+.menuItem .menuItemTitle {
+    color: #d64fe1;
+}
+
+.imageButton {
+    display: none!important;
+}
+
+#menuClassNameTag {
+    margin-top: -150px;
+}
+
+.leaderNameM span[style] {color: goldenrod!important;}
+
+.serverHeader {
+    background-color: #fff0;
+}
+
+#menuRegionLabel {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    visibility: hidden;
+}
+
+#menuRegionLabel::after {
+    content: 'krunkhub.xyz';
+    visibility: visible;
+    font-size: 20px;
+}
+
+.headerBarRight {
+    right: 0;
+    padding-left: 20px;
+    right: -28px;
+    top: -15px;
+}
+
+.mailFrom {
+    font-size: 18px;
+    color: #ef80f9;
+}
+
+.mailObj {
+    color: #03D5FF;
+}
+
+.standout {
+    color: #a586a8!important;
+}
+.terms {
+    color: #04d6ff;
+}
