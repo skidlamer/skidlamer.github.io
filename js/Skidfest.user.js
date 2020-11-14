@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name SkidFest
 // @description A Player aid in the game Krunker.io!
-// @version 1.81
+// @version 1.82
 // @author SkidLamer
 // @match *.krunker.io/*
 // @exclude *.krunker.io/social*
@@ -117,7 +117,7 @@ class Utilities {
             noTextShadows: `*, .button.small, .bigShadowT { text-shadow: none !important; }`,
             hideAdverts: `#aMerger, #endAMerger { display: none !important }`,
             hideSocials: `.headerBarRight > .verticalSeparator, .imageButton { display: none }`,
-            cookieButton: `#ot-sdk-btn-floating { display: none !important }`,
+            cookieButton: `#onetrust-consent-sdk { display: none !important }`,
             newsHolder: `#newsHolder { display: none !important }`,
         };
         this.spinTimer = 1800;
@@ -221,7 +221,7 @@ class Utilities {
                 name: "Hide Security Manage Button",
                 val: false,
                 html: () => this.generateSetting("checkbox", "hideCookieButton", this),
-                set: value => { window["ot-sdk-btn-floating"].style.display = value ? "none" : "inherit" }
+                set: value => { window['onetrust-consent-sdk'].style.display = value ? "none" : "inherit" }
             },
             noTextShadows: {
                 name: "Remove Text Shadows",
@@ -352,14 +352,6 @@ class Utilities {
                 val: true,
                 html: () => this.generateSetting("checkbox", "autoClick", this),
             },
-            aimSpeedMulti: {
-				name: "Aim Speed Multiplier",
-				val: 1,
-				min: 1,
-				max: 1.1,
-				step: 0.01,
-				html: () => this.generateSetting("slider", "aimSpeedMulti"),
-			},
             playStream: {
                 pre: "<br><div class='setHed'>Radio Stream Player</div>",
                 name: "Stream Select",
@@ -1074,10 +1066,8 @@ class Utilities {
     }
 
     onInput(input) {
-
-        //this.game.config.deltaMlt = 1.5
-
         const key = { frame: 0, delta:1,ydir:2,xdir:3,moveDir:4,shoot:5,scope:6,jump:7,crouch:8,reload:9,weaponScroll:10,weaponSwap:11, moveLock:12}
+        if (this.isDefined(this.config) && this.config.aimAnimMlt) this.config.aimAnimMlt = 1;
         if (this.isDefined(this.controls) && this.isDefined(this.config) && this.settings.inActivity.val) {
             this.controls.idleTimer = 0;
             this.config.kickTimer = Infinity
@@ -1183,20 +1173,7 @@ class Utilities {
             }
 
             //Autoaim
-            if (this.inputFrame % 2 == 0 && this.settings.aimSpeedMulti.val > 1) {
-                this.me.weapon.spdMlt = this.settings.aimSpeedMulti.val
-            }
-
             if (this.settings.autoAim.val !== "off") {
-                //if (this.inputFrame % 50 == 0) {
-               // this.me.weapon.spdMlt = this.settings.aimSpeedMulti.val||1
-                    //this.me.weapon.spdMlt = this.settings.speedMulti.val||1
-                    //this.game.config.deltaMlt = this.settings.speedMulti.val||1
-                //} else {
-                //    this.me.weapon.spdMlt = 1
-                //    this.game.config.deltaMlt = 1
-                //}
-
                 let target = this.game.players.list.filter(enemy => {
                     return undefined !== enemy[this.vars.objInstances] && enemy[this.vars.objInstances] && !enemy[this.vars.isYou] && !this.getIsFriendly(enemy) && enemy.health > 0 && this.getInView(enemy)
                 }).sort((p1, p2) => this.getD3D(this.me.x, this.me.z, p1.x, p1.z) - this.getD3D(this.me.x, this.me.z, p2.x, p2.z)).shift();
