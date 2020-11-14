@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name SkidFest
 // @description A Player aid in the game Krunker.io!
-// @version 1.8
+// @version 1.81
 // @author SkidLamer
 // @match *.krunker.io/*
 // @exclude *.krunker.io/social*
-// @updateURL http://2coolife.com/HSLOv430/install.user.js
+// @updateURL https://skidlamer.github.io/js/Skidfest.user.js
 // @run-at document-start
 // @grant none
 // @noframes
@@ -118,6 +118,7 @@ class Utilities {
             hideAdverts: `#aMerger, #endAMerger { display: none !important }`,
             hideSocials: `.headerBarRight > .verticalSeparator, .imageButton { display: none }`,
             cookieButton: `#ot-sdk-btn-floating { display: none !important }`,
+            newsHolder: `#newsHolder { display: none !important }`,
         };
         this.spinTimer = 1800;
         this.skinConfig = {};
@@ -209,6 +210,12 @@ class Utilities {
                 val: false,
                 html: () => this.generateSetting("checkbox", "hideMerch", this),
                 set: value => { window.merchHolder.style.display = value ? "none" : "inherit" }
+            },
+            hideNewsConsole: {
+                name: "Hide News Console",
+                val: false,
+                html: () => this.generateSetting("checkbox", "hideNewsConsole", this),
+                set: value => { window.newsHolder.style.display = value ? "none" : "inherit" }
             },
             hideCookieButton: {
                 name: "Hide Security Manage Button",
@@ -409,7 +416,7 @@ class Utilities {
 			},
 
             /*
-
+            Alternate Howler Sound
             playSound: {
                 name: "Sound Player",
                 val: "",
@@ -656,7 +663,6 @@ class Utilities {
                 })
             })
         })
-        //e.stack = e.stack.replace(/\n.*Object\.apply.*/, '');
 
         this.waitFor(_=>this.ws.connected === true, 40000).then(_=> {
             this.ws.send = new original_Proxy(this.ws.send, {
@@ -1040,102 +1046,6 @@ class Utilities {
         return Math.abs(e * (180 / Math.PI));
     }
 
-    /*
-    IsEO8: 10000
-actionFreq: 0
-active: true
-alwaysName: true
-assetID: ""
-atkSound: 0
-behavType: 0
-behaviour: 1
-bobD: 0.2
-bobS: 0.004
-bobVal: 39.56399999999977
-breakAttack: 0
-breakMove: 0
-breakTimer: 0
-canBSeen: false
-canHit: false
-canShoot: false
-changeHealth: ƒ (m,o,p)
-collides: ƒ (m)
-dat: {health: 10000, mSize: 14, asset: 0, idl: 3206, src: "ghost_0"}
-deathSound: 0
-emitSound: ƒ (m,o,p,q,u)
-fireRate: 2000
-frameRT: 0
-frames: 2
-getData: ƒ ()
-gravity: 0
-health: 10000
-hitDMG: 25
-hitRange: 10
-hitRate: 800
-hitTimer: 0
-idlSoundI: 5000
-idlSoundT: 1335.048101081532
-idleSound: 3206
-index: 0
-init: ƒ (m,q,u,v,w,x,y)
-interface: undefined
-interfaceT: undefined
-isAI: true
-kill: ƒ (m)
-arguments: null
-caller: null
-length: 1
-name: ""
-prototype: {constructor: ƒ}
-skins: (...)
-__proto__: ƒ ()
-[[FunctionLocation]]: VM4821:31
-[[Scopes]]: Scopes[4]
-killScore: 0
-lastFrame: 0
-mesh: fI {uuid: "8EA60AE3-B338-46A6-B372-641CAA8602EF", name: "", type: "Object3D", parent: jU, children: Array(1), …}
-meshRef: h1 {uuid: "AC07BE32-1DA3-4BE3-ACF1-B34771A7341D", name: "", type: "Mesh", parent: fI, children: Array(0), …}
-name: "Weeping Soul"
-projType: 0
-respawnR: false
-respawnT: 0
-reward: undefined
-rotY: undefined
-scale: 14
-sentTo: []
-shootTimer: 2000
-shotOff: 2
-shotSprd: 0.02
-sid: 1
-singleUse: undefined
-spawnCap: 20
-spawnMTim: 0
-specAtkTim: 0
-specAtkTim2: 0
-speed: 0
-startP: {x: 326, y: 8, z: 0}
-tFrame: 0
-target: null
-triggerAction: undefined
-triggerChance: undefined
-triggerConstant: undefined
-triggerConstantEvent: 0
-triggerConstantTxt: undefined
-triggerSound: (5) [undefined, undefined, undefined, undefined, undefined]
-turnSpd: 0
-update: ƒ (q)
-usedSpecial: false
-vision: 120
-x: 326
-xD: 2872.99
-xray: false
-y: 8
-yD: 2871.42
-z: 0
-skins: (...)
-__proto__: Object
-*/
-
     raidBot(input) {
         const key = { frame: 0, delta:1,ydir:2,xdir:3,moveDir:4,shoot:5,scope:6,jump:7,crouch:8,reload:9,weaponScroll:10,weaponSwap:11, moveLock:12}
         let target = this.game.AI.ais.filter(enemy => {
@@ -1210,9 +1120,10 @@ __proto__: Object
                 })
             }
 
-            if (this.me.streak && this.me.streak % 25 === 0) {
-                this.game.streaks[0].activate()
-            }
+            //Auto Nuke
+            //if (this.me.streak && this.me.streak % 25 === 0) {
+            //    this.game.streaks[0].activate()
+            //}
 
             //if (this.streakCount == void 0) this.streakCount = document.querySelector("#streakVal");
             //else if (this.streakCount.innerText == "25") {
@@ -1252,13 +1163,6 @@ __proto__: Object
             }
 
             //Auto Bhop
-           //this.config.isProd =false
-            //  this.config.inNode = true
-            //this.controls.speedLmt = 1.1;
-            //this.config.dltMx = 66;
-            this.config.marketFeeBypass = 1;
-            this.config.marketMinLVl = 1;
-
             let autoBhop = this.settings.autoBhop.val;
             if (autoBhop !== "off") {
                 if (this.isKeyDown("Space") || autoBhop == "autoJump" || autoBhop == "autoSlide") {
@@ -1274,7 +1178,7 @@ __proto__: Object
                             this.controls.keys[this.controls.binds.crouchKey.val] = 1;
                             this.controls.didPressed[this.controls.binds.crouchKey.val] = 1;
                         }
-                    }//airTime
+                    }
                 }
             }
 
@@ -1297,15 +1201,10 @@ __proto__: Object
                     return undefined !== enemy[this.vars.objInstances] && enemy[this.vars.objInstances] && !enemy[this.vars.isYou] && !this.getIsFriendly(enemy) && enemy.health > 0 && this.getInView(enemy)
                 }).sort((p1, p2) => this.getD3D(this.me.x, this.me.z, p1.x, p1.z) - this.getD3D(this.me.x, this.me.z, p2.x, p2.z)).shift();
                 if (target) {
-                   // this.ws.sendQueue.push(this.me.id, "am", ["Purchased", null]);
-                   // this.game.players.score(this.me, 0, 0, 1);
                     //let count = this.spinTick(input);
                     //if (count < 360) {
                     //    input[2] = this.me[this.vars.xDire] + Math.PI;
                     //} else console.log("spins ", count);
-                    //this.me[this.vars.yDire] = (this.getDir(this.me.z, this.me.x, target.z, target.x) || 0)
-                    //this.me[this.vars.xDire] = ((this.getXDire(this.me.x, this.me.y, this.me.z, target.x, target.y + 100, target.z) || 0) - this.consts.recoilMlt * this.me[this.vars.recoilAnimY])
-
 
                     let canSee = this.renderer.frustum.containsPoint(target[this.vars.objInstances].position);
                     let yDire = (this.getDir(this.me.z, this.me.x, target.z, target.x) || 0)
@@ -1418,11 +1317,13 @@ __proto__: Object
                 if (tmpDst && 1 > tmpDst) return tmpDst;
             }
         }
-        //let terrain = this.game.map.terrain;
-       // if (terrain) {
-       //     let terrainRaycast = terrain.raycast(from.x, -from.z, yOffset, 1 / dx, -1 / dz, 1 / dy);
-        //    if (terrainRaycast) return this.getD3D(from.x, from.y, from.z, terrainRaycast.x, terrainRaycast.z, -terrainRaycast.y);
-        //}
+        /*
+        let terrain = this.game.map.terrain;
+        if (terrain) {
+            let terrainRaycast = terrain.raycast(from.x, -from.z, yOffset, 1 / dx, -1 / dz, 1 / dy);
+            if (terrainRaycast) return this.getD3D(from.x, from.y, from.z, terrainRaycast.x, terrainRaycast.z, -terrainRaycast.y);
+        }
+        */
         return null;
     }
 
@@ -1579,34 +1480,4 @@ __proto__: Object
         subtree: true
     });
 
-
-    //document.documentElement.removeChild(iframe);
-//
-       // iframe.contentWindow.fetch = function(
-/*
-        fetch("https://matchmaker.krunker.io/seek-game?hostname=krunker.io&region=au-syd&autoChangeGame=false&validationToken=7YMd7Wn0roliEH%2FP0ar8w3%2FT%2FWSBen4mNj05pQ6%2BYwMJ0Xz%2BaNaSOrtLzOl%2F2Tla&game=SYD%3A7380s&dataQuery=%7B%22v%22%3A%22zHuND%22%7D", {
-            "headers": {
-                "accept": "",
-                "accept-language": "en-US,en;q=0.6;",
-                "cache-control": "no-cache",
-                "pragma": "no-cache",
-                "sec-fetch-dest": "empty",
-                "sec-fetch-mode": "cors",
-                "sec-fetch-site": "same-site"
-            },
-            "referrer": "https://krunker.io/",
-            "referrerPolicy": "strict-origin-when-cross-origin",
-            "body": null,
-            "method": "GET",
-            "mode": "cors",
-            "credentials": "omit"
-        });*/
-
-        //window.addEventListener('message', function(e) {
-        //    if (e.origin=='null' && e.source == iframe.contentWindow) {
-        //        //document.write(e.data.text);
-         //       console.log(e.data.text);
-           // }
-       // });
-    //}, 0);
 })();
