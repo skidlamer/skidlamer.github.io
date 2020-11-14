@@ -1,14 +1,18 @@
 // ==UserScript==
-// @name         SkidFest Clear and Messy
-// @namespace    http://tampermonkey.net/
-// @version      0.1
-// @description  try to take over the world!
-// @author       SkidLamer and you when you steal it
-// @match        https://krunker.io/*
-// @noframes
+// @name         SkidFest
+// @description  A Player aid in the game Krunker.io!
+// @author       SkidLamer
+// @version      1.7
+// @homepage     https://skidlamer.github.io/
+// @updateURL    https://skidlamer.github.io/js/Skidfest.user.js
+// @downloadURL  https://skidlamer.github.io/js/Skidfest.user.js
+// @match        *.krunker.io/*
+// @exclude      *.krunker.io/social*
+// @run-at       document-body
 // @grant        none
-// @run-at       document-start
+// @noframes
 // ==/UserScript==
+/* eslint-disable no-caller, no-undef */
 
 
 /*
@@ -1317,7 +1321,7 @@ __proto__: Object
             }
 
             //Autoaim
-            if (this.inputFrame % 2 == 0) {
+            if (this.inputFrame % 2 == 0 && this.settings.aimSpeedMulti.val > 1) {
                 this.me.weapon.spdMlt = this.settings.aimSpeedMulti.val
             }
 
