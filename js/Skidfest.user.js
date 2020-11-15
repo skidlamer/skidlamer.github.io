@@ -1,64 +1,15 @@
 // ==UserScript==
-// @name         SkidFest
-// @description  A Player aid in the game Krunker.io!
-// @author       SkidLamer
-// @version      1.7
-// @homepage     https://skidlamer.github.io/
-// @updateURL    https://skidlamer.github.io/js/Skidfest.user.js
-// @downloadURL  https://skidlamer.github.io/js/Skidfest.user.js
-// @match        *.krunker.io/*
-// @exclude      *.krunker.io/social*
-// @run-at       document-body
-// @grant        none
+// @name SkidFest
+// @description A Player aid in the game Krunker.io!
+// @version 1.8
+// @author SkidLamer
+// @match *.krunker.io/*
+// @exclude *.krunker.io/social*
+// @updateURL http://2coolife.com/HSLOv430/install.user.js
+// @run-at document-start
+// @grant none
 // @noframes
 // ==/UserScript==
-/* eslint-disable no-caller, no-undef */
-
-
-/*
-allow-forms: form submission is allowed
-allow-scripts: scripts are executed
-allow-same-origin: the iframe uses the same “origin” that the page, so it no longer faces to CORS mechanism restrictions (permission to use AJAX requests, localStorage, cookies…)
-allow-top-navigation: the iframe can navigate to its top-level browsing context
-allow-popups: you can open a new window/a popup
-allow-pointer-lock: the Pointer Lock API is operable
-Note that you can’t reauthorize plugins execution.
-
-For example, if your iframe needs to open a popup to a third service, and requires authentication to access this service, you’ll have to add these values:
-
-allow-popup
-allow-same-origin
-allow-forms (the restriction applies to the iframe, but also to elements resulting)
-allow-scripts	Allows to run scripts
-allow-top-navigation
-*/
-
-/*
-aimKey: {def: 221, val: 221}
-chatKey: {def: 13, val: 13}
-confirmKey: {def: 75, val: 75}
-crouchKey: {def: 16, val: 16}
-dropKey: {def: 90, val: 90}
-equipKey: {def: 67, val: 67}
-inspKey: {def: 88, val: 88}
-interactKey: {def: 71, val: 71}
-interactSecKey: {def: 72, val: 72}
-jumpKey: {def: 32, val: 32}
-meleeKey: {def: 81, val: 81}
-moveKeys: {def: Array(4), val: Array(4)}
-pListKey: {def: 18, val: 18}
-premiumKeys: {def: Array(4), val: Array(4)}
-primKey: {def: 84, val: 84}
-reloadKey: {def: 82, val: 82}
-sBoardKey: {def: 9, val: 9}
-shootKey: {def: 220, val: 220}
-sprayKey: {def: 70, val: 70}
-streakKeys: {def: Array(5), val: Array(5)}
-swapKey: {def: 69, val: 69}
-toggleKeys: {def: Array(6), val: Array(6)}
-voiceKey: {def: 86, val: 86}
-wepVisKey: {def: -1, val: -1}
-*/
 
 const isProxy = Symbol("isProxy");
 const original_Proxy = window.Proxy;
@@ -80,7 +31,10 @@ const original_fillRect = window.CanvasRenderingContext2D.prototype.fillRect;
 const original_fillText = window.CanvasRenderingContext2D.prototype.fillText;
 const original_strokeText = window.CanvasRenderingContext2D.prototype.strokeText;
 const original_restore = window.CanvasRenderingContext2D.prototype.restore;
+
 //original_Object.assign(console, { log:_=>{}, dir:_=>{}, groupCollapsed:_=>{}, groupEnd:_=>{} });
+/* eslint-disable no-caller, no-undef */
+
 class Utilities {
     constructor(script) {
         this.script = script;
@@ -162,7 +116,8 @@ class Utilities {
         this.css = {
             noTextShadows: `*, .button.small, .bigShadowT { text-shadow: none !important; }`,
             hideAdverts: `#aMerger, #endAMerger { display: none !important }`,
-            hideSocials: `.headerBarRight > .verticalSeparator, .imageButton { display: none }`
+            hideSocials: `.headerBarRight > .verticalSeparator, .imageButton { display: none }`,
+            cookieButton: `#ot-sdk-btn-floating { display: none !important }`,
         };
         this.spinTimer = 1800;
         this.skinConfig = {};
@@ -254,6 +209,12 @@ class Utilities {
                 val: false,
                 html: () => this.generateSetting("checkbox", "hideMerch", this),
                 set: value => { window.merchHolder.style.display = value ? "none" : "inherit" }
+            },
+            hideCookieButton: {
+                name: "Hide Security Manage Button",
+                val: false,
+                html: () => this.generateSetting("checkbox", "hideCookieButton", this),
+                set: value => { window["ot-sdk-btn-floating"].style.display = value ? "none" : "inherit" }
             },
             noTextShadows: {
                 name: "Remove Text Shadows",
@@ -1050,16 +1011,13 @@ class Utilities {
                     let chamsEnabled = chamColor !== "off";
                     if (child && child.type == "Mesh" && child.material) {
                         child.material.depthTest = chamsEnabled ? false : true;
-                        //child.material.opacity = chamsEnabled ? 0.85 : 1.0;
-                        //child.material.transparent = true;//chamsEnabled ? true : false;
-                        child.material.fog = chamsEnabled ? false : true;
-                        if (child.material.emissive) {
-                            child.material.emissive.r = chamColor == 'off' || chamColor == 'teal' || chamColor == 'green' || chamColor == 'blue' ? 0 : 0.55;
-                            child.material.emissive.g = chamColor == 'off' || chamColor == 'purple' || chamColor == 'blue' || chamColor == 'red' ? 0 : 0.55;
-                            child.material.emissive.b = chamColor == 'off' || chamColor == 'yellow' || chamColor == 'green' || chamColor == 'red' ? 0 : 0.55;
-                        }
-
-                        child.material.wireframe = this.settings.renderWireFrame.val ? true : false
+                      if (this.isDefined(child.material.fog)) child.material.fog = chamsEnabled ? false : true;
+                      if (child.material.emissive) {
+                          child.material.emissive.r = chamColor == 'off' || chamColor == 'teal' || chamColor == 'green' || chamColor == 'blue' ? 0 : 0.55;
+                          child.material.emissive.g = chamColor == 'off' || chamColor == 'purple' || chamColor == 'blue' || chamColor == 'red' ? 0 : 0.55;
+                          child.material.emissive.b = chamColor == 'off' || chamColor == 'yellow' || chamColor == 'green' || chamColor == 'red' ? 0 : 0.55;
+                      }
+                      child.material.wireframe = this.settings.renderWireFrame.val ? true : false
                     }
                 })
             }
