@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name SkidFest
 // @description A Player aid in the game Krunker.io!
-// @version 1.82
+// @version 1.83
 // @author SkidLamer
 // @homepage https://skidlamer.github.io/
 // @match *.krunker.io/*
@@ -312,6 +312,15 @@ class Utilities {
                 val: false,
                 html: () => this.generateSetting("checkbox", "wallPenetrate"),
             },
+            weaponZoom: {
+				name: "Weapon Zoom",
+				val: 1.0,
+				min: 0,
+				max: 50.0,
+				step: 0.01,
+				html: () => this.generateSetting("slider", "weaponZoom"),
+				set: (value) => { if (this.renderer) this.renderer.adsFovMlt = value;}
+			},
             autoBhop: {
                 pre: "<br><div class='setHed'>Player</div>",
                 name: "Auto Bhop Type",
@@ -642,6 +651,7 @@ class Utilities {
                 ["colors", ["challLvl", "getChallCol"]],
                 ["ui", ["showEndScreen", "toggleControlUI", "toggleEndScreen", "updatePlayInstructions"]],
                 ["ws", ["sendQueue"]],
+                ["events", ["actions", "events"]],
             ])
             return this.waitFor(_ => found.size === array.size, 20000, () => {
                 array.forEach((arr, name, map) => {
@@ -1116,12 +1126,18 @@ class Utilities {
             //    this.game.streaks[0].activate()
             //}
 
-            //if (this.streakCount == void 0) this.streakCount = document.querySelector("#streakVal");
+           // if (this.streakCount == void 0) this.streakCount = document.querySelector("#streakVal");
             //else if (this.streakCount.innerText == "25") {
+            //    if (me && Object.keys(me.streaks).length) {
+             //       this.ws.sendQueue.push(["k", 0]);
+             //   }
+            //}
+  //  sendWsMessage("k", 0)
+//}
             //    let nukeKey = this.controls.binds.streakKeys.val[0];
         //  .      this.controls.keys[nukeKey] = 1;
         //        this.controls.didPressed[nukeKey] = 1;
-         //   }
+           // }
                // let nukeKey = 32//this.controls.binds.streakKeys.val[0];
                 //this.simulateKey(nukeKey, "keydown");
                // this.simulateKey(nukeKey, "keyup");
