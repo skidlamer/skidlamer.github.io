@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name SkidFest
 // @description A Player aid in the game Krunker.io!
-// @version 1.83
+// @version 1.84
 // @author SkidLamer
 // @homepage https://skidlamer.github.io/
 // @match *.krunker.io/*
@@ -780,7 +780,14 @@ class Utilities {
        //     apply: function(target, that, [value, startTime]) {
        //         return target.apply(that, [value / 100, startTime+1]);
         //    }
-       // })
+        // })
+
+        AudioParam.prototype.setValueAtTime = new Proxy(AudioParam.prototype.setValueAtTime, {
+            apply: function(target, that, [value, startTime]) {
+                return target.apply(that, [value, 0]);
+            }
+        })
+
     }
 
     patchScript() {
@@ -856,8 +863,8 @@ class Utilities {
             mouseDownR: { regex: /this\['(\w+)']=0x0,this\['keys']=/, pos: 1 },
             reloadTimer: { regex:  /this\['(\w+)']-=\w+,\w+\['reloadUIAnim']/, pos: 1 },///this\['(\w+)']&&\(this\['noMovTimer']=0x0/, pos: 1 },
             maxHealth: { regex: /this\['health']\/this\['(\w+)']\?/, pos: 1 },
-            xDire: { regex: /this\['(\w+)']=\w+\['round']\(0x3\),this\['(\w+)']=\w+\['round']/, pos: 1 },
-            yDire: { regex: /this\['(\w+)']=\w+\['round']\(0x3\),this\['(\w+)']=\w+\['round']/, pos: 2 },
+            xDire: { regex: /this\['(\w+)']=Math\['lerpAngle']\(this\['xDir2']/, pos: 1 },
+            yDire: { regex: /this\['(\w+)']=Math\['lerpAngle']\(this\['yDir2']/, pos: 1 },
             //xVel: { regex: /this\['x']\+=this\['(\w+)']\*\w+\['map']\['config']\['speedX']/, pos: 1 },
             yVel: { regex: /this\['y']\+=this\['(\w+)']\*\w+\['map']\['config']\['speedY']/, pos: 1 },
             //zVel: { regex: /this\['z']\+=this\['(\w+)']\*\w+\['map']\['config']\['speedZ']/, pos: 1 },
