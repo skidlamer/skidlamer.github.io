@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name SkidFest
 // @description A Player aid in the game Krunker.io!
-// @version 1.84
+// @version 1.85
 // @author SkidLamer
 // @homepage https://skidlamer.github.io/
 // @match *.krunker.io/*
@@ -157,6 +157,10 @@ class Utilities {
 
     isDefined(object) {
         return !this.isType(object, "undefined") && object !== null;
+    }
+
+    isNative(fn) {
+        return (/^function\s*[a-z0-9_\$]*\s*\([^)]*\)\s*\{\s*\[native code\]\s*\}/i).test('' + fn)
     }
 
     getStatic(s, d) {
@@ -450,16 +454,16 @@ class Utilities {
         // Inject Html
         let waitForWindows = setInterval(_ => {
             if (window.windows) {
-                const menu = window.windows[21];
+                const menu = window.windows[11];
                 menu.header = "Settings";
                 menu.gen = _ => {
-                    var tmpHTML = `<div style='text-align:center'> <a onclick='window.open("https://skidlamer.github.io/")' class='menuLink'>GamingGurus Settings</center></a> <hr> </div>`;
+                    var tmpHTML = `<div style='text-align:center'> <a onclick='window.open("https://skidlamer.github.io/")' class='menuLink'>Gaming Gurus Settings</center></a> <hr> </div>`;
                     for (const key in this.settings) {
                         if (this.settings[key].pre) tmpHTML += this.settings[key].pre;
                         tmpHTML += "<div class='settName' id='" + key + "_div' style='display:" + (this.settings[key].hide ? 'none' : 'block') + "'>" + this.settings[key].name +
                             " " + this.settings[key].html() + "</div>";
                     }
-                    tmpHTML += `<br><hr><a onclick='window.utilities.resetSettings()' class='menuLink'>Reset Settings</a>`
+                    tmpHTML += `<br><hr><a onclick='window.utilities.resetSettings()' class='menuLink'>Reset Settings</a> | <a onclick='window.utilities.saveScript()' class='menuLink'>Save GameScript</a>`
                    /// tmpHTML += `<audio controls><source src='window.utilities.settings.playSound.sound.src'/></audio>`
                     return tmpHTML;
                 };
@@ -557,6 +561,10 @@ class Utilities {
         window.document.body.removeChild(el);
     }
 
+    saveScript() {
+        this.saveAs("game_" + this.getVersion() + ".js", this.script)
+    }
+
     isKeyDown(key) {
         return this.downKeys.has(key);
     }
@@ -593,7 +601,7 @@ class Utilities {
     toggleMenu() {
         let lock = document.pointerLockElement || document.mozPointerLockElement;
         if (lock) document.exitPointerLock();
-        window.showWindow(22);
+        window.showWindow(12);
         if (this.isDefined(window.SOUND)) window.SOUND.play(`tick_0`,0.1)
     }
 
@@ -621,7 +629,9 @@ class Utilities {
             if ('INPUT' == document.activeElement.tagName || !window.endUI && window.endUI.style.display) return;
             switch (event.code) {
                 case 'NumpadSubtract':
-                    console.dir(this)
+                    document.exitPointerLock();
+                   //console.log(document.exitPointerLock)
+                    console.dirxml(this)
                     break;
                 default:
                     if (!this.downKeys.has(event.code)) this.downKeys.add(event.code);
@@ -644,14 +654,14 @@ class Utilities {
             if (!exports) return alert("Exports not Found");
             const found = new Set();
             const array = new Map([
-                ["utility", ["getAnglesSSS", "rgbToHex"]],
+                ["utility", ["boxCornerIntersection", "getAngleDist2", "extractProperties", "formatConstName"]],
                 ["config", ["serverTickRate", "camChaseTrn", "cameraHeight", "hitBoxPad"]],
                 ["overlay", ["render", "canvas"]],
                 ["three", ["ACESFilmicToneMapping", "TextureLoader", "ObjectLoader"]],
-                ["colors", ["challLvl", "getChallCol"]],
-                ["ui", ["showEndScreen", "toggleControlUI", "toggleEndScreen", "updatePlayInstructions"]],
-                ["ws", ["sendQueue"]],
-                ["events", ["actions", "events"]],
+                //["colors", ["challLvl", "getChallCol"]],
+                //["ui", ["showEndScreen", "toggleControlUI", "toggleEndScreen", "updatePlayInstructions"]],
+                ["ws", ["socketReady", "ingressPacketCount", "ingressPacketCount", "egressDataSize"]],
+                //["events", ["actions", "events"]],
             ])
             return this.waitFor(_ => found.size === array.size, 20000, () => {
                 array.forEach((arr, name, map) => {
@@ -675,6 +685,11 @@ class Utilities {
                     } catch (e) {
                         e.stack = e.stack = e.stack.replace(/\n.*Object\.apply.*/, '');
                         throw e;
+                    }
+
+                    if (args[0] === "ahl") {
+                        args[0] = "p";
+                        args[1] = null;
                     }
 
                     if (args[0] === "ent") {
@@ -795,15 +810,15 @@ class Utilities {
         .set("exports", [/(function\(\w,\w,(\w)\){)'use strict';(\(function\((\w)\){)\//, `$1$3 window.utilities.exports=$2.c; window.utilities.modules=$2.m;/`])
         //.set("exports", [/(function\(\w+,\w+,(\w+)\){\(function\(\w+\){)(\w+\['exports'])/,`$1window.utilities.exports=$2.c; window.utilities.modules=$2.m;$3`])
         .set("inView", [/if\((!\w+\['\w+'])\)continue;/, "if($1&&void 0 !== window.utilities.nameTags)continue;"])
-        .set("inputs", [/(\w+\['tmpInpts']\[\w+\['tmpInpts']\['\w+']\?'\w+':'push']\()(\w+)/, `$1window.utilities.onInput($2)`])
+        .set("inputs", [/(\w+\['\w+']\[\w+\['\w+']\['\w+']\?'\w+':'push']\()(\w+)\),/, `$1window.utilities.onInput($2)),`])
         //.set("procInputs", [/this\['meleeAnim']\['armS']=0x0;},this\['\w+']=function\((\w+),\w+,\w+,\w+\){/, `$&window.cheat.onInput($1);`])
         //.set("wallBangs", [/!(\w+)\['transparent']/, "$&& (!cheat.settings.wallbangs || !$1.penetrable )"])
         .set("thirdPerson", [/(\w+)\[\'config\'\]\[\'thirdPerson\'\]/g, `void 0 !== window.utilities.thirdPerson`])
         //.set("onRender", [/\w+\['render']=function\((\w+,\w+,\w+,\w+,\w+,\w+,\w+,\w+)\){/, `$&window.cheat.onRender($1);`])
-        .set("isHacker", [/(window\['activeHacker']=)!0x0/, `$1!0x1`])
+        .set("isHacker", [/(window\['\w+']=)!0x0\)/, `$1!0x1)`])
         .set("Damage", [/\['send']\('vtw',(\w+)\)/, `['send']('kpd',$1)`])
         .set("fixHowler", [/(Howler\['orientation'](.+?)\)\),)/, ``])
-        .set("respawnT", [/'respawnT':0x3e8/g, `'respawnT':0x0`])
+        .set("respawnT", [/'\w+':0x3e8\*/g, `'respawnT':0x0*`])
         //.set("FPS", [/(window\['mozRequestAnimationFrame']\|\|function\(\w+\){window\['setTimeout'])\(\w+,0x3e8\/0x3c\);/, "$1()"])
         //.set("Update", [/(\w+=window\['setTimeout']\(function\(\){\w+)\((\w+)\+(\w+)\)/, "$1($2=$3=0)"])
        // .set("weaponZoom", [/(,'zoom':)(\d.+?),/g, "$1window.utilities.settings.weaponZoom.val||$2"])
@@ -852,16 +867,16 @@ class Utilities {
             didShoot: { regex: /--,\w+\['(\w+)']=!0x0/, pos: 1 },
             nAuto: { regex: /'Single\\x20Fire','varN':'(\w+)'/, pos: 1 },
             crouchVal: { regex: /this\['(\w+)']\+=\w\['\w+']\*\w+,0x1<=this\['\w+']/, pos: 1 },
-            recoilAnimY: { regex: /this\['(\w+)']=0x0,this\['recoilForce']=0x0/, pos: 1 },
+            recoilAnimY: { regex: /\+\(-Math\['PI']\/0x4\*\w+\+\w+\['(\w+)']\*\w+\['\w+']\)\+/, pos: 1 },
             //recoilAnimY: { regex: /this\['recoilAnim']=0x0,this\[(.*?\(''\))]/, pos: 1 },
             ammos: { regex: /\['length'];for\(\w+=0x0;\w+<\w+\['(\w+)']\['length']/, pos: 1 },
             weaponIndex: { regex: /\['weaponConfig']\[\w+]\['secondary']&&\(\w+\['(\w+)']==\w+/, pos: 1 },
             isYou: { regex: /0x0,this\['(\w+)']=\w+,this\['\w+']=!0x0,this\['inputs']/, pos: 1 },
-            objInstances: { regex: /\w+\['genObj3D']\(0x0,0x0,0x0\);if\(\w+\['(\w+)']=\w+\['genObj3D']/, pos: 1 },
+            objInstances: { regex: /\w+\['\w+']\(0x0,0x0,0x0\);if\(\w+\['(\w+)']=\w+\['\w+']/, pos: 1 },
             getWorldPosition: { regex: /{\w+=\w+\['camera']\['(\w+)']\(\);/, pos: 1 },
             //mouseDownL: { regex: /this\['\w+'\]=function\(\){this\['(\w+)'\]=\w*0,this\['(\w+)'\]=\w*0,this\['\w+'\]={}/, pos: 1 },
             mouseDownR: { regex: /this\['(\w+)']=0x0,this\['keys']=/, pos: 1 },
-            reloadTimer: { regex:  /this\['(\w+)']-=\w+,\w+\['reloadUIAnim']/, pos: 1 },///this\['(\w+)']&&\(this\['noMovTimer']=0x0/, pos: 1 },
+            //reloadTimer: { regex:  /this\['(\w+)']-=\w+,\w+\['reloadUIAnim']/, pos: 1 },///this\['(\w+)']&&\(this\['noMovTimer']=0x0/, pos: 1 },
             maxHealth: { regex: /this\['health']\/this\['(\w+)']\?/, pos: 1 },
             xDire: { regex: /this\['(\w+)']=Math\['lerpAngle']\(this\['xDir2']/, pos: 1 },
             yDire: { regex: /this\['(\w+)']=Math\['lerpAngle']\(this\['yDir2']/, pos: 1 },
@@ -894,6 +909,18 @@ class Utilities {
         let worldPosition = this.renderer.camera[this.vars.getWorldPosition]();
         let espVal = this.settings.renderESP.val;
         if (espVal ==="walls"||espVal ==="twoD") this.nameTags = undefined; else this.nameTags = true;
+
+        if (this.isNative(this.renderer.frustum.containsPoint)) {
+            this.renderer.frustum.containsPoint = function (point) {
+                let planes = this.planes;
+                for (let i = 0; i < 6; i ++) {
+                    if (planes[i].distanceToPoint(point) < 0) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
 
         for (let iter = 0, length = this.game.players.list.length; iter < length; iter++) {
             let player = this.game.players.list[iter];
@@ -1093,6 +1120,7 @@ class Utilities {
         if (this.me) {
             this.inputFrame ++;
             if (this.inputFrame >= 100000) this.inputFrame = 0;
+            /*
             if (!this.game.decreaseWeapon[isProxy]) {
                 this.game.decreaseWeapon = new original_Proxy(this.game.decreaseWeapon, {
                     apply: function(target, that, args) {
@@ -1114,7 +1142,7 @@ class Utilities {
                         return key === isProxy ? true : Reflect.get(target, key);
                     },
                 })
-            }
+            }*/
 
             if (!this.game.playerSound[isProxy]) {
                 this.game.playerSound = new original_Proxy(this.game.playerSound, {
@@ -1381,104 +1409,88 @@ class Utilities {
 }
 
 (function() {
-    var iframe, iframeWin, iframeDoc, script;
-    iframe = document.createElement("iframe");
-    iframe.src = location.origin;//href;
-    //iframe.sandbox = "allow-same-origin";// "allow-same-origin", "allow-scripts"};
-    iframe.style.display = 'none';
-    document.documentElement.appendChild(iframe);
-    iframeWin = iframe.contentWindow;
-    iframeDoc = iframe.contentDocument || iframeWin.document;
-    //script = document.createElement("script");
-    //script.innerHTML = Haxx.toString().concat("window.haxx = new Haxx()");
-    //iframeDoc.documentElement.append(script);
-    //iframeDoc.documentElement.remove(script);
-
-    iframeWin.fetch = new original_Proxy(original_fetch, {
-        apply(target, that, [url, opt]) {
-            const initWASM = function(module){module.onRuntimeInitialized();};
-            //if (url.startsWith("/pkg/maindemo.wasm")) return new original_Promise(resolve => resolve(null));
-            if (url.startsWith("/pkg/maindemo.js")) {
-                original_Function.prototype.apply.apply(target, [that, [url, opt]]).then(res => console.log(res));
-                return new original_Promise(resolve => resolve({text:_=>`window.initWASM = ${initWASM.toString()}`}));
-            }
-            if (!url.startsWith("seek-game", 30)) { console.log(url); return original_Function.prototype.apply.apply(target, [that, [url, opt]]); }
-           // else {
-          //      try {
-                    //new original_Promise(resolve => resolve(decodeURIComponent(/Token=(.+)&data/.exec(url)[1]))).then(token => { console.log("token:",token); return tokenPromise(token) });
-              //      new original_Promise(resolve => resolve(decodeURIComponent(/Token=(.+)&data/.exec(url)[1]))).then(token => { console.log("token:",token); return tokenPromise(token, {csv:_=>new Promise.resolve(0)}) });
-
-            //    } catch(e) {
-             //       console.error(e.stack);
-             //   }
-           // }
-        }
-    })
-
-    window.Function = new original_Proxy(original_Function, {
-        construct(target, args) {
-            const that = new target(...args);
-            if (args.length) {
-                let string = args[args.length - 1];
-
-                if (string.length > 38e5) {
-                    window.utilities = new Utilities(string);
-                    string = window.utilities.patchScript();
+    //'use strict';
+    let initialize = function() {
+        window._debugTimeStart = Date.now();
+        fetch(location.origin+"/pkg/maindemo.wasm", {
+            cache: "no-store"
+        }).then(res=>res.arrayBuffer()).then(buff=>{
+            window.mod.wasmBinary = buff;
+            fetch(location.origin+"/pkg/maindemo.js", {
+                cache: "no-store"
+            }).then(res=>res.text()).then(body=>{
+                body = body.replace(/(function UTF8ToString\((\w+),\w+\)){return \w+\?(.+?)\}/, `$1{let str=$2?$3;if (str.includes("CLEAN_WINDOW") || str.includes("Array.prototype.filter = undefined")) return "";return str;}`);
+                body = body.replace(/(_emscripten_run_script\(\w+\){)eval\((\w+\(\w+\))\)}/, `$1 let str=$2; console.log(str);}`);
+                //body = body.replace(/return (UTF8Decoder\.decode\(heap.subarray\(idx,endPtr\)\))/, `let outStr = $1; if (outStr.startsWith("var vrtInit"))outStr = window.mod.patchScript(outStr);else console.log(outStr); return outStr`);
+                //body = body.replace(/return (stringToUTF8Array\(str,HEAPU8,outPtr,maxBytesToWrite\))/, `if(str.length>4e6)str = window.mod.patchScript(str);else console.log(str); return $1`);
+                //body = body.replace(/(function UTF8ToString\((\w+),\w+\)){return \w+\?(.+?)\}/, `$1{let str=$2?$3;if (str.includes("CLEAN_WINDOW") || str.includes("Array.prototype.filter = undefined")) return "";else if (str.startsWith("var vrtInit")) str = window.mod.patchScript(str);return str;}`);
+                new Function(body)();
+                window.initWASM(window.mod);
+                window.mod.onRuntimeInitialized = async function(){
+                    "undefined" != typeof TextEncoder && "undefined" != typeof TextDecoder ? await this.initialize(this) : this.errorMsg("Your browser is not supported.")
                 }
+            })
+        });
 
-                // If changed return with spoofed toString();
-                if (args[args.length - 1] !== string) {
-                    args[args.length - 1] = string;
-                    let patched = new target(...args);
-                    patched.toString = () => that.toString();
-                    return patched;
-                }
-            }
-            return that;
-        }
-    })
+        window.Function = new Proxy(Function, {
+            construct(target, args) {
+                const that = new target(...args);
+                if (args.length) {
+                    let string = args[args.length - 1];
 
-    CanvasRenderingContext2D.prototype.clearRect = function(x, y, width, height) {
-        original_clearRect.apply(this, [x, y, width, height]);
-        if (void 0 !== window.utilities) window.utilities.ctx = this;
-        (function() {
-            const caller = arguments.callee.caller.caller;
-            if (caller) {
-                const renderArgs = caller.arguments;
-                if (renderArgs && void 0 !== window.utilities && window.utilities) {
-                    ["scale", "game", "controls", "renderer", "me"].forEach((item, index)=>{
-                        window.utilities[item] = renderArgs[index];
-                    });
-                    if (renderArgs[4]) {
-                        window.utilities.onRender();
-                        //window.requestAnimationFrame.call(window, renderArgs.callee.caller.bind(this));
+                    if (string.length > 38e5) {
+                        window.utilities = new Utilities(string);
+                        string = window.utilities.patchScript();
                     }
-                    if(window.utilities.settings && window.utilities.settings.autoClick.val && window.endUI.style.display == "none" && window.windowHolder.style.display == "none") {
-                        renderArgs[2].toggle(true);
+
+                    // If changed return with spoofed toString();
+                    if (args[args.length - 1] !== string) {
+                        args[args.length - 1] = string;
+                        let patched = new target(...args);
+                        patched.toString = () => that.toString();
+                        return patched;
                     }
                 }
+                return that;
             }
-        })();
+        })
+
+        CanvasRenderingContext2D.prototype.clearRect = function(x, y, width, height) {
+            original_clearRect.apply(this, [x, y, width, height]);
+            if (void 0 !== window.utilities) window.utilities.ctx = this;
+            (function() {
+                const caller = arguments.callee.caller.caller;
+                if (caller) {
+                    const renderArgs = caller.arguments;
+                    if (renderArgs && void 0 !== window.utilities && window.utilities) {
+                        ["scale", "game", "controls", "renderer", "me"].forEach((item, index)=>{
+                            window.utilities[item] = renderArgs[index];
+                        });
+                        if (renderArgs[4]) {
+                            window.utilities.onRender();
+                            //window.requestAnimationFrame.call(window, renderArgs.callee.caller.bind(this));
+                        }
+                        if(window.utilities.settings && window.utilities.settings.autoClick.val && window.endUI.style.display == "none" && window.windowHolder.style.display == "none") {
+                            renderArgs[2].toggle(true);
+                        }
+                    }
+                }
+            })();
+        }
     }
-
     let observer = new MutationObserver(mutations => {
         for (let mutation of mutations) {
             for (let node of mutation.addedNodes) {
                 if (node.tagName === 'SCRIPT' && node.type === "text/javascript" && node.innerHTML.startsWith("*!", 1)) {
-                    node.innerHTML = `!function(e){var t={};function n(r){if(t[r])return t[r].exports;var o=t[r]={i:r,l:!1,exports:{}};return e[r].call(o.exports,o,o.exports,n),o.l=!0,o.exports}n.m=e,n.c=t,n.d=function(e,t,r){n.o(e,t)||Object.defineProperty(e,t,{enumerable:!0,get:r})},n.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},n.t=function(e,t){if(1&t&&(e=n(e)),8&t)return e;if(4&t&&"object"==typeof e&&e&&e.__esModule)return e;var r=Object.create(null);if(n.r(r),Object.defineProperty(r,"default",{enumerable:!0,value:e}),2&t&&"string"!=typeof e)for(var o in e)n.d(r,o,function(t){return e[t]}.bind(null,o));return r},n.n=function(e){var t=e&&e.__esModule?function(){return e.default}:function(){return e};return n.d(t,"a",t),t},n.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},n.p="",n(n.s=0)}([function(e,t){var n={onRuntimeInitialized:function(){function e(e){instructionHolder.style.display="block",instructions.innerHTML="<div style='color: rgba(255, 255, 255, 0.6)'>"+e+"</div><div style='margin-top:10px;font-size:20px;color:rgba(255,255,255,0.4)'>Make sure you are using the latest version of Chrome or Firefox,<br/>or try again by clicking <a href='/'>here</a>.</div>",instructionHolder.style.pointerEvents="all"}(async function(){"undefined"!=typeof TextEncoder&&"undefined"!=typeof TextDecoder?await n.initialize(n):e("Your browser is not supported.")})().catch(t=>{e("Failed to load game.")})}};window._debugTimeStart=Date.now(),fetch("/pkg/maindemo.wasm",{cache:"no-store"}).then(e=>e.arrayBuffer()).then(e=>{n.wasmBinary=e,fetch("/pkg/maindemo.js",{cache:"no-store"}).then(e=>e.text()).then(e=>{new Function(e)(),initWASM(n)})})}]);`
-                    //node.innerHTML = atob("ZmV0Y2goImh0dHBzOi8va3J1bmtlci5pby9zb2NpYWwuaHRtbCIpLnRoZW4oZT0+ZS50ZXh0KCkpLnRoZW4oZT0+ZmV0Y2goImh0dHBzOi8va3J1bmtlci5pby9wa2cva3J1bmtlci4iKy9cdy5leHBvcnRzPSIoXHcrKSIvLmV4ZWMoZSlbMV0rIi52cmllcyIpKS50aGVuKGU9PmUuYXJyYXlCdWZmZXIoKSkudGhlbihlPT5uZXcgVWludDhBcnJheShlKSkudGhlbihlPT4obmV3IFRleHREZWNvZGVyKS5kZWNvZGUoZS5tYXAodD0+dF5lWzBdXiIhIi5jaGFyQ29kZUF0KDApKSkpLnRoZW4oZT0+bmV3IEZ1bmN0aW9uKCJfX0xPQURFUl9fbW1Ub2tlblByb21pc2UiLGUpKHdpbmRvdy5tbVRva2VuUHJvbWlzZSkpOw==");
+                    node.innerHTML = `!function(e){var t={};function r(n){if(t[n])return t[n].exports;var o=t[n]={i:n,l:!1,exports:{}};return e[n].call(o.exports,o,o.exports,r),o.l=!0,o.exports}r.m=e,r.c=t,r.d=function(e,t,n){r.o(e,t)||Object.defineProperty(e,t,{enumerable:!0,get:n})},r.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},r.t=function(e,t){if(1&t&&(e=r(e)),8&t)return e;if(4&t&&"object"==typeof e&&e&&e.__esModule)return e;var n=Object.create(null);if(r.r(n),Object.defineProperty(n,"default",{enumerable:!0,value:e}),2&t&&"string"!=typeof e)for(var o in e)r.d(n,o,function(t){return e[t]}.bind(null,o));return n},r.n=function(e){var t=e&&e.__esModule?function(){return e.default}:function(){return e};return r.d(t,"a",t),t},r.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},r.p="",r(r.s=0)}([function(e,t){window.mod={errorMsg:function(i){instructionHolder.style.display="block",instructions.innerHTML="<div style='color: rgba(255, 255, 255, 0.6)'>"+i+"</div><div style='margin-top:10px;font-size:20px;color:rgba(255,255,255,0.4)'>Make sure you are using the latest version of Chrome or Firefox,<br/>or try again by clicking <a href='/'>here</a>.</div>",instructionHolder.style.pointerEvents="all"}};}]);`
+                    initialize();
+                    observer.disconnect();
                 }
             }
-        }
-        if (void 0 !== window.utilities && window.utilities.me) {
-            observer.disconnect();
-            //delete iframe.contentWindow;
-            //if (void 0 !== iframe) document.documentElement.removeChild(iframe)
         }
     });
     observer.observe(document, {
         childList: true,
         subtree: true
     });
-
 })();
