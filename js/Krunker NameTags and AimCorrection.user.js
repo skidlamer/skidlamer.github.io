@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Krunker NameTags and AimCorrection
 // @namespace    https://skidlamer.github.io/
-// @version      0.1
+// @version      0.11
 // @author       SkidLamer
 // @match        *://krunker.io/*
 // @run-at       document-start
@@ -61,7 +61,7 @@ const script = {
             patchScript(string) {
                 const patches = new Map()
                 .set("inView", [/if\((!\w+\['\w+'])\)continue;/, "if($1&&void 0 !== window.utilities.nameTags)continue;"])
-                .set("inputs", [/(\w+\['tmpInpts']\[\w+\['tmpInpts']\['\w+']\?'\w+':'push']\()(\w+)/, `$1window.utilities.onInput($2)`])
+                .set("inputs", [/(\w+\['\w+']\[\w+\['\w+']\['\w+']\?'\w+':'push']\()(\w+)\),/, `$1window.utilities.onInput($2)),`])
                 .set("onRender", [/\w+\['render']=function\((\w+,\w+,\w+,\w+,\w+,\w+,\w+,\w+)\){/, `$&window.utilities.onRender($1);`])
                 for (let [name, arr] of patches) {
                     let found = arr[0].exec(string);
@@ -98,7 +98,7 @@ const script = {
                         pos: 1
                     },
                     recoilAnimY: {
-                        regex: /this\['(\w+)']=0x0,this\['recoilForce']=0x0/,
+                        regex: /\+\(-Math\['PI']\/0x4\*\w+\+\w+\['(\w+)']\*\w+\['\w+']\)\+/,
                         pos: 1
                     },
                     isYou: {
@@ -106,7 +106,7 @@ const script = {
                         pos: 1
                     },
                     objInstances: {
-                        regex: /\w+\['genObj3D']\(0x0,0x0,0x0\);if\(\w+\['(\w+)']=\w+\['genObj3D']/,
+                        regex: /\w+\['\w+']\(0x0,0x0,0x0\);if\(\w+\['(\w+)']=\w+\['\w+']/,
                         pos: 1
                     },
                 };
@@ -194,6 +194,10 @@ const script = {
                 this.renderer.updateFrustum();
             }
 
+            isNative(fn) {
+                return (/^function\s*[a-z0-9_\$]*\s*\([^)]*\)\s*\{\s*\[native code\]\s*\}/i).test('' + fn)
+            }
+
             getInView(entity) {
                 return null == this.getCanSee(this.me, entity.x, entity.y, entity.z);
             }
@@ -253,7 +257,19 @@ const script = {
                 this.controls = controls;
                 this.renderer = renderer;
                 this.me = me;
+                if (this.renderer && this.isNative(this.renderer.frustum.containsPoint)) {
+                    this.renderer.frustum.containsPoint = function (point) {
+                        let planes = this.planes;
+                        for (let i = 0; i < 6; i ++) {
+                            if (planes[i].distanceToPoint(point) < 0) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
+                }
             }
+
         }
 
         observer = new MutationObserver(mutations => {
