@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name SkidFest
 // @description A Player aid in the game Krunker.io!
-// @version 1.87
+// @version 1.88
 // @author SkidLamer
 // @homepage https://skidlamer.github.io/
 // @match *.krunker.io/*
@@ -268,6 +268,11 @@ class Utilities {
                 name: "Player Tracers",
                 val: false,
                 html: () => this.generateSetting("checkbox", "renderTracers"),
+            },
+            rainbowColor: {
+                name: "Rainbow ESP",
+                val: false,
+                html: () => this.generateSetting("checkbox", "rainbowColor"),
             },
             renderChams: {
                 name: "Player Chams",
@@ -933,6 +938,10 @@ class Utilities {
             this.ws.__send("k", 0);
         }
 
+        if (espVal !== "off") {
+            this.overlay.healthColE = this.settings.rainbowColor.val ? this.overlay.rainbow.col : "#eb5656";
+        }
+
         for (let iter = 0, length = this.game.players.list.length; iter < length; iter++) {
             let player = this.game.players.list[iter];
             if (player[this.vars.isYou] || !player.active || !player[this.vars.objInstances] || this.getIsFriendly(player)) {
@@ -993,7 +1002,7 @@ class Utilities {
                 this.ctx.strokeStyle = "rgba(0, 0, 0, 0.25)";
                 this.ctx.stroke();
                 this.ctx.lineWidth = 2.5;
-                this.ctx.strokeStyle = "#FF0000";
+                this.ctx.strokeStyle = this.settings.rainbowColor.val ? this.overlay.rainbow.col : "#eb5656"
                 this.ctx.stroke();
                 original_restore.apply(this.ctx, []);
             }
@@ -1002,7 +1011,7 @@ class Utilities {
             if (espVal == "twoD" || espVal == "full") {
                 // perfect box esp
                 this.ctx.lineWidth = 5;
-                this.ctx.strokeStyle = 'rgba(255,50,50,1)';
+                this.ctx.strokeStyle = this.settings.rainbowColor.val ? this.overlay.rainbow.col : "#eb5656"
                 let distanceScale = Math.max(.3, 1 - this.getD3D(worldPosition.x, worldPosition.y, worldPosition.z, player.x, player.y, player.z) / 600);
                 original_scale.apply(this.ctx, [distanceScale, distanceScale]);
                 let xScale = scaledWidth / distanceScale;
