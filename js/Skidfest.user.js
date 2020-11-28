@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name SkidFest
 // @description A Player aid in the game Krunker.io!
-// @version 1.86
+// @version 1.87
 // @author SkidLamer
 // @homepage https://skidlamer.github.io/
 // @match *.krunker.io/*
@@ -929,7 +929,7 @@ class Utilities {
             }
         }
 
-        if (this.autoActivateNuke.val && this.me && Object.keys(this.me.streaks).length) { /*chonker*/
+        if (this.settings.autoActivateNuke.val && this.me && Object.keys(this.me.streaks).length) { /*chonker*/
             this.ws.__send("k", 0);
         }
 
