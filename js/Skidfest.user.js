@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name SkidFest
 // @description A Player aid in the game Krunker.io!
-// @version 1.85
+// @version 1.86
 // @author SkidLamer
 // @homepage https://skidlamer.github.io/
 // @match *.krunker.io/*
-// @exclude *.krunker.io/social*
+// @exclude *krunker.io/social*
 // @updateURL https://skidlamer.github.io/js/Skidfest.user.js
 // @run-at document-start
 // @grant none
@@ -351,6 +351,11 @@ class Utilities {
                 val: false,
                 html: () => this.generateSetting("checkbox", "disableWpnSnd", this),
             },
+            autoActivateNuke: {
+                name: "Auto Activate Nuke",
+                val: false,
+                html: () => this.generateSetting("checkbox", "autoActivateNuke", this),
+            },
             autoFindNew: {
                 name: "New Lobby Finder",
                 val: false,
@@ -678,6 +683,8 @@ class Utilities {
         })
 
         this.waitFor(_=>this.ws.connected === true, 40000).then(_=> {
+            this.ws.__event = this.ws._dispatchEvent.bind(this.ws);
+            this.ws.__send = this.ws.send.bind(this.ws);
             this.ws.send = new original_Proxy(this.ws.send, {
                 apply(target, that, args) {
                     try {
@@ -704,12 +711,12 @@ class Utilities {
                         }
                     }
                     return original_fn;
-                   // return target.apply(thisArg, msg);
+                   // return target.apply(that, msg);
                 }
             })
 
             this.ws._dispatchEvent = new original_Proxy(this.ws._dispatchEvent, {
-                apply(target, thisArg, [type, msg]) {
+                apply(target, that, [type, msg]) {
                     //console.log(type, msg)
                     if (type =="init") {
                         if(msg[9].bill && window.utilities.settings.customBillboard.val.length > 1) {
@@ -731,11 +738,11 @@ class Utilities {
                             }
                         }
                     }
-                    return target.apply(thisArg, arguments[2]);
+                    return target.apply(that, arguments[2]);
                 }
             })
 
-            const skins = Symbol("SkinUnlock")
+            const skins = Symbol("SkinUnlock") /*chonker*/
             original_Object.defineProperty(original_Object.prototype, "skins", {
                 enumerable: false,
                 get() {
@@ -920,6 +927,10 @@ class Utilities {
                 }
                 return true;
             }
+        }
+
+        if (this.autoActivateNuke.val && this.me && Object.keys(this.me.streaks).length) { /*chonker*/
+            this.ws.__send("k", 0);
         }
 
         for (let iter = 0, length = this.game.players.list.length; iter < length; iter++) {
@@ -1155,34 +1166,6 @@ class Utilities {
                     },
                 })
             }
-
-            //Auto Nuke
-            //if (this.me.streak && this.me.streak % 25 === 0) {
-            //    this.game.streaks[0].activate()
-            //}
-
-           // if (this.streakCount == void 0) this.streakCount = document.querySelector("#streakVal");
-            //else if (this.streakCount.innerText == "25") {
-            //    if (me && Object.keys(me.streaks).length) {
-             //       this.ws.sendQueue.push(["k", 0]);
-             //   }
-            //}
-  //  sendWsMessage("k", 0)
-//}
-            //    let nukeKey = this.controls.binds.streakKeys.val[0];
-        //  .      this.controls.keys[nukeKey] = 1;
-        //        this.controls.didPressed[nukeKey] = 1;
-           // }
-               // let nukeKey = 32//this.controls.binds.streakKeys.val[0];
-                //this.simulateKey(nukeKey, "keydown");
-               // this.simulateKey(nukeKey, "keyup");
-               // if (this.game.nukeTimer) this.game.nukeTimer = 0;
-               // this.controls.keys[nukeKey] = 1;
-               // this.controls.didPressed[nukeKey] = 1;
-               // this.game.incStat("n", this.me);
-               // this.game.startNuke(this.me);
-              //  this.me.nukes++;
-            //}
 
             // autoReload
             if (this.settings.autoReload.val) {
