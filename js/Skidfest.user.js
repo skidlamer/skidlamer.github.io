@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name SkidFest
 // @description A Player aid in the game Krunker.io!
-// @version 1.88
+// @version 1.89
 // @author SkidLamer
 // @homepage https://skidlamer.github.io/
 // @match *.krunker.io/*
@@ -664,7 +664,7 @@ class Utilities {
             if (!exports) return alert("Exports not Found");
             const found = new Set();
             const array = new Map([
-                ["utility", ["boxCornerIntersection", "getAngleDist2", "extractProperties", "formatConstName"]],
+                ["utility", ["orderByKills", "orderByScore"]],
                 ["config", ["serverTickRate", "camChaseTrn", "cameraHeight", "hitBoxPad"]],
                 ["overlay", ["render", "canvas"]],
                 ["three", ["ACESFilmicToneMapping", "TextureLoader", "ObjectLoader"]],
@@ -679,6 +679,7 @@ class Utilities {
                         this.objectEntries(rootValue.exports, ([object, key, value, get, set, configurable, enumerable, writable]) => {
                             if (!found.has(name) && arr.includes(key)) {
                                 found.add(name);
+                                console.log("Found Export ", name);
                                 this[name] = rootValue.exports;
                             }
                         })
@@ -699,7 +700,7 @@ class Utilities {
                         throw e;
                     }
 
-                    if (args[0] === "ahl") {
+                    if (args[0] === "ah1") {
                         args[0] = "p";
                         args[1] = null;
                     }
@@ -831,6 +832,7 @@ class Utilities {
         .set("Damage", [/\['send']\('vtw',(\w+)\)/, `['send']('kpd',$1)`])
         .set("fixHowler", [/(Howler\['orientation'](.+?)\)\),)/, ``])
         .set("respawnT", [/'\w+':0x3e8\*/g, `'respawnT':0x0*`])
+        .set("anticheat", [/document\['getElementById']\('myGUI'\).*?saveVal\('OptaonCosent',0x1\),(\w+=!0x0\),0x25)/, `($1`])
         //.set("FPS", [/(window\['mozRequestAnimationFrame']\|\|function\(\w+\){window\['setTimeout'])\(\w+,0x3e8\/0x3c\);/, "$1()"])
         //.set("Update", [/(\w+=window\['setTimeout']\(function\(\){\w+)\((\w+)\+(\w+)\)/, "$1($2=$3=0)"])
        // .set("weaponZoom", [/(,'zoom':)(\d.+?),/g, "$1window.utilities.settings.weaponZoom.val||$2"])
