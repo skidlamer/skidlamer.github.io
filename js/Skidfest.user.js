@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name SkidFest
 // @description A Player aid in the game Krunker.io!
-// @version 1.89
+// @version 1.90
 // @author SkidLamer
 // @homepage https://skidlamer.github.io/
 // @match *.krunker.io/*
@@ -467,7 +467,7 @@ class Utilities {
                 const menu = window.windows[11];
                 menu.header = "Settings";
                 menu.gen = _ => {
-                    var tmpHTML = `<div style='text-align:center'> <a onclick='window.open("https://skidlamer.github.io/")' class='menuLink'>Gaming Gurus Settings</center></a> <hr> </div>`;
+                    var tmpHTML = `<div style='text-align:center'> <a onclick='window.open("https://skidlamer.github.io/")' class='menuLink'>SkidFest Settings</center></a> <hr> </div>`;
                     for (const key in this.settings) {
                         if (this.settings[key].pre) tmpHTML += this.settings[key].pre;
                         tmpHTML += "<div class='settName' id='" + key + "_div' style='display:" + (this.settings[key].hide ? 'none' : 'block') + "'>" + this.settings[key].name +
@@ -664,8 +664,8 @@ class Utilities {
             if (!exports) return alert("Exports not Found");
             const found = new Set();
             const array = new Map([
-                ["utility", ["orderByKills", "orderByScore"]],
-                ["config", ["serverTickRate", "camChaseTrn", "cameraHeight", "hitBoxPad"]],
+                ["utility", ["rgbToHex", "pointInBox3D"]],
+                ["config", ["clientSendRate", "killCardStats", "lightDistance", "isProdScheme"]],
                 ["overlay", ["render", "canvas"]],
                 ["three", ["ACESFilmicToneMapping", "TextureLoader", "ObjectLoader"]],
                 //["colors", ["challLvl", "getChallCol"]],
@@ -824,6 +824,8 @@ class Utilities {
         //.set("exports", [/(function\(\w+,\w+,(\w+)\){\(function\(\w+\){)(\w+\['exports'])/,`$1window.utilities.exports=$2.c; window.utilities.modules=$2.m;$3`])
         .set("inView", [/if\((!\w+\['\w+'])\)continue;/, "if($1&&void 0 !== window.utilities.nameTags)continue;"])
         .set("inputs", [/(\w+\['\w+']\[\w+\['\w+']\['\w+']\?'\w+':'push']\()(\w+)\),/, `$1window.utilities.onInput($2)),`])
+        //.set("procInputs", [/(this\['\w+']\()(this\['inputs']\[\w+])(,\w+,!0x1,!\w+|\|\w+\['moveLock']\))/, `$1window.utilities.onInput($2)$3`])
+
         //.set("procInputs", [/this\['meleeAnim']\['armS']=0x0;},this\['\w+']=function\((\w+),\w+,\w+,\w+\){/, `$&window.cheat.onInput($1);`])
         //.set("wallBangs", [/!(\w+)\['transparent']/, "$&& (!cheat.settings.wallbangs || !$1.penetrable )"])
         .set("thirdPerson", [/(\w+)\[\'config\'\]\[\'thirdPerson\'\]/g, `void 0 !== window.utilities.thirdPerson`])
@@ -832,7 +834,7 @@ class Utilities {
         .set("Damage", [/\['send']\('vtw',(\w+)\)/, `['send']('kpd',$1)`])
         .set("fixHowler", [/(Howler\['orientation'](.+?)\)\),)/, ``])
         .set("respawnT", [/'\w+':0x3e8\*/g, `'respawnT':0x0*`])
-        .set("anticheat", [/document\['getElementById']\('myGUI'\).*?saveVal\('OptaonCosent',0x1\),(\w+=!0x0\),0x25)/, `($1`])
+        .set("anticheat", [/document\['getElementById']\('myGUI'\).*?0x25/, `0x25`])
         //.set("FPS", [/(window\['mozRequestAnimationFrame']\|\|function\(\w+\){window\['setTimeout'])\(\w+,0x3e8\/0x3c\);/, "$1()"])
         //.set("Update", [/(\w+=window\['setTimeout']\(function\(\){\w+)\((\w+)\+(\w+)\)/, "$1($2=$3=0)"])
        // .set("weaponZoom", [/(,'zoom':)(\d.+?),/g, "$1window.utilities.settings.weaponZoom.val||$2"])
@@ -1230,7 +1232,7 @@ class Utilities {
                     //} else console.log("spins ", count);
 
                     let canSee = this.renderer.frustum.containsPoint(target[this.vars.objInstances].position);
-                    let yDire = (this.getDir(this.me.z, this.me.x, target.z, target.x) || 0)
+                    let yDire = (this.getDir(this.me.z, this.me.x, target.z2, target.x2) || 0)
                     let xDire = ((this.getXDire(this.me.x, this.me.y, this.me.z, target.x, target.y + target.jumpBobY*this.config.jumpVel - target[this.vars.crouchVal] * this.consts.crouchDst + this.me[this.vars.crouchVal] * this.consts.crouchDst, target.z) || 0) - this.consts.recoilMlt * this.me[this.vars.recoilAnimY])
                     if (this.me.weapon[this.vars.nAuto] && this.me[this.vars.didShoot]) {
                         input[key.shoot] = 0;
@@ -1246,16 +1248,16 @@ class Utilities {
                                 input[key.scope] = 1;
                                 if (!this.me[this.vars.aimVal]) {
                                     input[key.shoot] = 1;
-                                    input[key.ydir] = yDire * 1e3
-                                    input[key.xdir] = xDire * 1e3
+                                    input[key.xdir] = yDire * 1e3
+                                    input[key.ydir] = xDire * 1e3
                                     this.lookDir(xDire, yDire);
                                 }
                                 break;
                             case "assist": case "easyassist":
                                 if (input[key.scope] || this.settings.autoAim.val === "easyassist") {
                                     if (!this.me.aimDir && canSee || this.settings.autoAim.val === "easyassist") {
-                                        input[key.ydir] = yDire * 1e3
-                                        input[key.xdir] = xDire * 1e3
+                                        input[key.xdir] = yDire * 1e3
+                                        input[key.ydir] = xDire * 1e3
                                         this.lookDir(xDire, yDire);
                                     }
                                 }
@@ -1263,22 +1265,22 @@ class Utilities {
                             case "silent":
                                 if (!this.me[this.vars.aimVal]) input[key.shoot] = 1;
                                 else input[key.scope] = 1;
-                                input[key.ydir] = yDire * 1e3
-                                input[key.xdir] = xDire * 1e3
+                                input[key.xdir] = yDire * 1e3
+                                input[key.ydir] = xDire * 1e3
                                 break;
                             case "trigger":
                                 if (!this.me.aimDir) {
                                     if (!this.me[this.vars.aimVal] && this.me.aimTime > 180) {
                                         input[key.shoot] = 1;
-                                        input[key.ydir] = yDire * 1e3
-                                        input[key.xdir] = xDire * 1e3
+                                        input[key.xdir] = yDire * 1e3
+                                        input[key.ydir] = xDire * 1e3
                                     }
                                 }
                                 break;
                             case "correction":
                                 if (input[key.shoot] == 1) {
-                                    input[key.ydir] = yDire * 1e3
-                                    input[key.xdir] = xDire * 1e3
+                                    input[key.xdir] = yDire * 1e3
+                                    input[key.ydir] = xDire * 1e3
                                 }
                                 break;
                             default:
