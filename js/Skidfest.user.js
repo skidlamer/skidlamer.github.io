@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name SkidFest
 // @description A Player aid in the game Krunker.io!
-// @version 1.90
+// @version 1.91
 // @author SkidLamer
 // @homepage https://skidlamer.github.io/
 // @match *.krunker.io/*
@@ -1180,24 +1180,21 @@ class Utilities {
                 })
             }
 
+            let isMelee = this.isDefined(this.me.weapon.melee)&&this.me.weapon.melee||this.isDefined(this.me.weapon.canThrow)&&this.me.weapon.canThrow;
+
             // autoReload
             if (this.settings.autoReload.val) {
                 let ammoLeft = this.me[this.vars.ammos][this.me[this.vars.weaponIndex]];
                 let capacity = this.me.weapon.ammo;
                 //if (ammoLeft < capacity)
-
-                if (!ammoLeft) {
+                if (isMelee) {
+                    if (!this.me.canThrow) {
+                        //this.me.refillKnife();
+                    }
+                } else if (!ammoLeft) {
                     input[key.reload] = 1;
                      this.me.reload = 0;
                 }
-                //if (!this.me.canThrow) {
-                    //this.me.refillKnife();
-                    //console.dir(this.ws)
-                    //this.ws.sendQueue.push(this.me.id, "4");
-
-                    //this.ws.sendQueue.push([this.me.id, 'rfl']);
-                    //this.ws.send.apply(this.ws, [this.me.id, 'rfl']);
-                //}
             }
 
             //Auto Bhop
@@ -1230,7 +1227,6 @@ class Utilities {
                     //if (count < 360) {
                     //    input[2] = this.me[this.vars.xDire] + Math.PI;
                     //} else console.log("spins ", count);
-
                     let canSee = this.renderer.frustum.containsPoint(target[this.vars.objInstances].position);
                     let yDire = (this.getDir(this.me.z, this.me.x, target.z2, target.x2) || 0)
                     let xDire = ((this.getXDire(this.me.x, this.me.y, this.me.z, target.x, target.y + target.jumpBobY*this.config.jumpVel - target[this.vars.crouchVal] * this.consts.crouchDst + this.me[this.vars.crouchVal] * this.consts.crouchDst, target.z) || 0) - this.consts.recoilMlt * this.me[this.vars.recoilAnimY])
@@ -1247,7 +1243,7 @@ class Utilities {
                             case "quickScope":
                                 input[key.scope] = 1;
                                 if (!this.me[this.vars.aimVal]) {
-                                    input[key.shoot] = 1;
+                                    if (!this.me.canThrow||!isMelee) input[key.shoot] = 1;
                                     input[key.xdir] = yDire * 1e3
                                     input[key.ydir] = xDire * 1e3
                                     this.lookDir(xDire, yDire);
@@ -1263,15 +1259,16 @@ class Utilities {
                                 }
                                 break;
                             case "silent":
-                                if (!this.me[this.vars.aimVal]) input[key.shoot] = 1;
-                                else input[key.scope] = 1;
+                                if (!this.me[this.vars.aimVal]) {
+                                    if (!this.me.canThrow||!isMelee) input[key.shoot] = 1;
+                                } else input[key.scope] = 1;
                                 input[key.xdir] = yDire * 1e3
                                 input[key.ydir] = xDire * 1e3
                                 break;
                             case "trigger":
                                 if (!this.me.aimDir) {
                                     if (!this.me[this.vars.aimVal] && this.me.aimTime > 180) {
-                                        input[key.shoot] = 1;
+                                        if (!this.me.canThrow) input[key.shoot] = 1;
                                         input[key.xdir] = yDire * 1e3
                                         input[key.ydir] = xDire * 1e3
                                     }
