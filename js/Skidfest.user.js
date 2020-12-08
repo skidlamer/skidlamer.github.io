@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name SkidFest
 // @description A Player aid in the game Krunker.io!
-// @version 1.91
+// @version 1.92
 // @author SkidLamer
 // @homepage https://skidlamer.github.io/
 // @match *.krunker.io/*
@@ -664,8 +664,8 @@ class Utilities {
             if (!exports) return alert("Exports not Found");
             const found = new Set();
             const array = new Map([
-                ["utility", ["rgbToHex", "pointInBox3D"]],
-                ["config", ["clientSendRate", "killCardStats", "lightDistance", "isProdScheme"]],
+                ["utility", ["createCanvasAD", "limitRectVal"]],
+                ["config", ["gameConfig", "gameObjectReferenceProps", "leaderQueries"]],
                 ["overlay", ["render", "canvas"]],
                 ["three", ["ACESFilmicToneMapping", "TextureLoader", "ObjectLoader"]],
                 //["colors", ["challLvl", "getChallCol"]],
@@ -822,7 +822,8 @@ class Utilities {
         const patches = new Map()
         .set("exports", [/(function\(\w,\w,(\w)\){)'use strict';(\(function\((\w)\){)\//, `$1$3 window.utilities.exports=$2.c; window.utilities.modules=$2.m;/`])
         //.set("exports", [/(function\(\w+,\w+,(\w+)\){\(function\(\w+\){)(\w+\['exports'])/,`$1window.utilities.exports=$2.c; window.utilities.modules=$2.m;$3`])
-        .set("inView", [/if\((!\w+\['\w+'])\)continue;/, "if($1&&void 0 !== window.utilities.nameTags)continue;"])
+        //.set("inView", [/if\((!\w+\['\w+'])\)continue;/, "if($1&&void 0 !== window.utilities.nameTags)continue;"])
+        .set("inView", [/(\w+\['\w+']\){if\(\(\w+=\w+\['\w+']\['position']\['clone']\(\))/, "(void 0 == window.utilities.nameTags)||$1"])
         .set("inputs", [/(\w+\['\w+']\[\w+\['\w+']\['\w+']\?'\w+':'push']\()(\w+)\),/, `$1window.utilities.onInput($2)),`])
         //.set("procInputs", [/(this\['\w+']\()(this\['inputs']\[\w+])(,\w+,!0x1,!\w+|\|\w+\['moveLock']\))/, `$1window.utilities.onInput($2)$3`])
 
@@ -834,7 +835,7 @@ class Utilities {
         .set("Damage", [/\['send']\('vtw',(\w+)\)/, `['send']('kpd',$1)`])
         .set("fixHowler", [/(Howler\['orientation'](.+?)\)\),)/, ``])
         .set("respawnT", [/'\w+':0x3e8\*/g, `'respawnT':0x0*`])
-        .set("anticheat", [/document\['getElementById']\('myGUI'\).*?0x25/, `0x25`])
+        .set("anticheat", [/windows\['length'\]>\d+.*?0x25/, `0x25`])
         //.set("FPS", [/(window\['mozRequestAnimationFrame']\|\|function\(\w+\){window\['setTimeout'])\(\w+,0x3e8\/0x3c\);/, "$1()"])
         //.set("Update", [/(\w+=window\['setTimeout']\(function\(\){\w+)\((\w+)\+(\w+)\)/, "$1($2=$3=0)"])
        // .set("weaponZoom", [/(,'zoom':)(\d.+?),/g, "$1window.utilities.settings.weaponZoom.val||$2"])
@@ -867,14 +868,16 @@ class Utilities {
             }
         }
         console.groupEnd();
-        const spoonter = `console.log("ahoy thar Krunker Devs",'💩');`
+        /*Lemons1337*/string = string.replace(/\[(0x[a-zA-Z0-9]+,?)+]\['map']\(\w+=>String\['fromCharCode']\(\w+\)\)\['join']\(''\)/g, a => "'" + w.eval(a) + "'");
+        const spoonter = `console.log("ahoy thar Skidney",'💩');`
         return spoonter + string;
     }
 
     deObfuscate() {
         const obfu = {
             //\]\)continue;if\(!\w+\['(.+?)\']\)continue;
-            inView: { regex: /if\(!\w+\['(\w+)']\)continue/, pos: 1 },
+            inView: { regex: /(\w+\['(\w+)']\){if\(\(\w+=\w+\['\w+']\['position']\['clone']\(\))/, pos: 2 },
+
             //inView: { regex: /\]\)continue;if\(!\w+\['(.+?)\']\)continue;/, pos: 1 },
             //canSee: { regex: /\w+\['(\w+)']\(\w+,\w+\['x'],\w+\['y'],\w+\['z']\)\)&&/, pos: 1 },
             //procInputs: { regex: /this\['(\w+)']=function\((\w+),(\w+),\w+,\w+\){(this)\['recon']/, pos: 1 },
@@ -1135,6 +1138,7 @@ class Utilities {
     }
 
     onInput(input) {
+
         const key = { frame: 0, delta:1,ydir:2,xdir:3,moveDir:4,shoot:5,scope:6,jump:7,crouch:8,reload:9,weaponScroll:10,weaponSwap:11, moveLock:12}
         if (this.isDefined(this.config) && this.config.aimAnimMlt) this.config.aimAnimMlt = 1;
         if (this.isDefined(this.controls) && this.isDefined(this.config) && this.settings.inActivity.val) {
@@ -1228,8 +1232,8 @@ class Utilities {
                     //    input[2] = this.me[this.vars.xDire] + Math.PI;
                     //} else console.log("spins ", count);
                     let canSee = this.renderer.frustum.containsPoint(target[this.vars.objInstances].position);
-                    let yDire = (this.getDir(this.me.z, this.me.x, target.z2, target.x2) || 0)
-                    let xDire = ((this.getXDire(this.me.x, this.me.y, this.me.z, target.x, target.y + target.jumpBobY*this.config.jumpVel - target[this.vars.crouchVal] * this.consts.crouchDst + this.me[this.vars.crouchVal] * this.consts.crouchDst, target.z) || 0) - this.consts.recoilMlt * this.me[this.vars.recoilAnimY])
+                    let yDire = (this.getDir(this.me.z, this.me.x, target.z, target.x) || 0)
+                    let xDire = ((this.getXDire(this.me.x, this.me.y, this.me.z, target.x, target.y /*+ target.jumpBobY*this.config.jumpVel*/ - target[this.vars.crouchVal] * this.consts.crouchDst + this.me[this.vars.crouchVal] * this.consts.crouchDst, target.z) || 0) - this.consts.recoilMlt * this.me[this.vars.recoilAnimY])
                     if (this.me.weapon[this.vars.nAuto] && this.me[this.vars.didShoot]) {
                         input[key.shoot] = 0;
                         input[key.scope] = 0;
