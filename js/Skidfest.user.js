@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name SkidFest
 // @description A Player aid in the game Krunker.io!
-// @version 1.93
+// @version 1.94
 // @author SkidLamer
 // @homepage https://skidlamer.github.io/
 // @match *.krunker.io/*
@@ -824,7 +824,7 @@ class Utilities {
         //.set("exports", [/(function\(\w+,\w+,(\w+)\){\(function\(\w+\){)(\w+\['exports'])/,`$1window.utilities.exports=$2.c; window.utilities.modules=$2.m;$3`])
         //.set("inView", [/if\((!\w+\['\w+'])\)continue;/, "if($1&&void 0 !== window.utilities.nameTags)continue;"])
         //.set("inView", [/(\w+\['\w+']\){if\(\(\w+=\w+\['\w+']\['position']\['clone']\(\))/, "(void 0 == window.utilities.nameTags)||$1"])
-        .set("inView", [/&&(\w+\['\w+'])\){(if\(\(\w+=\w+\['\w+']\['\w+']\['\w+'])/, "){if($1&&void 0 !== window.utilities.nameTags)continue;$2"])
+        .set("inView", [/&&(\w+\['\w+'])\){(if\(\(\w+=\w+\['\w+']\['\w+']\['\w+'])/, "){if(!$1&&void 0 !== window.utilities.nameTags)continue;$2"])
         .set("inputs", [/(\w+\['\w+']\[\w+\['\w+']\['\w+']\?'\w+':'push']\()(\w+)\),/, `$1window.utilities.onInput($2)),`])
         //.set("procInputs", [/(this\['\w+']\()(this\['inputs']\[\w+])(,\w+,!0x1,!\w+|\|\w+\['moveLock']\))/, `$1window.utilities.onInput($2)$3`])
 
@@ -956,7 +956,7 @@ class Utilities {
                 continue;
             }
 
-            if (espVal === "full") player[this.vars.inView] = false;
+            //if (espVal === "full") this.nameTags = true;
 
             // the below variables correspond to the 2d box esps corners
             let xmin = Infinity;
