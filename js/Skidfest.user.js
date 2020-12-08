@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name SkidFest
 // @description A Player aid in the game Krunker.io!
-// @version 1.92
+// @version 1.93
 // @author SkidLamer
 // @homepage https://skidlamer.github.io/
 // @match *.krunker.io/*
@@ -823,7 +823,8 @@ class Utilities {
         .set("exports", [/(function\(\w,\w,(\w)\){)'use strict';(\(function\((\w)\){)\//, `$1$3 window.utilities.exports=$2.c; window.utilities.modules=$2.m;/`])
         //.set("exports", [/(function\(\w+,\w+,(\w+)\){\(function\(\w+\){)(\w+\['exports'])/,`$1window.utilities.exports=$2.c; window.utilities.modules=$2.m;$3`])
         //.set("inView", [/if\((!\w+\['\w+'])\)continue;/, "if($1&&void 0 !== window.utilities.nameTags)continue;"])
-        .set("inView", [/(\w+\['\w+']\){if\(\(\w+=\w+\['\w+']\['position']\['clone']\(\))/, "(void 0 == window.utilities.nameTags)||$1"])
+        //.set("inView", [/(\w+\['\w+']\){if\(\(\w+=\w+\['\w+']\['position']\['clone']\(\))/, "(void 0 == window.utilities.nameTags)||$1"])
+        .set("inView", [/&&(\w+\['\w+'])\){(if\(\(\w+=\w+\['\w+']\['\w+']\['\w+'])/, "){if($1&&void 0 !== window.utilities.nameTags)continue;$2"])
         .set("inputs", [/(\w+\['\w+']\[\w+\['\w+']\['\w+']\?'\w+':'push']\()(\w+)\),/, `$1window.utilities.onInput($2)),`])
         //.set("procInputs", [/(this\['\w+']\()(this\['inputs']\[\w+])(,\w+,!0x1,!\w+|\|\w+\['moveLock']\))/, `$1window.utilities.onInput($2)$3`])
 
@@ -951,7 +952,7 @@ class Utilities {
 
         for (let iter = 0, length = this.game.players.list.length; iter < length; iter++) {
             let player = this.game.players.list[iter];
-            if (player[this.vars.isYou] || !player.active || !player[this.vars.objInstances] || this.getIsFriendly(player)) {
+            if (player[this.vars.isYou] || !player.active || !this.isDefined(player[this.vars.objInstances]) || this.getIsFriendly(player)) {
                 continue;
             }
 
@@ -962,23 +963,25 @@ class Utilities {
             let xmax = -Infinity;
             let ymin = Infinity;
             let ymax = -Infinity;
+            let position = null;
             let br = false;
             for (let j = -1; !br && j < 2; j+=2) {
                 for (let k = -1; !br && k < 2; k+=2) {
                     for (let l = 0; !br && l < 2; l++) {
-                        let position = player[this.vars.objInstances].position.clone();
-                        position.x += j * playerScale;
-                        position.z += k * playerScale;
-                        position.y += l * (player.height - player[this.vars.crouchVal] * this.consts.crouchDst);
-                        if (!this.renderer.frustum.containsPoint(position)) {
-                            br = true;
-                            break;
+                        if (position = player[this.vars.objInstances].position.clone()) {
+                            position.x += j * playerScale;
+                            position.z += k * playerScale;
+                            position.y += l * (player.height - player[this.vars.crouchVal] * this.consts.crouchDst);
+                            if (!this.renderer.frustum.containsPoint(position)) {
+                                br = true;
+                                break;
+                            }
+                            position.project(this.renderer.camera);
+                            xmin = Math.min(xmin, position.x);
+                            xmax = Math.max(xmax, position.x);
+                            ymin = Math.min(ymin, position.y);
+                            ymax = Math.max(ymax, position.y);
                         }
-                        position.project(this.renderer.camera);
-                        xmin = Math.min(xmin, position.x);
-                        xmax = Math.max(xmax, position.x);
-                        ymin = Math.min(ymin, position.y);
-                        ymax = Math.max(ymax, position.y);
                     }
                 }
             }
