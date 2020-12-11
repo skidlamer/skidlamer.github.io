@@ -3,7 +3,7 @@
 ====================
 A Krunker Full Featured Mod Menu.
 
-Note: This script supports Violentmonkey & Tampermonkey.
+Note: This script supports Tampermonkey & Violentmonkey.
 
 Hotkey
 the [F1] key is used to open the menu in game or alternatively the Middle Mouse Button (press scroll wheel)
