@@ -1,9 +1,7 @@
-====================
-= KRUNKER SKIDFEST =
-====================
+KRUNKER SKIDFEST
 A Krunker Full Featured Mod Menu.
 
-Note: This script supports Tampermonkey & Violentmonkey.
+Note: This script supports Violentmonkey & Tampermonkey.
 
 Hotkey
 the [F1] key is used to open the menu in game or alternatively the Middle Mouse Button (press scroll wheel)
@@ -33,6 +31,9 @@ BTC 3DBxRp9Q1NWDYjydfCKnCkf97zuAvgoGJr
 
 Email
 skidlamer@mail.com
+
+HomePage
+https://skidlamer.github.io/
 
 Github
 https://github.com/skidlamer
