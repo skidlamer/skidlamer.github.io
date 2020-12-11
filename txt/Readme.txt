@@ -1,12 +1,16 @@
-*KRUNKER SKIDFEST*
+KRUNKER SKIDFEST
+====================
+
 A Krunker Full Featured Mod Menu.
+---------------------
 
-Note: This script supports Violentmonkey & Tampermonkey.
+### Note This script supports Violentmonkey & Tampermonkey.
 
-Hotkey
-the [F1] key is used to open the menu in game or alternatively the Middle Mouse Button (press scroll wheel)
+> ## Hotkey
+The [F1] key is used to open the menu in game or alternatively the Middle Mouse Button (press scroll wheel)
 
-Features
+> ## Features
+
 In Game Radio / Channel / Volume controls
 Auto Activate Nuke / Aim through Penetratables / Force Weapon Trails / Weapon Zoom Slider
 Auto Aiming / Aim Correction / Aim Assist / Silent Aim / Trigger Bot / Quick Scope / Line of Sight
@@ -26,20 +30,20 @@ and more...
 
 ==============================
 
-Donate
+> ## Donate
 BTC 3DBxRp9Q1NWDYjydfCKnCkf97zuAvgoGJr
 
-Email
+> ## Email
 skidlamer@mail.com
 
-HomePage
+> ## HomePage
 https://skidlamer.github.io/
 
-Github
+> ## Github
 https://github.com/skidlamer
 
-SkidFest
+> ## SkidFest
 A Krunker Full Featured Mod Menu.
 
-Disclaimer
+> ## Disclaimer
 If the user violates Krunker's TOS, this script provides no legal responsibility.
