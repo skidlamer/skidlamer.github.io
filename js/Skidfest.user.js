@@ -1,9 +1,11 @@
 // ==UserScript==
-// @name SkidFest
-// @description A Player aid in the game Krunker.io!
-// @version 1.95
-// @author SkidLamer
+// @name Krunker SkidFest
+// @description A full featured Mod menu for game Krunker.io!
+// @version 1.96
+// @author SkidLamer - From The Gaming Gurus
+// @supportURL https://discord.gg/2uqj5Y6h7s
 // @homepage https://skidlamer.github.io/
+// @icon64 https://i.imgur.com/PPGAhg0.png
 // @match *.krunker.io/*
 // @exclude *krunker.io/social*
 // @updateURL https://skidlamer.github.io/js/Skidfest.user.js
@@ -34,6 +36,7 @@ const original_strokeText = window.CanvasRenderingContext2D.prototype.strokeText
 const original_restore = window.CanvasRenderingContext2D.prototype.restore;
 const key = { frame: 0, delta:1,xdir:2,ydir:3,moveDir:4,shoot:5,scope:6,jump:7,reload:8,crouch:9,weaponScroll:10,weaponSwap:11, moveLock:12}
 //original_Object.assign(console, { log:_=>{}, dir:_=>{}, groupCollapsed:_=>{}, groupEnd:_=>{} });
+/* eslint-env es6 */
 /* eslint-disable no-caller, no-undef */
 
 class Utilities {
@@ -110,7 +113,7 @@ class Utilities {
             chestWidth: 2.6,
             hitBoxPad: 1,
             crouchDst: 3,
-            recoilMlt: 0.27,//0.3,
+            recoilMlt: 0.3,
             nameOffset: 0.6,
             nameOffsetHat: 0.8,
         };
@@ -727,7 +730,7 @@ class Utilities {
                         args[1] = null;
                     }
 
-                    if (args[0] === "ent") {
+                    if (args[0] === "en") {
                         window.utilities.skinConfig = {
                             main: args[1][2][0],
                             secondary: args[1][2][1],
@@ -904,7 +907,7 @@ class Utilities {
             getWorldPosition: { regex: /{\w+=\w+\['camera']\['(\w+)']\(\);/, pos: 1 },
             //mouseDownL: { regex: /this\['\w+'\]=function\(\){this\['(\w+)'\]=\w*0,this\['(\w+)'\]=\w*0,this\['\w+'\]={}/, pos: 1 },
             mouseDownR: { regex: /this\['(\w+)']=0x0,this\['keys']=/, pos: 1 },
-            //reloadTimer: { regex:  /this\['(\w+)']-=\w+,\w+\['reloadUIAnim']/, pos: 1 },///this\['(\w+)']&&\(this\['noMovTimer']=0x0/, pos: 1 },
+            //reloadTimer: { regex:  /this\['(\w+)']&&\(\w+\['\w+']\(this\),\w+\['\w+']\(this\)/, pos: 1 },
             maxHealth: { regex: /this\['health']\/this\['(\w+)']\?/, pos: 1 },
             xDire: { regex: /this\['(\w+)']=Math\['lerpAngle']\(this\['xDir2']/, pos: 1 },
             yDire: { regex: /this\['(\w+)']=Math\['lerpAngle']\(this\['yDir2']/, pos: 1 },
@@ -963,8 +966,6 @@ class Utilities {
             if (player[this.vars.isYou] || !player.active || !this.isDefined(player[this.vars.objInstances]) || this.getIsFriendly(player)) {
                 continue;
             }
-
-            //if (espVal === "full") this.nameTags = true;
 
             // the below variables correspond to the 2d box esps corners
             let xmin = Infinity;
@@ -1200,8 +1201,10 @@ class Utilities {
                         //this.me.refillKnife();
                     }
                 } else if (!ammoLeft) {
+                    this.game.players.reload(this.me);
                     input[key.reload] = 1;
-                     this.me.reload = 0;
+                    // this.me[this.vars.reloadTimer] = 1;
+                    //this.me.resetAmmo();
                 }
             }
 
@@ -1235,9 +1238,10 @@ class Utilities {
                     //if (count < 360) {
                     //    input[2] = this.me[this.vars.xDire] + Math.PI;
                     //} else console.log("spins ", count);
+                    //target.jumpBobY * this.config.jumpVel
                     let canSee = this.renderer.frustum.containsPoint(target[this.vars.objInstances].position);
                     let yDire = (this.getDir(this.me.z, this.me.x, target.z, target.x) || 0)
-                    let xDire = ((this.getXDire(this.me.x, this.me.y, this.me.z, target.x, target.y /*+ target.jumpBobY*this.config.jumpVel*/ - target[this.vars.crouchVal] * this.consts.crouchDst + this.me[this.vars.crouchVal] * this.consts.crouchDst, target.z) || 0) - this.consts.recoilMlt * this.me[this.vars.recoilAnimY])
+                    let xDire = ((this.getXDire(this.me.x, this.me.y, this.me.z, target.x, target.y - target[this.vars.crouchVal] * this.consts.crouchDst + this.me[this.vars.crouchVal] * this.consts.crouchDst, target.z) || 0) - this.consts.recoilMlt * this.me[this.vars.recoilAnimY])
                     if (this.me.weapon[this.vars.nAuto] && this.me[this.vars.didShoot]) {
                         input[key.shoot] = 0;
                         input[key.scope] = 0;
