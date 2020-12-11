@@ -1,4 +1,4 @@
-KRUNKER SKIDFEST
+*KRUNKER SKIDFEST*
 A Krunker Full Featured Mod Menu.
 
 Note: This script supports Violentmonkey & Tampermonkey.
