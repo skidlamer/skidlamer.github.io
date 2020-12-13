@@ -1,0 +1,25 @@
+KRUNKER DOGEWARE
+====================
+
+### The most advanced krunker cheat
+
+> ### Hotkey
+The [F1] key is used to open the menu in game or alternatively click the Dog Icon
+
+## Contact
+
+> ### Email
+skidlamer@mail.com
+
+> ### HomePage
+https://skidlamer.github.io/
+
+> ### Github
+https://github.com/skidlamer
+
+## Donate
+BTC 3MziGzVnRUi37u3eNpx2AbHmgpRmhV5VbP
+ETH 0xA9854F1fBaf0612B476606A547095894c993Fd14
+
+## Legal Disclaimer
+If you the user violates Krunker's TOS, greasyfork and this script and creator provide no legal responsibility.
