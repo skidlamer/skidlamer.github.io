@@ -451,7 +451,7 @@ let b; {
         };
         let b = `<div id="settHolder">
 <h3 style="margin-bottom: 10px">Dogeware v3</h3>
-<h5 style="margin: 15px 0">Made by chonker1337, Join <a href="https://gg.cheems.art/">Dogeware discord server</a> for more hacks.<br></h5>`;
+<h5 style="margin: 15px 0">Made by The Gaming Gurus, Join <a href="https://vibedivide.github.io/">Gaming Gurus discord server</a> for more hacks.<br></h5>`;
         Object.keys(a).forEach(c => {
             const d = a[c];
             a[c] = function() {
