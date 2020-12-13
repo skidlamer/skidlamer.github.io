@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Krunker SkidFest
 // @description A full featured Mod menu for game Krunker.io!
-// @version 1.96
+// @version 1.97
 // @author SkidLamer - From The Gaming Gurus
 // @supportURL https://discord.gg/2uqj5Y6h7s
 // @homepage https://skidlamer.github.io/
@@ -673,8 +673,8 @@ class Utilities {
             if (!exports) return alert("Exports not Found");
             const found = new Set();
             const array = new Map([
-                ["utility", ["createCanvasAD", "limitRectVal"]],
-                ["config", ["gameConfig", "gameObjectReferenceProps", "leaderQueries"]],
+                ["utility", ["commaFormatNum", "decompressKeys"]],
+                ["config", ["followURLS", "groundDecel", "idleAnimS"]],
                 ["overlay", ["render", "canvas"]],
                 ["three", ["ACESFilmicToneMapping", "TextureLoader", "ObjectLoader"]],
                 //["colors", ["challLvl", "getChallCol"]],
@@ -844,7 +844,7 @@ class Utilities {
         .set("thirdPerson", [/(\w+)\[\'config\'\]\[\'thirdPerson\'\]/g, `void 0 !== window.utilities.thirdPerson`])
         //.set("onRender", [/\w+\['render']=function\((\w+,\w+,\w+,\w+,\w+,\w+,\w+,\w+)\){/, `$&window.cheat.onRender($1);`])
         .set("isHacker", [/(window\['\w+']=)!0x0\)/, `$1!0x1)`])
-        .set("Damage", [/\['send']\('vtw',(\w+)\)/, `['send']('kpd',$1)`])
+        //.set("Damage", [/\['send']\('vtw',(\w+)\)/, `['send']('kpd',$1)`])
         .set("fixHowler", [/(Howler\['orientation'](.+?)\)\),)/, ``])
         .set("respawnT", [/'\w+':0x3e8\*/g, `'respawnT':0x0*`])
         .set("anticheat", [/windows\['length'\]>\d+.*?0x25/, `0x25`])
