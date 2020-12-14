@@ -42,8 +42,8 @@ https://skidlamer.github.io/
 https://github.com/skidlamer
 
 ## Donate
-BTC 3MziGzVnRUi37u3eNpx2AbHmgpRmhV5VbP
-ETH 0xA9854F1fBaf0612B476606A547095894c993Fd14
+>BTC 3MziGzVnRUi37u3eNpx2AbHmgpRmhV5VbP
+>ETH 0xA9854F1fBaf0612B476606A547095894c993Fd14
 
 ## Legal Disclaimer
 If you the user violates Krunker's TOS, greasyfork and this script and creator provide no legal responsibility.
