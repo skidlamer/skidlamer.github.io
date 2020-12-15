@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Krunker Dogeware
-// @description Ip Dip Dog Shit Chonker Stood In It
-// @version 1.97
+// @description The most advanced krunker cheat
+// @version 1.98
 // @author SkidLamer - From The Gaming Gurus
 // @supportURL https://discord.gg/2uqj5Y6h7s
 // @homepage https://skidlamer.github.io/
@@ -14,10 +14,9 @@
 
 /* eslint-env es6 */
 /* eslint-disable no-return-assign, no-sequences, no-undef, curly, no-eval */
-
+/* Ip Dip Dog Shit Chonker Stood In It */
 
 const the_gaming_gurus = "const[input,game,recon,lock]=arguments,me=this,key={frame:0,delta:1,xdir:2,ydir:3,moveDir:4,shoot:5,scope:6,jump:7,reload:8,crouch:9,weaponScroll:10,weaponSwap:11,moveLock:12},moveDir={leftStrafe:0,forward:1,rightStrafe:2,right:3,backwardRightStrafe:4,backward:5,backwardLeftStrafe:6,left:7};utilities.state.frame=input[key.frame],utilities.state.players=game.players,utilities.state.game=game,utilities.state.me=me,utilities.state.controls=game.controls,utilities.settings.autoNuke&&me&&Object.keys(me.streaks).length&&sendWsMessage(\"k\",0);const bhop=utilities.settings.bhop;if(bhop&&(utilities.state.pressedKeys.has(\"Space\")||[1,3].includes(bhop))&&(utilities.state.controls.keys[utilities.state.controls.binds.jumpKey.val]^=1,utilities.state.controls.keys[utilities.state.controls.binds.jumpKey.val]&&(utilities.state.controls.didPressed[utilities.state.controls.binds.jumpKey.val]=1),[3,4].includes(bhop)&&(utilities.state.pressedKeys.has('Space')||bhop===3)&&utilities.state.me.canSlide&&(setTimeout(()=>{utilities.state.shouldCrouch=!1},350),utilities.state.shouldCrouch=!0)),utilities.settings.forceNametagsOn)try{Object.defineProperty(game.config,\"nameTags\",{get(){return!utilities.settings.forceNametagsOn&&game._nametags},set(a){game._nametags=a}})}catch(a){}if(utilities.state.shouldCrouch&&(input[key.crouch]=1),utilities.settings.spinBot){const a=1;input[key.moveDir]!==-1&&(input[key.moveDir]=(input[key.moveDir]+utilities.state.spinCounter-Math.round(7*(input[key.ydir]/(Math.PI*2e3))))%7),input[key.ydir]=utilities.state.spinCounter/7*(Math.PI*2e3),input[key.frame]%a===0&&(utilities.state.spinCounter=(utilities.state.spinCounter+1)%7)}if(utilities.settings.autoReload&&me[utilities.vars.ammos][me[utilities.vars.weaponIndex]]===0&&(input[key.reload]=1),utilities.settings.pitchHack)switch(utilities.settings.pitchHack){case 1:input[key.xdir]=-Math.PI*500;break;case 2:input[key.xdir]=Math.PI*500;break;case 3:input[key.xdir]=Math.sin(Date.now()/50)*Math.PI*500;break;case 4:input[key.xdir]=Math.sin(Date.now()/250)*Math.PI*500;break;case 5:input[key.xdir]=input[key.frame]%2?Math.PI*500:-Math.PI*500;break;case 6:input[key.xdir]=(Math.random()*Math.PI-Math.PI/2)*1e3;break}const getNoise=()=>(Math.random()*2-1)*utilities.settings.aimNoise;if(game.players.list.forEach(a=>{a.pos={x:a.x,y:a.y,z:a.z},a.npos={x:a.x+getNoise(),y:a.y+getNoise(),z:a.z+getNoise()},a.isTarget=!1}),game.AI.ais&&game.AI.ais.forEach(a=>a.npos=a.pos={x:a.x,y:a.y,z:a.z}),utilities.state.renderer&&utilities.state.renderer.frustum&&me.active){game.controls.target=null;const b=game.players.list.filter(a=>!a.isYTMP&&a.hasOwnProperty('npos')&&(!utilities.settings.frustumCheck||utilities.state.renderer.frustum.containsPoint(a.npos))&&(me.team===null||a.team!==me.team)&&a.health>0&&a[utilities.vars.inView]).sort((a,b)=>utilities.math.getDistance(me.x,me.z,a.npos.x,a.npos.z)-utilities.math.getDistance(me.x,me.z,b.npos.x,b.npos.z));let a=b[0];if(utilities.settings.fovbox){const e=parseFloat(document.getElementById(\"uiBase\").style.transform.match(/\\((.+)\\)/)[1]),c=innerWidth/e,d=innerHeight/e;function world2Screen(a,b=0){return a.y+=b,a.project(utilities.state.renderer.camera),a.x=(a.x+1)/2,a.y=(-a.y+1)/2,a.x*=c,a.y*=d,a}let f=!1;for(let g=0;g<b.length;g++){const h=b[g],i=world2Screen(new utilities.state.three.Vector3(h.x,h.y,h.z),h.height/2);let e=[c/3,d/4,c*(1/3),d/2];switch(utilities.settings.fovBoxSize){case 2:e=[c*.4,d/3,c*.2,d/3];break;case 3:e=[c*.45,d*.4,c*.1,d*.2];break}if(i.x>=e[0]&&i.x<=e[0]+e[2]&&i.y>=e[1]&&i.y<e[1]+e[3]){a=b[g],f=!0;break}}f||(a=void\"kpal\")}let c=!1;if(game.AI.ais&&utilities.settings.AImbot){let b=game.AI.ais.filter(a=>a.mesh&&a.mesh.visible&&a.health&&a.pos&&a.canBSeen).sort((a,b)=>utilities.math.getDistance(me.x,me.z,a.pos.x,a.pos.z)-utilities.math.getDistance(me.x,me.z,b.pos.x,b.pos.z)).shift();(!a||b&&utilities.math.getDistance(me.x,me.z,b.pos.x,b.pos.z)>utilities.math.getDistance(me.x,me.z,a.pos.x,a.pos.z))&&(a=b,c=!0)}const d=input[key.shoot];if(a&&utilities.settings.aimbot&&utilities.state.bindAimbotOn&&(!utilities.settings.aimbotRange||utilities.math.getD3D(me.x,me.y,me.z,a.x,a.y,a.z)<utilities.settings.aimbotRange)&&(!utilities.settings.rangeCheck||utilities.math.getD3D(me.x,me.y,me.z,a.x,a.y,a.z)<=me.weapon.range)&&!me[utilities.vars.reloadTimer]){utilities.settings.awtv&&(input[key.scope]=1),a.isTarget=utilities.settings.markTarget;const b=(utilities.math.getDir(me.z,me.x,a.npos.z,a.npos.x)||0)*1e3,e=c?((utilities.math.getXDire(me.x,me.y,me.z,a.npos.x,a.npos.y-a.dat.mSize/2,a.npos.z)||0)-.3*me[utilities.vars.recoilAnimY])*1e3:((utilities.math.getXDire(me.x,me.y,me.z,a.npos.x,a.npos.y-a[utilities.vars.crouchVal]*3+me[utilities.vars.crouchVal]*3+utilities.settings.aimOffset,a.npos.z)||0)-.3*me[utilities.vars.recoilAnimY])*1e3;switch(utilities.settings.forceUnsilent&&(game.controls.target={xD:e/1e3,yD:b/1e3},game.controls.update(400)),utilities.settings.aimbot){case 1:case 2:case 5:case 6:case 9:case 10:{let a=[5,6,9].includes(utilities.settings.aimbot);(utilities.settings.aimbot===5&&input[key.scope]||utilities.settings.aimbot===10)&&(game.controls.target={xD:e/1e3,yD:b/1e3},game.controls.update(400)),([2,10].includes(utilities.settings.aimbot)||utilities.settings.aimbot===1&&utilities.state.me.weapon.id)&&!me.weapon.melee&&(input[key.scope]=1),me[utilities.vars.didShoot]?(input[key.shoot]=0,utilities.state.quickscopeCanShoot=!1,setTimeout(()=>{utilities.state.quickscopeCanShoot=!0},me.weapon.rate)):utilities.state.quickscopeCanShoot&&(!a||input[key.scope])&&(me.weapon.melee||(input[key.scope]=1),!utilities.settings.superSilent&&utilities.settings.aimbot!==9&&(input[key.ydir]=b,input[key.xdir]=e),(utilities.settings.aimbot!==9&&(!me[utilities.vars.aimVal]||me.weapon.noAim||me.weapon.melee)||utilities.settings.aimbot===9&&d)&&(input[key.ydir]=b,input[key.xdir]=e,input[key.shoot]=1))}break;case 4:case 7:case 8:case 11:input[key.scope]||utilities.settings.aimbot===11?(game.controls.target={xD:e/1e3,yD:b/1e3},game.controls.update({4:400,7:110,8:70,11:400}[utilities.settings.aimbot]),[4,11].includes(utilities.settings.aimbot)&&(input[key.xdir]=e,input[key.ydir]=b),me[utilities.vars.didShoot]?(input[key.shoot]=0,utilities.state.quickscopeCanShoot=!1,setTimeout(()=>{utilities.state.quickscopeCanShoot=!0},me.weapon.rate)):utilities.state.quickscopeCanShoot&&(input[me.weapon.melee?key.shoot:key.scope]=1)):game.controls.target=null;break;case 12:{if(!utilities.state.three||!utilities.state.renderer||!utilities.state.renderer.camera||!utilities.state.players||!utilities.state.players.list.length||!input[key.scope]||me[utilities.vars.aimVal])break;utilities.state.raycaster||(utilities.state.raycaster=new utilities.state.three.Raycaster,utilities.state.mid=new utilities.state.three.Vector2(0,0));const a=[];for(let c=0;c<utilities.state.players.list.length;c++){let b=utilities.state.players.list[c];if(!b||!b[utilities.vars.objInstances]||b.isYTMP||!(me.team===null||b.team!==me.team)||!b[utilities.vars.inView])continue;a.push(b[utilities.vars.objInstances])}const b=utilities.state.raycaster;b.setFromCamera(utilities.state.mid,utilities.state.renderer.camera),b.intersectObjects(a,!0).length&&(input[key.shoot]=me[utilities.vars.didShoot]?0:1)}break}}else utilities.settings.uwtv&&(input[key.scope]=0),utilities.state.spinFrame=0}utilities.settings.alwaysAim&&(input[key.scope]=1),utilities.settings.preventMeleeThrowing&&me.weapon.melee&&(input[key.scope]=0)"
-
 const _requestAnimationFrame = window.requestAnimationFrame;
 window.requestAnimationFrame = function(fn) {
     const callback = fn;
@@ -29,182 +28,171 @@ window.requestAnimationFrame = function(fn) {
         }
     }, _requestAnimationFrame.apply(this, arguments);
 }, window.utilities = {
-        settings: {
-            aimbot: 1,
-            superSilent: !0,
-            AImbot: !0,
-            frustumCheck: !1,
-            staticWeaponZoom: !1,
-            wallbangs: !0,
-            alwaysAim: !1,
-            pitchHack: 0,
-            thirdPerson: !1,
-            autoReload: !1,
-            speedHack: !1,
-            rangeCheck: !1,
-            alwaysTrail: !1,
-            spinAimFrames: 10,
-            animatedBillboards: !1,
-            esp: 1,
-            espFontSize: 10,
-            tracers: !1,
-            showGuiButton: !0,
-            awtv: !1,
-            uwtv: !1,
-            forceUnsilent: !1,
-            bhop: 0,
-            spinBot: !1,
-            markTarget: !0,
-            skinHack: !1,
-            aimOffset: 0,
-            aimNoise: 0,
-            keybinds: !0,
-            antikick: !0,
-            fovbox: !1,
-            drawFovbox: !0,
-            fovBoxSize: 1,
-            guiOnMMB: !1,
-            chams: !1,
-            wireframe: !1,
-            chamsc: 0,
-            customCss: "",
-            selfChams: !1,
-            autoNuke: !1,
-            chamsInterval: 500,
-            preventMeleeThrowing: !1,
-            forceNametagsOn: !1,
-            aimbotRange: 0
-        },
-        state: {
-            bindAimbotOn: !0,
-            quickscopeCanShoot: !0,
-            spinFrame: 0,
-            pressedKeys: new Set,
-            shouldCrouch: !1,
-            spinCounter: 0,
-            activeTab: 0,
-            frame: 0
-        },
-        gui: {},
-        math: {
-            getDir: function(a, b, c, d) {
-                return Math.atan2(b - d, a - c)
-            },
-            getDistance: function(c, d, a, b) {
-                return Math.sqrt((a -= c) * a + (b -= d) * b)
-            },
-            getD3D: function(g, h, i, d, e, f) {
-                const a = g - d,
-                    b = h - e,
-                    c = i - f;
-                return Math.sqrt(a * a + b * b + c * c)
-            },
-            getXDire: function(c, a, d, e, b, f) {
-                const g = Math.abs(a - b),
-                    h = this.getD3D(c, a, d, e, b, f);
-                return Math.asin(g / h) * (a > b ? -1 : 1)
-            },
-            lineInRect: function(k, b, c, d, e, f, s, r, q, p, t, o) {
-                const m = (s - k) * d,
-                    a = (p - k) * d,
-                    l = (q - c) * f,
-                    j = (o - c) * f,
-                    i = (r - b) * e,
-                    h = (t - b) * e,
-                    g = Math.max(Math.max(Math.min(m, a), Math.min(l, j)), Math.min(i, h)),
-                    n = Math.min(Math.min(Math.max(m, a), Math.max(l, j)), Math.max(i, h));
-                return !(n < 0 || g > n) && g
-            }
-        },
-        isClient: !!window.doge_work
+    settings: {
+        aimbot: 1,
+        superSilent: !0,
+        AImbot: !0,
+        frustumCheck: !1,
+        staticWeaponZoom: !1,
+        wallbangs: !0,
+        alwaysAim: !1,
+        pitchHack: 0,
+        thirdPerson: !1,
+        autoReload: !1,
+        speedHack: !1,
+        rangeCheck: !1,
+        alwaysTrail: !1,
+        spinAimFrames: 10,
+        animatedBillboards: !1,
+        esp: 1,
+        espFontSize: 10,
+        tracers: !1,
+        showGuiButton: !0,
+        awtv: !1,
+        uwtv: !1,
+        forceUnsilent: !1,
+        bhop: 0,
+        spinBot: !1,
+        markTarget: !0,
+        skinHack: !1,
+        aimOffset: 0,
+        aimNoise: 0,
+        keybinds: !0,
+        antikick: !0,
+        fovbox: !1,
+        drawFovbox: !0,
+        fovBoxSize: 1,
+        guiOnMMB: !1,
+        chams: !1,
+        wireframe: !1,
+        chamsc: 0,
+        customCss: "",
+        selfChams: !1,
+        autoNuke: !1,
+        chamsInterval: 500,
+        preventMeleeThrowing: !1,
+        forceNametagsOn: !1,
+        aimbotRange: 0
     },
-    /*Object.assign(window.utilities.settings, JSON.parse(document.getElementById("cheetsttngs").innerHTML)), Object.keys(AudioParam.prototype).forEach(a => {
-           if (Object.getOwnPropertyDescriptor(AudioParam.prototype, a).get) return;
-           const b = AudioParam.prototype[a];
-           AudioParam.prototype[a] = function() {
-               try {
-                   return b.apply(this, arguments)
-               } catch (a) {
-                   return console.log("AudioParam error:\n" + a), !1
-               }
-           }
-       }), */
+    state: {
+        bindAimbotOn: !0,
+        quickscopeCanShoot: !0,
+        spinFrame: 0,
+        pressedKeys: new Set,
+        shouldCrouch: !1,
+        spinCounter: 0,
+        activeTab: 0,
+        frame: 0
+    },
+    gui: {},
+    math: {
+        getDir: function(a, b, c, d) {
+            return Math.atan2(b - d, a - c)
+        },
+        getDistance: function(c, d, a, b) {
+            return Math.sqrt((a -= c) * a + (b -= d) * b)
+        },
+        getD3D: function(g, h, i, d, e, f) {
+            const a = g - d,
+                  b = h - e,
+                  c = i - f;
+            return Math.sqrt(a * a + b * b + c * c)
+        },
+        getXDire: function(c, a, d, e, b, f) {
+            const g = Math.abs(a - b),
+                  h = this.getD3D(c, a, d, e, b, f);
+            return Math.asin(g / h) * (a > b ? -1 : 1)
+        },
+        lineInRect: function(k, b, c, d, e, f, s, r, q, p, t, o) {
+            const m = (s - k) * d,
+                  a = (p - k) * d,
+                  l = (q - c) * f,
+                  j = (o - c) * f,
+                  i = (r - b) * e,
+                  h = (t - b) * e,
+                  g = Math.max(Math.max(Math.min(m, a), Math.min(l, j)), Math.min(i, h)),
+                  n = Math.min(Math.min(Math.max(m, a), Math.max(l, j)), Math.max(i, h));
+            return !(n < 0 || g > n) && g
+        }
+    },
+    isClient: !!window.doge_work
+}, localStorage.kro_setngss_json ? Object.assign(utilities.settings, JSON.parse(localStorage.kro_setngss_json)) : localStorage.kro_setngss_json = JSON.stringify(utilities.settings),
     Object.defineProperty(Object.prototype, "thirdPerson", {
-        get() {
-            return window.utilities.settings.thirdPerson
-        }
-    }), Object.defineProperty(Object.prototype, "renderer", {
+    get() {
+        return window.utilities.settings.thirdPerson
+    }
+}), Object.defineProperty(Object.prototype, "renderer", {
+    enumerable: !1,
+    get() {
+        return this.camera && (window.utilities.state.renderer = this), this._renderer
+    },
+    set(a) {
+        this._renderer = a
+    }
+}), Object.defineProperty(Object.prototype, "OBJLoader", {
+    enumerable: !1,
+    get() {
+        return this._OBJLoader
+    },
+    set(a) {
+        window.utilities.state.three = this, this._OBJLoader = a
+    }
+}), Object.defineProperty(Object.prototype, "useLooseClient", {
+    enumerable: !1,
+    get() {
+        return this._ulc
+    },
+    set(a) {
+        window.utilities.state.config = this, Object.defineProperty(this, "nameVisRate", {
+            value: 0,
+            writable: !1,
+            configurable: !0
+        }), this._ulc = a
+    }
+}), Object.defineProperty(Object.prototype, "trail", {
+    enumerable: !1,
+    get() {
+        return window.utilities.settings.alwaysTrail || this._trail
+    },
+    set(a) {
+        this._trail = a
+    }
+}), Object.defineProperty(Object.prototype, "showTracers", {
+    enumerable: !1,
+    get() {
+        return window.utilities.settings.alwaysTrail || this._showTracers
+    },
+    set(a) {
+        this._showTracers = a
+    }
+}), Object.defineProperty(Object.prototype, "shaderId", {
+    enumerable: !1,
+    get() {
+        return this.src && this.src.startsWith("pubs/") ? window.utilities.settings.animatedBillboards ? 1 : this.rshaderId : this.rshaderId
+    },
+    set(a) {
+        this.rshaderId = a
+    }
+}), Object.defineProperties(Object.prototype, {
+    idleTimer: {
         enumerable: !1,
         get() {
-            return this.camera && (window.utilities.state.renderer = this), this._renderer
+            return window.utilities.settings.antikick ? 0 : this._idleTimer
         },
         set(a) {
-            this._renderer = a
+            this._idleTimer = a
         }
-    }), Object.defineProperty(Object.prototype, "OBJLoader", {
+    },
+    kickTimer: {
         enumerable: !1,
         get() {
-            return this._OBJLoader
+            return window.utilities.settings.antikick ? 1 / 0 : this._kickTimer
         },
         set(a) {
-            window.utilities.state.three = this, this._OBJLoader = a
+            this._kickTimer = a
         }
-    }), Object.defineProperty(Object.prototype, "useLooseClient", {
-        enumerable: !1,
-        get() {
-            return this._ulc
-        },
-        set(a) {
-            window.utilities.state.config = this, Object.defineProperty(this, "nameVisRate", {
-                value: 0,
-                writable: !1,
-                configurable: !0
-            }), this._ulc = a
-        }
-    }), Object.defineProperty(Object.prototype, "trail", {
-        enumerable: !1,
-        get() {
-            return window.utilities.settings.alwaysTrail || this._trail
-        },
-        set(a) {
-            this._trail = a
-        }
-    }), Object.defineProperty(Object.prototype, "showTracers", {
-        enumerable: !1,
-        get() {
-            return window.utilities.settings.alwaysTrail || this._showTracers
-        },
-        set(a) {
-            this._showTracers = a
-        }
-    }), Object.defineProperty(Object.prototype, "shaderId", {
-        enumerable: !1,
-        get() {
-            return this.src && this.src.startsWith("pubs/") ? window.utilities.settings.animatedBillboards ? 1 : this.rshaderId : this.rshaderId
-        },
-        set(a) {
-            this.rshaderId = a
-        }
-    }), Object.defineProperties(Object.prototype, {
-        idleTimer: {
-            enumerable: !1,
-            get() {
-                return window.utilities.settings.antikick ? 0 : this._idleTimer
-            },
-            set(a) {
-                this._idleTimer = a
-            }
-        },
-        kickTimer: {
-            enumerable: !1,
-            get() {
-                return window.utilities.settings.antikick ? 1 / 0 : this._kickTimer
-            },
-            set(a) {
-                this._kickTimer = a
-            }
-        }
-    }); {
+    }
+}); {
     Object.defineProperty(CanvasRenderingContext2D.prototype, 'save', {
         value: CanvasRenderingContext2D.prototype.save,
         writable: !1
@@ -230,9 +218,9 @@ window.requestAnimationFrame = function(fn) {
             }
         }));
         const a = window.utilities.state.ctx,
-            h = parseFloat(document.getElementById("uiBase").style.transform.match(/\((.+)\)/)[1]),
-            d = innerWidth / h,
-            c = innerHeight / h;
+              h = parseFloat(document.getElementById("uiBase").style.transform.match(/\((.+)\)/)[1]),
+              d = innerWidth / h,
+              c = innerHeight / h;
         if (window.utilities.canvas.width = d, window.utilities.canvas.height = c, !a) return;
 
         function k(a, b = 0) {
@@ -264,16 +252,16 @@ window.requestAnimationFrame = function(fn) {
         const f = 2;
         if (a.clearRect(0, 0, d, c), window.utilities.settings.esp > 1)
             for (const j of window.utilities.state.players.list.filter(a => !a.isYTMP && a.active && (a.pos = {
-                    x: a.x,
-                    y: a.y,
-                    z: a.z
-                }))) {
+                x: a.x,
+                y: a.y,
+                z: a.z
+            }))) {
                 const s = new window.utilities.state.three.Vector3(j.pos.x, j.pos.y, j.pos.z),
-                    r = k(s.clone()),
-                    h = k(s.clone(), j.height),
-                    q = ~~(r.y - h.y),
-                    o = ~~(q * .6),
-                    p = window.utilities.settings.espFontSize + "px GameFont";
+                      r = k(s.clone()),
+                      h = k(s.clone(), j.height),
+                      q = ~~(r.y - h.y),
+                      o = ~~(q * .6),
+                      p = window.utilities.settings.espFontSize + "px GameFont";
                 if (!window.utilities.state.renderer.frustum.containsPoint(j.pos)) continue;
                 if (window.utilities.settings.tracers && m(d / 2, window.utilities.settings.tracers === 2 ? c / 2 : c - 1, r.x, r.y, 2, j.team === null ? "#FF4444" : j.team === window.utilities.state.me.team ? "#44AAFF" : "#FF4444"), j.isTarget) {
                     a.save();
@@ -298,10 +286,10 @@ window.requestAnimationFrame = function(fn) {
             }
         if (utilities.settings.chams && utilities.state.players)
             for (const b of utilities.state.players.list.filter(a => (utilities.settings.selfChams || !a.isYTMP) && a.active && (a.pos = {
-                    x: a.x,
-                    y: a.y,
-                    z: a.z
-                }))) {
+                x: a.x,
+                y: a.y,
+                z: a.z
+            }))) {
                 const a = b[utilities.vars.objInstances];
                 if (!a) continue;
                 Reflect.defineProperty(a, "visible", {
@@ -442,24 +430,24 @@ let b; {
                 for (const d in a) a.hasOwnProperty(d) && (c += `<option value="${a[d]}" ${utilities.settings[b]==a[d]?"selected":""}>${d}</option>,`);
                 return c + "</select></div>"
             },
-            slider: (d, a, b, c, e, f = "") => `<div class="settName" title="${f}">${d} <input type="number" class="sliderVal" id="slid_input_${a}" min="${b}" max="${c}" value="${utilities.settings[a]}" onkeypress="utilities.gui.setSetting('${a}', parseFloat(this.value.replace(',', '.')));document.querySelector('#slid_input_${a}').value=this.value" style="margin-right:0;border-width:0"><div class="slidecontainer" style=""><input type="range" id="slid_${a}" min="${b}" max="${c}" step="${e}" value="${utilities.settings[a]}" class="sliderM" oninput="utilities.gui.setSetting('${a}', parseFloat(this.value));document.querySelector('#slid_input_${a}').value=this.value"></div></div>`,
-            input: (c, a, b, d, e) => `<div class="settName" title="${d}">${c} <input type="${b}" name="${b}" id="slid_utilities_${a}"\n${'color'==b?'style="float:right;margin-top:5px"':`class="inputGrey2" placeholder="${e}"`}\nvalue="${utilities.settings[a]}" oninput="utilities.gui.setSetting(\'${a}\', this.value)"/></div>`,
-            label: (a, b) => "<br><span style='color: black; font-size: 20px; margin: 20px 0'>" + a + "</span> <span style='color: dimgrey; font-size: 15px'>" + (b || "") + "</span><br>",
-            nobrlabel: (a, b) => "<span style='color: black; font-size: 20px; margin: 20px 0'>" + a + "</span> <span style='color: dimgrey; font-size: 15px'>" + (b || "") + "</span><br>",
-            br: () => "<br>",
-            style: a => `<style>${a}</style>`
-        };
-        let b = `<div id="settHolder">
+                slider: (d, a, b, c, e, f = "") => `<div class="settName" title="${f}">${d} <input type="number" class="sliderVal" id="slid_input_${a}" min="${b}" max="${c}" value="${utilities.settings[a]}" onkeypress="utilities.gui.setSetting('${a}', parseFloat(this.value.replace(',', '.')));document.querySelector('#slid_input_${a}').value=this.value" style="margin-right:0;border-width:0"><div class="slidecontainer" style=""><input type="range" id="slid_${a}" min="${b}" max="${c}" step="${e}" value="${utilities.settings[a]}" class="sliderM" oninput="utilities.gui.setSetting('${a}', parseFloat(this.value));document.querySelector('#slid_input_${a}').value=this.value"></div></div>`,
+                    input: (c, a, b, d, e) => `<div class="settName" title="${d}">${c} <input type="${b}" name="${b}" id="slid_utilities_${a}"\n${'color'==b?'style="float:right;margin-top:5px"':`class="inputGrey2" placeholder="${e}"`}\nvalue="${utilities.settings[a]}" oninput="utilities.gui.setSetting(\'${a}\', this.value)"/></div>`,
+                        label: (a, b) => "<br><span style='color: black; font-size: 20px; margin: 20px 0'>" + a + "</span> <span style='color: dimgrey; font-size: 15px'>" + (b || "") + "</span><br>",
+                            nobrlabel: (a, b) => "<span style='color: black; font-size: 20px; margin: 20px 0'>" + a + "</span> <span style='color: dimgrey; font-size: 15px'>" + (b || "") + "</span><br>",
+                                br: () => "<br>",
+                                    style: a => `<style>${a}</style>`
+    };
+    let b = `<div id="settHolder">
 <h3 style="margin-bottom: 10px">Dogeware v3</h3>
 <h5 style="margin: 15px 0">Made by The Gaming Gurus, Join <a href="https://vibedivide.github.io/">Gaming Gurus discord server</a> for more hacks.<br></h5>`;
-        Object.keys(a).forEach(c => {
-            const d = a[c];
-            a[c] = function() {
-                return b += d.apply(this, arguments), ""
-            }
-        });
-        const c = ["Weapon", "Wallhack", "Visual", "Tweaks", "Movement", "Other"];
-        utilities.isClient && c.push("Client"), a.style(`
+    Object.keys(a).forEach(c => {
+        const d = a[c];
+        a[c] = function() {
+            return b += d.apply(this, arguments), ""
+        }
+    });
+    const c = ["Weapon", "Wallhack", "Visual", "Tweaks", "Movement", "Other"];
+    utilities.isClient && c.push("Client"), a.style(`
 .cheatTabButton {
 color: black;
 background: #ddd;
@@ -472,155 +460,155 @@ text-align: center;
 background: #bbb;
 }
 `), utilities.gui.changeTab = function(a) {
-            const b = a.innerText;
-            document.getElementById("cheat-tabbtn-" + c[utilities.state.activeTab]).classList.remove("cheatTabActive"), document.getElementById("cheat-tab-" + c[utilities.state.activeTab]).style.display = "none", a.classList.add("cheatTabActive"), document.getElementById("cheat-tab-" + b).style.display = "block", utilities.state.activeTab = c.indexOf(b)
-        }, b += `<table style="width: 100%; margin-bottom: 30px"><tr>`;
-        for (let a = 0; a < c.length; a++) {
-            const d = c[a];
-            b += `<td id="cheat-tabbtn-${d}" onclick="utilities.gui.changeTab(this)" class="cheatTabButton ${c[utilities.state.activeTab]===d?'cheatTabActive':''}">`, b += d, b += `</td>`
-        }
-        b += `</table></tr>`;
-
-        function d(a, d) {
-            b += `<div style="display: ${utilities.state.activeTab===a?'block':'none'}" class="cheat-tab" id="cheat-tab-${c[a]}">`, d(), b += `</div>`
-        }
-        return d(0, () => {
-            a.select("Aimbot [Y]", "aimbot", {
-                None: 0,
-                "Quickscope / Auto pick": 1,
-                "Silent aimbot": 2,
-                "Aim assist": 4,
-                "Easy aim assist": 11,
-                "SP Trigger bot": 12,
-                "Silent on aim": 6,
-                Smooth: 7,
-                Unsilent: 10,
-                "Unsilent on aim": 5,
-                "Aim correction": 9
-            }), a.select("Spin aimbot speed", "spinAimFrames", {
-                1: 30,
-                2: 20,
-                3: 15,
-                4: 10,
-                5: 5
-            }), a.slider("Aim range", "aimbotRange", 0, 1e3, 10, "Set above 0 to make the aimbot pick enemies only at the selected range"), a.slider("Aim offset", "aimOffset", -4, 1, .1, "The lower it is, the lower the aimbot will shoot (0 - head, -4 - body)"), a.slider("Aim noise", "aimNoise", 0, 2, .005, "The higher it is, the lower is the aimbot accuracy"), a.checkbox("Supersilent aim", "superSilent", "Only works with quickscope and silent aim, makes it almost invisible that you're looking at somebody when you're shooting at him"), a.checkbox("Aim at AIs", "AImbot", "Makes the aimbot shoot at NPCs"), a.checkbox("FOV check", "frustumCheck", "Makes you only shoot at enemies that are in your field of view. Prevents 180 flicks"), a.checkbox("FOV box", "fovbox", "Creates a box in which enemies can be targetted, enable with FOV check"), a.select("FOV box size", "fovBoxSize", {
-                Big: 1,
-                Medium: 2,
-                Small: 3
-            }), a.checkbox("Wallbangs", "wallbangs", "Makes the aimbot shoot enemies behind walls"), a.checkbox("Aimbot range check", "rangeCheck", "Checks if the enemy is in range of your weapon before shooting it, disable for rocket launcher"), a.checkbox("Auto reload", "autoReload", "Automatically reloads your weapon when it's out of ammo"), a.checkbox("Prevent melee throwing", "preventMeleeThrowing", "Prevents you from throwing your knife")
-        }), d(1, () => {
-            a.select("ESP [H]", "esp", {
-                None: 0,
-                Nametags: 1,
-                "Box ESP": 2,
-                "Full ESP": 3
-            }), a.select("ESP Font Size", "espFontSize", {
-                "30px": 30,
-                "25px": 25,
-                "20px": 20,
-                "15px": 15,
-                "10px": 10,
-                "5px": 5
-            }), a.select("Tracers", "tracers", {
-                None: 0,
-                Bottom: 1,
-                Middle: 2
-            }, "Draws lines to players"), a.checkbox("Mark aimbot target", "markTarget", "Shows who is the aimbot targetting at the time, useful for aim assist/aim correction"), a.checkbox("Draw FOV box", "drawFovbox", "Draws the FOV box from aimbot settings"), a.checkbox("Chams", "chams"), a.select("Chams colour", "chamsc", {
-                None: 0,
-                Red: 1,
-                Green: 2,
-                Blue: 3,
-                Cyan: 4,
-                Pink: 5,
-                Yellow: 6,
-                RGB: 8,
-                Epilepsy: 7
-            }), a.checkbox("Self chams", "selfChams", "Makes your weapon affected by chams"), a.checkbox("Wireframe", "wireframe"), a.slider("RGB interval", "chamsInterval", 50, 1e3, 50, "How fast will the RGB chams change colour")
-        }), d(2, () => {
-            a.checkbox("Skin hack", "skinHack", "Makes you able to use any skin in game, only shows on your side"), a.checkbox("Third person mode", "thirdPerson"), a.checkbox("No weapon zoom", "staticWeaponZoom", "Removes the distracting weapon zoom animation"), a.checkbox("Any weapon trail", "alwaysTrail"), a.checkbox("Billboard shaders", "animatedBillboards", "Disable if you get fps drops")
-        }), d(3, () => {
-            a.checkbox("Always aim", "alwaysAim", "Makes you slower and jump lower, but the aimbot can start shooting at enemies  faster. Only use if ur good at bhopping"), a.checkbox("Aim when target visible", "awtv"), a.checkbox("Unaim when no target visible", "uwtv"), a.checkbox("Force unsilent", "forceUnsilent")
-        }), d(4, () => {
-            a.select("Auto bhop", "bhop", {
-                None: 0,
-                "Auto Jump": 1,
-                "Key Jump": 2,
-                "Auto Slide": 3,
-                "Key Slide": 4
-            }), a.label("Only use with silent aim"), a.select("Pitch hax", "pitchHack", {
-                Disabled: 0,
-                Downward: 1,
-                Upward: 2,
-                "sin(time)": 3,
-                "sin(time/5)": 4,
-                double: 5,
-                random: 6
-            }, "Only use with aimbot on"), a.checkbox("Spin bot", "spinBot")
-        }), d(5, () => {
-            a.input("Custom CSS", "customCss", "url", "", "URL to CSS file"), a.checkbox("Show GUI button", "showGuiButton", "Disable if you don't want the dog under settings to be visible"), a.checkbox("GUI on middle mouse button", "guiOnMMB", "Makes it possible to open this menu by clicking the mouse wheel"), a.checkbox("Keybinds", "keybinds", "Turn keybinds on/off, Aimbot - Y, ESP - H"), a.checkbox("No inactivity kick", "antikick", "Disables the 'Kicked for inactivity' message (client side, but works)"), a.checkbox("Auto nuke", "autoNuke", "Automatically nukes when you are able to"), a.checkbox("Force nametags on", "fgno", "Use in custom games with disabled nametags")
-        }), utilities.isClient && d(6, () => {
-            a.nobrlabel("Restart is required after changing any of these settings"), a.br(), a.client_setting("Uncap FPS", "uncap_fps", "Disables V-Sync"), a.client_setting("Adblock", "adblock", "Disables ads")
-        }), b += "</div>", b
+        const b = a.innerText;
+        document.getElementById("cheat-tabbtn-" + c[utilities.state.activeTab]).classList.remove("cheatTabActive"), document.getElementById("cheat-tab-" + c[utilities.state.activeTab]).style.display = "none", a.classList.add("cheatTabActive"), document.getElementById("cheat-tab-" + b).style.display = "block", utilities.state.activeTab = c.indexOf(b)
+    }, b += `<table style="width: 100%; margin-bottom: 30px"><tr>`;
+    for (let a = 0; a < c.length; a++) {
+        const d = c[a];
+        b += `<td id="cheat-tabbtn-${d}" onclick="utilities.gui.changeTab(this)" class="cheatTabButton ${c[utilities.state.activeTab]===d?'cheatTabActive':''}">`, b += d, b += `</td>`
     }
-    b = function() {
-        function a(f, g, d) {
-            const e = document.querySelector("#menuItemContainer"),
-                a = document.createElement("div"),
-                c = document.createElement("div"),
-                b = document.createElement("div");
-            a.className = "menuItem", c.className = "menuItemIcon", b.className = "menuItemTitle", b.innerHTML = f, c.style.backgroundImage = `url("https://i.imgur.com/QkEcRaR.png")`, a.append(c, b), e.append(a), a.addEventListener("click", d)
-        }
-        utilities.gui.cssElem = document.createElement("link"), utilities.gui.cssElem.rel = "stylesheet", utilities.gui.cssElem.href = utilities.settings.customCss;
-        try {
-            document.head.appendChild(utilities.gui.cssElem)
-        } catch (a) {
-            alert("Error injecting custom CSS:\n" + a), utilities.settings.customCss = ""
-        }
-        utilities.gui.setSetting = function(a, b) {
-            switch (a) {
-                case "customCss":
-                    utilities.settings.customCss = b;
-                    break;
-                default:
-                    utilities.settings[a] = b
-            }
-            document.getElementById("cheetsttngs").innerHTML = JSON.stringify(utilities.settings)
-        }, utilities.gui.windowIndex = windows.length + 1, utilities.gui.settings = {
-            aimbot: {
-                val: utilities.settings.aimbot
-            }
-        }, utilities.gui.windowObj = {
-            header: "CH33T",
-            html: "",
-            gen() {
-                return f()
-            }
-        }, Object.defineProperty(window.windows, windows.length, {
-            value: utilities.gui.windowObj
-        }), utilities.settings.showGuiButton && a("CH33TS", null, () => {
-            window.showWindow(utilities.gui.windowIndex)
-        })
-    };
+    b += `</table></tr>`;
 
-    function a() {
-        (document.pointerLockElement || document.mozPointerLockElement) && document.exitPointerLock(), window.showWindow(utilities.gui.windowIndex)
+    function d(a, d) {
+        b += `<div style="display: ${utilities.state.activeTab===a?'block':'none'}" class="cheat-tab" id="cheat-tab-${c[a]}">`, d(), b += `</div>`
     }
-    window.addEventListener("mouseup", b => {
-        b.which === 2 && utilities.settings.guiOnMMB && (b.preventDefault(), a())
-    }), window.addEventListener("keydown", b => {
-        b.key === "F1" && (b.preventDefault(), b.stopPropagation(), b.stopImmediatePropagation(), a())
-    }), window.addEventListener("keydown", a => {
-        utilities.state.pressedKeys.has(a.code) || utilities.state.pressedKeys.add(a.code)
-    }), window.addEventListener("keyup", a => {
-        if (utilities.state.pressedKeys.has(a.code) && utilities.state.pressedKeys.delete(a.code), !(document.activeElement.tagName === "INPUT" || !window.endUI && window.endUI.style.display) && utilities.settings.keybinds) switch (a.code) {
-            case "KeyY":
-                utilities.state.bindAimbotOn = !utilities.state.bindAimbotOn, dispatchWsEvent("ch", [null, "Aimbot " + (utilities.state.bindAimbotOn ? "on" : "off"), 1]);
+    return d(0, () => {
+        a.select("Aimbot [Y]", "aimbot", {
+            None: 0,
+            "Quickscope / Auto pick": 1,
+            "Silent aimbot": 2,
+            "Aim assist": 4,
+            "Easy aim assist": 11,
+            "SP Trigger bot": 12,
+            "Silent on aim": 6,
+            Smooth: 7,
+            Unsilent: 10,
+            "Unsilent on aim": 5,
+            "Aim correction": 9
+        }), a.select("Spin aimbot speed", "spinAimFrames", {
+            1: 30,
+            2: 20,
+            3: 15,
+            4: 10,
+            5: 5
+        }), a.slider("Aim range", "aimbotRange", 0, 1e3, 10, "Set above 0 to make the aimbot pick enemies only at the selected range"), a.slider("Aim offset", "aimOffset", -4, 1, .1, "The lower it is, the lower the aimbot will shoot (0 - head, -4 - body)"), a.slider("Aim noise", "aimNoise", 0, 2, .005, "The higher it is, the lower is the aimbot accuracy"), a.checkbox("Supersilent aim", "superSilent", "Only works with quickscope and silent aim, makes it almost invisible that you're looking at somebody when you're shooting at him"), a.checkbox("Aim at AIs", "AImbot", "Makes the aimbot shoot at NPCs"), a.checkbox("FOV check", "frustumCheck", "Makes you only shoot at enemies that are in your field of view. Prevents 180 flicks"), a.checkbox("FOV box", "fovbox", "Creates a box in which enemies can be targetted, enable with FOV check"), a.select("FOV box size", "fovBoxSize", {
+            Big: 1,
+            Medium: 2,
+            Small: 3
+        }), a.checkbox("Wallbangs", "wallbangs", "Makes the aimbot shoot enemies behind walls"), a.checkbox("Aimbot range check", "rangeCheck", "Checks if the enemy is in range of your weapon before shooting it, disable for rocket launcher"), a.checkbox("Auto reload", "autoReload", "Automatically reloads your weapon when it's out of ammo"), a.checkbox("Prevent melee throwing", "preventMeleeThrowing", "Prevents you from throwing your knife")
+    }), d(1, () => {
+        a.select("ESP [H]", "esp", {
+            None: 0,
+            Nametags: 1,
+            "Box ESP": 2,
+            "Full ESP": 3
+        }), a.select("ESP Font Size", "espFontSize", {
+            "30px": 30,
+            "25px": 25,
+            "20px": 20,
+            "15px": 15,
+            "10px": 10,
+            "5px": 5
+        }), a.select("Tracers", "tracers", {
+            None: 0,
+            Bottom: 1,
+            Middle: 2
+        }, "Draws lines to players"), a.checkbox("Mark aimbot target", "markTarget", "Shows who is the aimbot targetting at the time, useful for aim assist/aim correction"), a.checkbox("Draw FOV box", "drawFovbox", "Draws the FOV box from aimbot settings"), a.checkbox("Chams", "chams"), a.select("Chams colour", "chamsc", {
+            None: 0,
+            Red: 1,
+            Green: 2,
+            Blue: 3,
+            Cyan: 4,
+            Pink: 5,
+            Yellow: 6,
+            RGB: 8,
+            Epilepsy: 7
+        }), a.checkbox("Self chams", "selfChams", "Makes your weapon affected by chams"), a.checkbox("Wireframe", "wireframe"), a.slider("RGB interval", "chamsInterval", 50, 1e3, 50, "How fast will the RGB chams change colour")
+    }), d(2, () => {
+        a.checkbox("Skin hack", "skinHack", "Makes you able to use any skin in game, only shows on your side"), a.checkbox("Third person mode", "thirdPerson"), a.checkbox("No weapon zoom", "staticWeaponZoom", "Removes the distracting weapon zoom animation"), a.checkbox("Any weapon trail", "alwaysTrail"), a.checkbox("Billboard shaders", "animatedBillboards", "Disable if you get fps drops")
+    }), d(3, () => {
+        a.checkbox("Always aim", "alwaysAim", "Makes you slower and jump lower, but the aimbot can start shooting at enemies  faster. Only use if ur good at bhopping"), a.checkbox("Aim when target visible", "awtv"), a.checkbox("Unaim when no target visible", "uwtv"), a.checkbox("Force unsilent", "forceUnsilent")
+    }), d(4, () => {
+        a.select("Auto bhop", "bhop", {
+            None: 0,
+            "Auto Jump": 1,
+            "Key Jump": 2,
+            "Auto Slide": 3,
+            "Key Slide": 4
+        }), a.label("Only use with silent aim"), a.select("Pitch hax", "pitchHack", {
+            Disabled: 0,
+            Downward: 1,
+            Upward: 2,
+            "sin(time)": 3,
+            "sin(time/5)": 4,
+            double: 5,
+            random: 6
+        }, "Only use with aimbot on"), a.checkbox("Spin bot", "spinBot")
+    }), d(5, () => {
+        a.input("Custom CSS", "customCss", "url", "", "URL to CSS file"), a.checkbox("Show GUI button", "showGuiButton", "Disable if you don't want the dog under settings to be visible"), a.checkbox("GUI on middle mouse button", "guiOnMMB", "Makes it possible to open this menu by clicking the mouse wheel"), a.checkbox("Keybinds", "keybinds", "Turn keybinds on/off, Aimbot - Y, ESP - H"), a.checkbox("No inactivity kick", "antikick", "Disables the 'Kicked for inactivity' message (client side, but works)"), a.checkbox("Auto nuke", "autoNuke", "Automatically nukes when you are able to"), a.checkbox("Force nametags on", "fgno", "Use in custom games with disabled nametags")
+    }), utilities.isClient && d(6, () => {
+        a.nobrlabel("Restart is required after changing any of these settings"), a.br(), a.client_setting("Uncap FPS", "uncap_fps", "Disables V-Sync"), a.client_setting("Adblock", "adblock", "Disables ads")
+    }), b += "</div>", b
+}
+b = function() {
+    function a(f, g, d) {
+        const e = document.querySelector("#menuItemContainer"),
+              a = document.createElement("div"),
+              c = document.createElement("div"),
+              b = document.createElement("div");
+        a.className = "menuItem", c.className = "menuItemIcon", b.className = "menuItemTitle", b.innerHTML = f, c.style.backgroundImage = `url("https://i.imgur.com/QkEcRaR.png")`, a.append(c, b), e.append(a), a.addEventListener("click", d)
+    }
+    utilities.gui.cssElem = document.createElement("link"), utilities.gui.cssElem.rel = "stylesheet", utilities.gui.cssElem.href = utilities.settings.customCss;
+    try {
+        document.head.appendChild(utilities.gui.cssElem)
+    } catch (a) {
+        alert("Error injecting custom CSS:\n" + a), utilities.settings.customCss = ""
+    }
+    utilities.gui.setSetting = function(a, b) {
+        switch (a) {
+            case "customCss":
+                utilities.settings.customCss = b;
                 break;
-            case "KeyH":
-                utilities.settings.esp = (utilities.settings.esp + 1) % 4, dispatchWsEvent("ch", [null, "ESP: " + ["disabled", "nametags", "box", "full"][utilities.settings.esp], 1]);
-                break
+            default:
+                utilities.settings[a] = b
         }
+        localStorage.kro_setngss_json = JSON.stringify(utilities.settings);
+    }, utilities.gui.windowIndex = windows.length + 1, utilities.gui.settings = {
+        aimbot: {
+            val: utilities.settings.aimbot
+        }
+    }, utilities.gui.windowObj = {
+        header: "CH33T",
+        html: "",
+        gen() {
+            return f()
+        }
+    }, Object.defineProperty(window.windows, windows.length, {
+        value: utilities.gui.windowObj
+    }), utilities.settings.showGuiButton && a("CH33TS", null, () => {
+        window.showWindow(utilities.gui.windowIndex)
     })
+};
+
+function a() {
+    (document.pointerLockElement || document.mozPointerLockElement) && document.exitPointerLock(), window.showWindow(utilities.gui.windowIndex)
+}
+window.addEventListener("mouseup", b => {
+    b.which === 2 && utilities.settings.guiOnMMB && (b.preventDefault(), a())
+}), window.addEventListener("keydown", b => {
+    b.key === "F1" && (b.preventDefault(), b.stopPropagation(), b.stopImmediatePropagation(), a())
+}), window.addEventListener("keydown", a => {
+    utilities.state.pressedKeys.has(a.code) || utilities.state.pressedKeys.add(a.code)
+}), window.addEventListener("keyup", a => {
+    if (utilities.state.pressedKeys.has(a.code) && utilities.state.pressedKeys.delete(a.code), !(document.activeElement.tagName === "INPUT" || !window.endUI && window.endUI.style.display) && utilities.settings.keybinds) switch (a.code) {
+        case "KeyY":
+            utilities.state.bindAimbotOn = !utilities.state.bindAimbotOn, dispatchWsEvent("ch", [null, "Aimbot " + (utilities.state.bindAimbotOn ? "on" : "off"), 1]);
+            break;
+        case "KeyH":
+            utilities.settings.esp = (utilities.settings.esp + 1) % 4, dispatchWsEvent("ch", [null, "ESP: " + ["disabled", "nametags", "box", "full"][utilities.settings.esp], 1]);
+            break
+    }
+})
 }
 
 const h = new Function(the_gaming_gurus);
@@ -663,46 +651,46 @@ function l(a, b) {
     const c = setInterval(() => {
         a() && (clearInterval(c), b())
     }, 100)
-}
+    }
 l(() => window.windows, b)
 
 function initialize() {
     try {
         console.log("Initializing loader")
         fetch("https://krunker.io/social.html", {
-                cache: "no-store"
-            })
+            cache: "no-store"
+        })
             .then(resp => resp.text())
             .then(text => {
-                let version = /\w.exports="(\w+)"/.exec(text)[1]
-                console.log("Found krunker version:", version)
-                return fetch("https://krunker.io/pkg/krunker." + version + ".vries", {
-                    cache: "no-store"
-                })
+            let version = /\w.exports="(\w+)"/.exec(text)[1]
+            console.log("Found krunker version:", version)
+            return fetch("https://krunker.io/pkg/krunker." + version + ".vries", {
+                cache: "no-store"
             })
+        })
             .then(resp => resp.arrayBuffer())
             .then(async buf => {
-                let vries = new Uint8Array(buf)
-                let xor = vries[0] ^ 33
-                let csv
-                try {
-                    csv = parseInt(await (await fetch("https://dogeware.cheems.art/csv", {
-                        cache: "no-store"
-                    })).text())
-                } catch {
-                    csv = 0
-                    alert("Couldn't fetch csv, using fallback value")
-                }
-                console.log("CSV:", csv)
-                return [new TextDecoder().decode(vries.map(b => b ^ xor)), csv]
-            })
+            let vries = new Uint8Array(buf)
+            let xor = vries[0] ^ 33
+            let csv
+            try {
+                csv = parseInt(await (await fetch("https://dogeware.cheems.art/csv", {
+                    cache: "no-store"
+                })).text())
+            } catch {
+                csv = 0
+                alert("Couldn't fetch csv, using fallback value")
+        }
+        console.log("CSV:", csv)
+            return [new TextDecoder().decode(vries.map(b => b ^ xor)), csv]
+        })
             .then(([gamejs, csv]) => {
-                let game = Function("__LOADER__mmTokenPromise", "Module", window.gameCodeInit(gamejs))
-                console.log("Running game...")
-                game(fetch("https://dogeware.cheems.art/token").then(res => res.text()).then(token => token), {
-                    csv: async () => csv
-                })
+            let game = Function("__LOADER__mmTokenPromise", "Module", window.gameCodeInit(gamejs))
+            console.log("Running game...")
+            game(fetch("https://dogeware.cheems.art/token").then(res => res.text()).then(token => token), {
+                csv: async () => csv
             })
+        })
 
     } catch (e) {
         alert("FATAL INIT ERROR:" + e)
