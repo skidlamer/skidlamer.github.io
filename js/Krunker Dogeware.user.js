@@ -1,14 +1,15 @@
 // ==UserScript==
 // @name Krunker Dogeware
 // @description The most advanced krunker cheat
-// @version 1.98
+// @version 1.99
 // @author SkidLamer - From The Gaming Gurus
 // @supportURL https://discord.gg/2uqj5Y6h7s
 // @homepage https://skidlamer.github.io/
 // @match *.krunker.io/*
 // @exclude *krunker.io/social*
 // @run-at document-start
-// @grant none
+// @grant unsafeWindow
+// @grant GM.xmlHttpRequest
 // @noframes
 // ==/UserScript==
 
@@ -16,9 +17,11 @@
 /* eslint-disable no-return-assign, no-sequences, no-undef, curly, no-eval */
 /* Ip Dip Dog Shit Chonker Stood In It */
 
+let request = (url) => fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`).then(response => response.ok ? response.json() : null);
+let redefine = (fnStr, prop, func, config = false) => { Object.defineProperty(globalThis, prop, { [fnStr]: func, configurable: config}) }
 const the_gaming_gurus = "const[input,game,recon,lock]=arguments,me=this,key={frame:0,delta:1,xdir:2,ydir:3,moveDir:4,shoot:5,scope:6,jump:7,reload:8,crouch:9,weaponScroll:10,weaponSwap:11,moveLock:12},moveDir={leftStrafe:0,forward:1,rightStrafe:2,right:3,backwardRightStrafe:4,backward:5,backwardLeftStrafe:6,left:7};utilities.state.frame=input[key.frame],utilities.state.players=game.players,utilities.state.game=game,utilities.state.me=me,utilities.state.controls=game.controls,utilities.settings.autoNuke&&me&&Object.keys(me.streaks).length&&sendWsMessage(\"k\",0);const bhop=utilities.settings.bhop;if(bhop&&(utilities.state.pressedKeys.has(\"Space\")||[1,3].includes(bhop))&&(utilities.state.controls.keys[utilities.state.controls.binds.jumpKey.val]^=1,utilities.state.controls.keys[utilities.state.controls.binds.jumpKey.val]&&(utilities.state.controls.didPressed[utilities.state.controls.binds.jumpKey.val]=1),[3,4].includes(bhop)&&(utilities.state.pressedKeys.has('Space')||bhop===3)&&utilities.state.me.canSlide&&(setTimeout(()=>{utilities.state.shouldCrouch=!1},350),utilities.state.shouldCrouch=!0)),utilities.settings.forceNametagsOn)try{Object.defineProperty(game.config,\"nameTags\",{get(){return!utilities.settings.forceNametagsOn&&game._nametags},set(a){game._nametags=a}})}catch(a){}if(utilities.state.shouldCrouch&&(input[key.crouch]=1),utilities.settings.spinBot){const a=1;input[key.moveDir]!==-1&&(input[key.moveDir]=(input[key.moveDir]+utilities.state.spinCounter-Math.round(7*(input[key.ydir]/(Math.PI*2e3))))%7),input[key.ydir]=utilities.state.spinCounter/7*(Math.PI*2e3),input[key.frame]%a===0&&(utilities.state.spinCounter=(utilities.state.spinCounter+1)%7)}if(utilities.settings.autoReload&&me[utilities.vars.ammos][me[utilities.vars.weaponIndex]]===0&&(input[key.reload]=1),utilities.settings.pitchHack)switch(utilities.settings.pitchHack){case 1:input[key.xdir]=-Math.PI*500;break;case 2:input[key.xdir]=Math.PI*500;break;case 3:input[key.xdir]=Math.sin(Date.now()/50)*Math.PI*500;break;case 4:input[key.xdir]=Math.sin(Date.now()/250)*Math.PI*500;break;case 5:input[key.xdir]=input[key.frame]%2?Math.PI*500:-Math.PI*500;break;case 6:input[key.xdir]=(Math.random()*Math.PI-Math.PI/2)*1e3;break}const getNoise=()=>(Math.random()*2-1)*utilities.settings.aimNoise;if(game.players.list.forEach(a=>{a.pos={x:a.x,y:a.y,z:a.z},a.npos={x:a.x+getNoise(),y:a.y+getNoise(),z:a.z+getNoise()},a.isTarget=!1}),game.AI.ais&&game.AI.ais.forEach(a=>a.npos=a.pos={x:a.x,y:a.y,z:a.z}),utilities.state.renderer&&utilities.state.renderer.frustum&&me.active){game.controls.target=null;const b=game.players.list.filter(a=>!a.isYTMP&&a.hasOwnProperty('npos')&&(!utilities.settings.frustumCheck||utilities.state.renderer.frustum.containsPoint(a.npos))&&(me.team===null||a.team!==me.team)&&a.health>0&&a[utilities.vars.inView]).sort((a,b)=>utilities.math.getDistance(me.x,me.z,a.npos.x,a.npos.z)-utilities.math.getDistance(me.x,me.z,b.npos.x,b.npos.z));let a=b[0];if(utilities.settings.fovbox){const e=parseFloat(document.getElementById(\"uiBase\").style.transform.match(/\\((.+)\\)/)[1]),c=innerWidth/e,d=innerHeight/e;function world2Screen(a,b=0){return a.y+=b,a.project(utilities.state.renderer.camera),a.x=(a.x+1)/2,a.y=(-a.y+1)/2,a.x*=c,a.y*=d,a}let f=!1;for(let g=0;g<b.length;g++){const h=b[g],i=world2Screen(new utilities.state.three.Vector3(h.x,h.y,h.z),h.height/2);let e=[c/3,d/4,c*(1/3),d/2];switch(utilities.settings.fovBoxSize){case 2:e=[c*.4,d/3,c*.2,d/3];break;case 3:e=[c*.45,d*.4,c*.1,d*.2];break}if(i.x>=e[0]&&i.x<=e[0]+e[2]&&i.y>=e[1]&&i.y<e[1]+e[3]){a=b[g],f=!0;break}}f||(a=void\"kpal\")}let c=!1;if(game.AI.ais&&utilities.settings.AImbot){let b=game.AI.ais.filter(a=>a.mesh&&a.mesh.visible&&a.health&&a.pos&&a.canBSeen).sort((a,b)=>utilities.math.getDistance(me.x,me.z,a.pos.x,a.pos.z)-utilities.math.getDistance(me.x,me.z,b.pos.x,b.pos.z)).shift();(!a||b&&utilities.math.getDistance(me.x,me.z,b.pos.x,b.pos.z)>utilities.math.getDistance(me.x,me.z,a.pos.x,a.pos.z))&&(a=b,c=!0)}const d=input[key.shoot];if(a&&utilities.settings.aimbot&&utilities.state.bindAimbotOn&&(!utilities.settings.aimbotRange||utilities.math.getD3D(me.x,me.y,me.z,a.x,a.y,a.z)<utilities.settings.aimbotRange)&&(!utilities.settings.rangeCheck||utilities.math.getD3D(me.x,me.y,me.z,a.x,a.y,a.z)<=me.weapon.range)&&!me[utilities.vars.reloadTimer]){utilities.settings.awtv&&(input[key.scope]=1),a.isTarget=utilities.settings.markTarget;const b=(utilities.math.getDir(me.z,me.x,a.npos.z,a.npos.x)||0)*1e3,e=c?((utilities.math.getXDire(me.x,me.y,me.z,a.npos.x,a.npos.y-a.dat.mSize/2,a.npos.z)||0)-.3*me[utilities.vars.recoilAnimY])*1e3:((utilities.math.getXDire(me.x,me.y,me.z,a.npos.x,a.npos.y-a[utilities.vars.crouchVal]*3+me[utilities.vars.crouchVal]*3+utilities.settings.aimOffset,a.npos.z)||0)-.3*me[utilities.vars.recoilAnimY])*1e3;switch(utilities.settings.forceUnsilent&&(game.controls.target={xD:e/1e3,yD:b/1e3},game.controls.update(400)),utilities.settings.aimbot){case 1:case 2:case 5:case 6:case 9:case 10:{let a=[5,6,9].includes(utilities.settings.aimbot);(utilities.settings.aimbot===5&&input[key.scope]||utilities.settings.aimbot===10)&&(game.controls.target={xD:e/1e3,yD:b/1e3},game.controls.update(400)),([2,10].includes(utilities.settings.aimbot)||utilities.settings.aimbot===1&&utilities.state.me.weapon.id)&&!me.weapon.melee&&(input[key.scope]=1),me[utilities.vars.didShoot]?(input[key.shoot]=0,utilities.state.quickscopeCanShoot=!1,setTimeout(()=>{utilities.state.quickscopeCanShoot=!0},me.weapon.rate)):utilities.state.quickscopeCanShoot&&(!a||input[key.scope])&&(me.weapon.melee||(input[key.scope]=1),!utilities.settings.superSilent&&utilities.settings.aimbot!==9&&(input[key.ydir]=b,input[key.xdir]=e),(utilities.settings.aimbot!==9&&(!me[utilities.vars.aimVal]||me.weapon.noAim||me.weapon.melee)||utilities.settings.aimbot===9&&d)&&(input[key.ydir]=b,input[key.xdir]=e,input[key.shoot]=1))}break;case 4:case 7:case 8:case 11:input[key.scope]||utilities.settings.aimbot===11?(game.controls.target={xD:e/1e3,yD:b/1e3},game.controls.update({4:400,7:110,8:70,11:400}[utilities.settings.aimbot]),[4,11].includes(utilities.settings.aimbot)&&(input[key.xdir]=e,input[key.ydir]=b),me[utilities.vars.didShoot]?(input[key.shoot]=0,utilities.state.quickscopeCanShoot=!1,setTimeout(()=>{utilities.state.quickscopeCanShoot=!0},me.weapon.rate)):utilities.state.quickscopeCanShoot&&(input[me.weapon.melee?key.shoot:key.scope]=1)):game.controls.target=null;break;case 12:{if(!utilities.state.three||!utilities.state.renderer||!utilities.state.renderer.camera||!utilities.state.players||!utilities.state.players.list.length||!input[key.scope]||me[utilities.vars.aimVal])break;utilities.state.raycaster||(utilities.state.raycaster=new utilities.state.three.Raycaster,utilities.state.mid=new utilities.state.three.Vector2(0,0));const a=[];for(let c=0;c<utilities.state.players.list.length;c++){let b=utilities.state.players.list[c];if(!b||!b[utilities.vars.objInstances]||b.isYTMP||!(me.team===null||b.team!==me.team)||!b[utilities.vars.inView])continue;a.push(b[utilities.vars.objInstances])}const b=utilities.state.raycaster;b.setFromCamera(utilities.state.mid,utilities.state.renderer.camera),b.intersectObjects(a,!0).length&&(input[key.shoot]=me[utilities.vars.didShoot]?0:1)}break}}else utilities.settings.uwtv&&(input[key.scope]=0),utilities.state.spinFrame=0}utilities.settings.alwaysAim&&(input[key.scope]=1),utilities.settings.preventMeleeThrowing&&me.weapon.melee&&(input[key.scope]=0)"
-const _requestAnimationFrame = window.requestAnimationFrame;
-window.requestAnimationFrame = function(fn) {
+const _requestAnimationFrame = unsafeWindow.requestAnimationFrame;
+unsafeWindow.requestAnimationFrame = function(fn) {
     const callback = fn;
     return arguments[0] = function() {
         try {
@@ -27,7 +30,7 @@ window.requestAnimationFrame = function(fn) {
             alert("FATAL ERROR:\n" + fn + "\n" + fn.stack)
         }
     }, _requestAnimationFrame.apply(this, arguments);
-}, window.utilities = {
+}, unsafeWindow.utilities = {
     settings: {
         aimbot: 1,
         superSilent: !0,
@@ -115,16 +118,16 @@ window.requestAnimationFrame = function(fn) {
             return !(n < 0 || g > n) && g
         }
     },
-    isClient: !!window.doge_work
+    isClient: !!unsafeWindow.doge_work
 }, localStorage.kro_setngss_json ? Object.assign(utilities.settings, JSON.parse(localStorage.kro_setngss_json)) : localStorage.kro_setngss_json = JSON.stringify(utilities.settings),
     Object.defineProperty(Object.prototype, "thirdPerson", {
     get() {
-        return window.utilities.settings.thirdPerson
+        return unsafeWindow.utilities.settings.thirdPerson
     }
 }), Object.defineProperty(Object.prototype, "renderer", {
     enumerable: !1,
     get() {
-        return this.camera && (window.utilities.state.renderer = this), this._renderer
+        return this.camera && (unsafeWindow.utilities.state.renderer = this), this._renderer
     },
     set(a) {
         this._renderer = a
@@ -135,7 +138,7 @@ window.requestAnimationFrame = function(fn) {
         return this._OBJLoader
     },
     set(a) {
-        window.utilities.state.three = this, this._OBJLoader = a
+        unsafeWindow.utilities.state.three = this, this._OBJLoader = a
     }
 }), Object.defineProperty(Object.prototype, "useLooseClient", {
     enumerable: !1,
@@ -143,7 +146,7 @@ window.requestAnimationFrame = function(fn) {
         return this._ulc
     },
     set(a) {
-        window.utilities.state.config = this, Object.defineProperty(this, "nameVisRate", {
+        unsafeWindow.utilities.state.config = this, Object.defineProperty(this, "nameVisRate", {
             value: 0,
             writable: !1,
             configurable: !0
@@ -152,7 +155,7 @@ window.requestAnimationFrame = function(fn) {
 }), Object.defineProperty(Object.prototype, "trail", {
     enumerable: !1,
     get() {
-        return window.utilities.settings.alwaysTrail || this._trail
+        return unsafeWindow.utilities.settings.alwaysTrail || this._trail
     },
     set(a) {
         this._trail = a
@@ -160,7 +163,7 @@ window.requestAnimationFrame = function(fn) {
 }), Object.defineProperty(Object.prototype, "showTracers", {
     enumerable: !1,
     get() {
-        return window.utilities.settings.alwaysTrail || this._showTracers
+        return unsafeWindow.utilities.settings.alwaysTrail || this._showTracers
     },
     set(a) {
         this._showTracers = a
@@ -168,7 +171,7 @@ window.requestAnimationFrame = function(fn) {
 }), Object.defineProperty(Object.prototype, "shaderId", {
     enumerable: !1,
     get() {
-        return this.src && this.src.startsWith("pubs/") ? window.utilities.settings.animatedBillboards ? 1 : this.rshaderId : this.rshaderId
+        return this.src && this.src.startsWith("pubs/") ? unsafeWindow.utilities.settings.animatedBillboards ? 1 : this.rshaderId : this.rshaderId
     },
     set(a) {
         this.rshaderId = a
@@ -177,7 +180,7 @@ window.requestAnimationFrame = function(fn) {
     idleTimer: {
         enumerable: !1,
         get() {
-            return window.utilities.settings.antikick ? 0 : this._idleTimer
+            return unsafeWindow.utilities.settings.antikick ? 0 : this._idleTimer
         },
         set(a) {
             this._idleTimer = a
@@ -186,7 +189,7 @@ window.requestAnimationFrame = function(fn) {
     kickTimer: {
         enumerable: !1,
         get() {
-            return window.utilities.settings.antikick ? 1 / 0 : this._kickTimer
+            return unsafeWindow.utilities.settings.antikick ? 1 / 0 : this._kickTimer
         },
         set(a) {
             this._kickTimer = a
@@ -199,32 +202,32 @@ window.requestAnimationFrame = function(fn) {
     });
 
     function c(a) {
-        window.utilities.canvas = document.createElement("canvas"), window.utilities.canvas.width = innerWidth, window.utilities.canvas.height = innerHeight, window.addEventListener("resize", () => {
-            const a = window.utilities.state.canvasScale || 1;
-            window.utilities.canvas.width = innerWidth / a, window.utilities.canvas.height = innerHeight / a
-        }), a.insertAdjacentElement("beforeend", window.utilities.canvas), window.utilities.state.ctx = window.utilities.canvas.getContext("2d")
+        unsafeWindow.utilities.canvas = document.createElement("canvas"), unsafeWindow.utilities.canvas.width = innerWidth, unsafeWindow.utilities.canvas.height = innerHeight, unsafeWindow.addEventListener("resize", () => {
+            const a = unsafeWindow.utilities.state.canvasScale || 1;
+            unsafeWindow.utilities.canvas.width = innerWidth / a, unsafeWindow.utilities.canvas.height = innerHeight / a
+        }), a.insertAdjacentElement("beforeend", unsafeWindow.utilities.canvas), unsafeWindow.utilities.state.ctx = unsafeWindow.utilities.canvas.getContext("2d")
     }
     const a = setInterval(() => {
         document.getElementById("inGameUI") && (clearInterval(a), c(document.getElementById("inGameUI")))
     }, 100);
 
     function d() {
-        if (!window.utilities.state.renderHookArgs) return;
-        const [q, j, o, n, b, p] = window.utilities.state.renderHookArgs;
-        if (window.utilities.state.canvasScale = parseFloat(document.getElementById("uiBase").style.transform.match(/\((.+)\)/)[1]), window.utilities.state.players = j.players, window.utilities.state.game = j, window.utilities.state.controls = o, window.utilities.state.renderer = n, window.utilities.state.me = b, !window.utilities.state.renderer.frustum) return;
+        if (!unsafeWindow.utilities.state.renderHookArgs) return;
+        const [q, j, o, n, b, p] = unsafeWindow.utilities.state.renderHookArgs;
+        if (unsafeWindow.utilities.state.canvasScale = parseFloat(document.getElementById("uiBase").style.transform.match(/\((.+)\)/)[1]), unsafeWindow.utilities.state.players = j.players, unsafeWindow.utilities.state.game = j, unsafeWindow.utilities.state.controls = o, unsafeWindow.utilities.state.renderer = n, unsafeWindow.utilities.state.me = b, !unsafeWindow.utilities.state.renderer.frustum) return;
         b && b.weapon && !b.weapon.zoomHooked && (b.weapon.zoomHooked = !0, b.weapon._zoom = b.weapon.zoom, Object.defineProperty(b.weapon, "zoom", {
             get() {
-                return window.utilities.settings.staticWeaponZoom ? 1 : this._zoom
+                return unsafeWindow.utilities.settings.staticWeaponZoom ? 1 : this._zoom
             }
         }));
-        const a = window.utilities.state.ctx,
+        const a = unsafeWindow.utilities.state.ctx,
               h = parseFloat(document.getElementById("uiBase").style.transform.match(/\((.+)\)/)[1]),
               d = innerWidth / h,
               c = innerHeight / h;
-        if (window.utilities.canvas.width = d, window.utilities.canvas.height = c, !a) return;
+        if (unsafeWindow.utilities.canvas.width = d, unsafeWindow.utilities.canvas.height = c, !a) return;
 
         function k(a, b = 0) {
-            return a.y += b, a.project(window.utilities.state.renderer.camera), a.x = (a.x + 1) / 2, a.y = (-a.y + 1) / 2, a.x *= d, a.y *= c, a
+            return a.y += b, a.project(unsafeWindow.utilities.state.renderer.camera), a.x = (a.x + 1) / 2, a.y = (-a.y + 1) / 2, a.x *= d, a.y *= c, a
         }
 
         function m(c, d, e, f, b, g) {
@@ -250,23 +253,23 @@ window.requestAnimationFrame = function(fn) {
             a.save(), a.translate(~~e, ~~f), a.fillStyle = d, a.strokeStyle = "rgba(0, 0, 0, 0.5)", a.font = c, a.lineWidth = 1, a.strokeText(b, 0, 0), a.fillText(b, 0, 0), a.restore()
         }
         const f = 2;
-        if (a.clearRect(0, 0, d, c), window.utilities.settings.esp > 1)
-            for (const j of window.utilities.state.players.list.filter(a => !a.isYTMP && a.active && (a.pos = {
+        if (a.clearRect(0, 0, d, c), unsafeWindow.utilities.settings.esp > 1)
+            for (const j of unsafeWindow.utilities.state.players.list.filter(a => !a.isYTMP && a.active && (a.pos = {
                 x: a.x,
                 y: a.y,
                 z: a.z
             }))) {
-                const s = new window.utilities.state.three.Vector3(j.pos.x, j.pos.y, j.pos.z),
+                const s = new unsafeWindow.utilities.state.three.Vector3(j.pos.x, j.pos.y, j.pos.z),
                       r = k(s.clone()),
                       h = k(s.clone(), j.height),
                       q = ~~(r.y - h.y),
                       o = ~~(q * .6),
-                      p = window.utilities.settings.espFontSize + "px GameFont";
-                if (!window.utilities.state.renderer.frustum.containsPoint(j.pos)) continue;
-                if (window.utilities.settings.tracers && m(d / 2, window.utilities.settings.tracers === 2 ? c / 2 : c - 1, r.x, r.y, 2, j.team === null ? "#FF4444" : j.team === window.utilities.state.me.team ? "#44AAFF" : "#FF4444"), j.isTarget) {
+                      p = unsafeWindow.utilities.settings.espFontSize + "px GameFont";
+                if (!unsafeWindow.utilities.state.renderer.frustum.containsPoint(j.pos)) continue;
+                if (unsafeWindow.utilities.settings.tracers && m(d / 2, unsafeWindow.utilities.settings.tracers === 2 ? c / 2 : c - 1, r.x, r.y, 2, j.team === null ? "#FF4444" : j.team === unsafeWindow.utilities.state.me.team ? "#44AAFF" : "#FF4444"), j.isTarget) {
                     a.save();
                     const b = l(["TARGET"]);
-                    e("TARGET", p, "#FFFFFF", h.x - b[0] / 2, h.y - window.utilities.settings.espFontSize * 1.5), a.beginPath(), a.translate(h.x, h.y + Math.abs(q / 2)), a.arc(0, 0, Math.abs(q / 2) + 10, 0, Math.PI * 2), a.strokeStyle = "#FFFFFF", a.stroke(), a.closePath(), a.restore()
+                    e("TARGET", p, "#FFFFFF", h.x - b[0] / 2, h.y - unsafeWindow.utilities.settings.espFontSize * 1.5), a.beginPath(), a.translate(h.x, h.y + Math.abs(q / 2)), a.arc(0, 0, Math.abs(q / 2) + 10, 0, Math.PI * 2), a.strokeStyle = "#FFFFFF", a.stroke(), a.closePath(), a.restore()
                 }
                 if (utilities.settings.esp === 2) {
                     a.save(), a.strokeStyle = b.team === null || j.team !== b.team ? "#FF4444" : "#44AAFF", a.strokeRect(h.x - o / 2, h.y, o, q), a.restore();
@@ -365,7 +368,7 @@ window.requestAnimationFrame = function(fn) {
     let a = {};
 
     function e(b) {
-        window.dispatchWsEvent = b._dispatchEvent.bind(b), window.sendWsMessage = b.send.bind(b), b.send = new Proxy(b.send, {
+        unsafeWindow.dispatchWsEvent = b._dispatchEvent.bind(b), unsafeWindow.sendWsMessage = b.send.bind(b), b.send = new Proxy(b.send, {
             apply(c, d, b) {
                 return b[0] === "en" && (a = {
                     main: b[1][2][0],
@@ -583,24 +586,24 @@ b = function() {
         gen() {
             return f()
         }
-    }, Object.defineProperty(window.windows, windows.length, {
+    }, Object.defineProperty(unsafeWindow.windows, windows.length, {
         value: utilities.gui.windowObj
     }), utilities.settings.showGuiButton && a("CH33TS", null, () => {
-        window.showWindow(utilities.gui.windowIndex)
+        unsafeWindow.showWindow(utilities.gui.windowIndex)
     })
 };
 
 function a() {
-    (document.pointerLockElement || document.mozPointerLockElement) && document.exitPointerLock(), window.showWindow(utilities.gui.windowIndex)
+    (document.pointerLockElement || document.mozPointerLockElement) && document.exitPointerLock(), unsafeWindow.showWindow(utilities.gui.windowIndex)
 }
-window.addEventListener("mouseup", b => {
+unsafeWindow.addEventListener("mouseup", b => {
     b.which === 2 && utilities.settings.guiOnMMB && (b.preventDefault(), a())
-}), window.addEventListener("keydown", b => {
+}), unsafeWindow.addEventListener("keydown", b => {
     b.key === "F1" && (b.preventDefault(), b.stopPropagation(), b.stopImmediatePropagation(), a())
-}), window.addEventListener("keydown", a => {
+}), unsafeWindow.addEventListener("keydown", a => {
     utilities.state.pressedKeys.has(a.code) || utilities.state.pressedKeys.add(a.code)
-}), window.addEventListener("keyup", a => {
-    if (utilities.state.pressedKeys.has(a.code) && utilities.state.pressedKeys.delete(a.code), !(document.activeElement.tagName === "INPUT" || !window.endUI && window.endUI.style.display) && utilities.settings.keybinds) switch (a.code) {
+}), unsafeWindow.addEventListener("keyup", a => {
+    if (utilities.state.pressedKeys.has(a.code) && utilities.state.pressedKeys.delete(a.code), !(document.activeElement.tagName === "INPUT" || !unsafeWindow.endUI && unsafeWindow.endUI.style.display) && utilities.settings.keybinds) switch (a.code) {
         case "KeyY":
             utilities.state.bindAimbotOn = !utilities.state.bindAimbotOn, dispatchWsEvent("ch", [null, "Aimbot " + (utilities.state.bindAimbotOn ? "on" : "off"), 1]);
             break;
@@ -642,7 +645,7 @@ function j(a) {
 function k(a) {
     return a = a.replace(/\[(0x[a-zA-Z0-9]+,?)+]\['map']\(\w+=>String\['fromCharCode']\(\w+\)\)\['join']\(''\)/g, a => "'" + eval(a) + "'"), a = a.replace(/(&&!\w+\['\w+']&&\w+\['\w+'])&&(\w+\['\w+'])\)/, "$1 && ($2 || [1, 2].includes(utilities.settings.esp)) && utilities.settings.esp !== 3)"), a = a.replace(/!(\w+)\['transparent']/, "(utilities.settings.wallbangs ? !$1.penetrable : !$1.transparent)"), a = a.replace("navigator['webdriver']", "false"), a = a.replace(",this['frustum']['containsPoint']=new Proxy(this['frustum']['containsPoint'],{'apply':function(){return!0x1;}})", ""), a = a.replace(/windows\['length'\]>\d+.*?0x25/, '0x25'), a
 }
-window.gameCodeInit = function(a) {
+unsafeWindow.gameCodeInit = function(a) {
     return console.log("Initializing cheat"), j(a), k(a)
 };
 
@@ -652,61 +655,29 @@ function l(a, b) {
         a() && (clearInterval(c), b())
     }, 100)
     }
-l(() => window.windows, b)
+l(() => unsafeWindow.windows, b)
 
 function initialize() {
-    try {
-        console.log("Initializing loader")
-        fetch("https://krunker.io/social.html", {
-            cache: "no-store"
-        })
-            .then(resp => resp.text())
-            .then(text => {
-            let version = /\w.exports="(\w+)"/.exec(text)[1]
-            console.log("Found krunker version:", version)
-            return fetch("https://krunker.io/pkg/krunker." + version + ".vries", {
-                cache: "no-store"
-            })
-        })
-            .then(resp => resp.arrayBuffer())
-            .then(async buf => {
-            let vries = new Uint8Array(buf)
-            let xor = vries[0] ^ 33
-            let csv
-            try {
-                csv = parseInt(await (await fetch("https://dogeware.cheems.art/csv", {
-                    cache: "no-store"
-                })).text())
-            } catch {
-                csv = 0
-                alert("Couldn't fetch csv, using fallback value")
-        }
-        console.log("CSV:", csv)
-            return [new TextDecoder().decode(vries.map(b => b ^ xor)), csv]
-        })
-            .then(([gamejs, csv]) => {
-            let game = Function("__LOADER__mmTokenPromise", "Module", window.gameCodeInit(gamejs))
-            console.log("Running game...")
-            game(fetch("https://dogeware.cheems.art/token").then(res => res.text()).then(token => token), {
-                csv: async () => csv
-            })
-        })
-
-    } catch (e) {
-        alert("FATAL INIT ERROR:" + e)
-    }
+    GM.xmlHttpRequest ({ url: "https://krunker.io/social.html", responseType: 'json' }).then(res => GM.xmlHttpRequest ({ url: `https://krunker.io/pkg/krunker.${/\w.exports="(\w+)"/.exec(res.responseText)[1]}.vries`, responseType: 'arrayBuffer' })).then(res => {
+        const array = Array.from(new Uint8Array(res.response))
+        const xor = array[0]^'!'.charCodeAt(0);
+        const csv = 0;
+        let script = array.map((code) => String.fromCharCode(code ^ xor)).join('');
+        let loader = Function("__LOADER__mmTokenPromise", "Module", unsafeWindow.gameCodeInit(script))
+        loader(GM.xmlHttpRequest ({ url: "https://api.sys32.dev/token", responseType: 'json' }).then(data=>data.response.token), {csv: async () => csv})
+    })
 }
-let redefine = (fnStr, prop, func, config = false) => { Object.defineProperty(globalThis, prop, { [fnStr]: func, configurable: config}) }
 
 redefine('get', 'initWASM', function() {
     return function(m){console.log(m)}
-})
+},true)
+
 
 let observer = new MutationObserver(mutations => {
     for (let mutation of mutations) {
         for (let node of mutation.addedNodes) {
             if (node.tagName === 'SCRIPT' && node.type === "text/javascript" && node.innerHTML.startsWith("*!", 1)) {
-                console.log(node.innerHTML)
+                //console.log(node.innerHTML)
                 node.innerHTML = ""
                 initialize();
                 observer.disconnect();
