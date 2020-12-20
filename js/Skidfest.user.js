@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name Krunker SkidFest
 // @description A full featured Mod menu for game Krunker.io!
-// @version 1.98
+// @version 1.99
 // @author SkidLamer - From The Gaming Gurus
-// @supportURL https://discord.gg/2uqj5Y6h7s
+// @supportURL https://discord.gg/upA3nap6Ug
 // @homepage https://skidlamer.github.io/
 // @icon64 https://i.imgur.com/PPGAhg0.png
 // @match *.krunker.io/*

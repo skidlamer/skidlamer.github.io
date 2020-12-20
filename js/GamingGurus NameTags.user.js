@@ -3,7 +3,7 @@
 // @description NameTags On A Toggle using the [ C ] Key
 // @version 0.1
 // @author SkidLamer - From The Gaming Gurus
-// @supportURL https://discord.gg/2uqj5Y6h7s
+// @supportURL https://discord.gg/upA3nap6Ug
 // @homepage https://skidlamer.github.io/
 // @match *.krunker.io/*
 // @exclude *krunker.io/social*
