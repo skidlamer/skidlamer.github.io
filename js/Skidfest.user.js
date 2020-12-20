@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Krunker SkidFest
 // @description A full featured Mod menu for game Krunker.io!
-// @version 1.97
+// @version 1.98
 // @author SkidLamer - From The Gaming Gurus
 // @supportURL https://discord.gg/2uqj5Y6h7s
 // @homepage https://skidlamer.github.io/
@@ -831,7 +831,7 @@ class Utilities {
 
     patchScript() {
         const patches = new Map()
-        .set("exports", [/(function\(\w,\w,(\w)\){)'use strict';(\(function\((\w)\){)\//, `$1$3 window.utilities.exports=$2.c; window.utilities.modules=$2.m;/`])
+        .set("exports", [/(this\['\w+']\['\w+']\(this\);};},function\(\w+,\w+,(\w+)\){)/, `$1 window.utilities.exports=$2.c; window.utilities.modules=$2.m;`])
         //.set("exports", [/(function\(\w+,\w+,(\w+)\){\(function\(\w+\){)(\w+\['exports'])/,`$1window.utilities.exports=$2.c; window.utilities.modules=$2.m;$3`])
         //.set("inView", [/if\((!\w+\['\w+'])\)continue;/, "if($1&&void 0 !== window.utilities.nameTags)continue;"])
         //.set("inView", [/(\w+\['\w+']\){if\(\(\w+=\w+\['\w+']\['position']\['clone']\(\))/, "(void 0 == window.utilities.nameTags)||$1"])
