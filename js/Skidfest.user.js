@@ -3,7 +3,7 @@
 // @description A full featured Mod menu for game Krunker.io!
 // @version 1.99
 // @author SkidLamer - From The Gaming Gurus
-// @supportURL https://discord.gg/upA3nap6Ug
+// @supportURL https://discord.gg/2uqj5Y6h7s
 // @homepage https://skidlamer.github.io/
 // @icon64 https://i.imgur.com/PPGAhg0.png
 // @match *.krunker.io/*
@@ -673,8 +673,8 @@ class Utilities {
             if (!exports) return alert("Exports not Found");
             const found = new Set();
             const array = new Map([
-                ["utility", ["commaFormatNum", "decompressKeys"]],
-                ["config", ["followURLS", "groundDecel", "idleAnimS"]],
+                ["utility", ["VectorAdd", "VectorAngleSign"]],
+                ["config", ["accAnnounce", "availableRegions", "assetCat"]],
                 ["overlay", ["render", "canvas"]],
                 ["three", ["ACESFilmicToneMapping", "TextureLoader", "ObjectLoader"]],
                 //["colors", ["challLvl", "getChallCol"]],
