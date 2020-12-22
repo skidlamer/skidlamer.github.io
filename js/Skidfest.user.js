@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Krunker SkidFest
 // @description A full featured Mod menu for game Krunker.io!
-// @version 2.00
+// @version 2.01
 // @author SkidLamer - From The Gaming Gurus
 // @supportURL https://discord.gg/2uqj5Y6h7s
 // @homepage https://skidlamer.github.io/
@@ -45,6 +45,7 @@ class Utilities {
         this.downKeys = new Set();
         this.settings = null;
         this.vars = {};
+        this.skinCache = {};
         this.inputFrame = 0;
         this.renderFrame = 0;
         this.fps = 0;
@@ -125,7 +126,6 @@ class Utilities {
             newsHolder: `#newsHolder { display: none !important }`,
         };
         this.spinTimer = 1800;
-        this.skinConfig = {};
         let wait = setInterval(_ => {
             this.head = document.head||document.getElementsByTagName('head')[0]
             if (this.head) {
@@ -698,26 +698,30 @@ class Utilities {
         })
 
         // Skins
-        const orig_skins = Symbol("orig_skins");
+        const $skins = Symbol("skins");
         original_Object.defineProperty(original_Object.prototype, "skins", {
-            get() {
-                let hacked = window.utilities.settings.skinUnlock.val && this.stats;
-                if (hacked) {
-                    let hack_skins = [];
-                    for(let i = 0; i < 5000; i++) hack_skins.push({ind: i, cnt: 0x1});
-                    return hack_skins;
-                } else return this[orig_skins];
-            }, set(val) {
-                this[orig_skins] = val;
+            set: function(fn) {
+                this[$skins] = fn;
+                if (void 0 == this.localSkins || !this.localSkins.length) {
+                    this.localSkins = Array.apply(null, Array(5e3)).map((x, i) => {
+                        return {
+                            ind: i,
+                            cnt: 0x1,
+                        }
+                    })
+                }
+                return fn;
             },
-            enumerable: false
-        });
+            get: function() {
+                return window.utilities.settings.skinUnlock.val && this.stats ? this.localSkins : this[$skins];
+            }
+        })
 
         this.waitFor(_=>this.ws.connected === true, 40000).then(_=> {
             this.ws.__event = this.ws._dispatchEvent.bind(this.ws);
             this.ws.__send = this.ws.send.bind(this.ws);
-            this.ws.send = new original_Proxy(this.ws.send, {
-                apply(target, that, args) {
+            this.ws.send = new Proxy(this.ws.send, {
+                apply: function(target, that, args) {
                     try {
                         var original_fn = Function.prototype.apply.apply(target, [that, args]);
                     } catch (e) {
@@ -725,13 +729,8 @@ class Utilities {
                         throw e;
                     }
 
-                    if (args[0] === "ah1") {
-                        args[0] = "p";
-                        args[1] = null;
-                    }
-
                     if (args[0] === "en") {
-                        window.utilities.skinConfig = {
+                        window.utilities.skinCache = {
                             main: args[1][2][0],
                             secondary: args[1][2][1],
                             hat: args[1][3],
@@ -741,34 +740,37 @@ class Utilities {
                             waist: args[1][17],
                         }
                     }
+
                     return original_fn;
-                   // return target.apply(that, msg);
                 }
             })
 
-            this.ws._dispatchEvent = new original_Proxy(this.ws._dispatchEvent, {
-                apply(target, that, [type, msg]) {
-                    //console.log(type, msg)
+            this.ws._dispatchEvent = new Proxy(this.ws._dispatchEvent, {
+                apply: function(target, that, [type, event]) {
+
                     if (type =="init") {
-                        if(msg[9].bill && window.utilities.settings.customBillboard.val.length > 1) {
-                            msg[9].bill.txt = window.utilities.settings.customBillboard.val;
+                        if(event[9].bill && window.utilities.settings.customBillboard.val.length > 1) {
+                            event[9].bill.txt = window.utilities.settings.customBillboard.val;
                         }
                     }
-                    if (window.utilities.settings.skinUnlock.val && window.utilities.skinConfig && type === "0") {
-                        let playersInfo = msg[0];
-                        let perPlayerSize = 38;
-                        while (playersInfo.length % perPlayerSize !== 0) perPlayerSize++;
-                        for(let i = 0; i < playersInfo.length; i += perPlayerSize) {
-                            if (playersInfo[i] === window.utilities.ws.socketId||0) {
-                                playersInfo[i + 12] = [window.utilities.skinConfig.main, window.utilities.skinConfig.secondary];
-                                playersInfo[i + 13] = window.utilities.skinConfig.hat;
-                                playersInfo[i + 14] = window.utilities.skinConfig.body;
-                                playersInfo[i + 19] = window.utilities.skinConfig.knife;
-                                playersInfo[i + 25] = window.utilities.skinConfig.dye;
-                                playersInfo[i + 33] = window.utilities.skinConfig.waist;
+
+                    if (window.utilities.settings.skinUnlock.val && window.utilities.skinCache && type === "0") {
+                        let skins = window.utilities.skinCache;
+                        let pInfo = event[0];
+                        let pSize = 38;
+                        while (pInfo.length % pSize !== 0) pSize++;
+                        for(let i = 0; i < pInfo.length; i += pSize) {
+                            if (pInfo[i] === window.utilities.ws.socketId||0) {
+                                pInfo[i + 12] = [skins.main, skins.secondary];
+                                pInfo[i + 13] = skins.hat;
+                                pInfo[i + 14] = skins.body;
+                                pInfo[i + 19] = skins.knife;
+                                pInfo[i + 25] = skins.dye;
+                                pInfo[i + 33] = skins.waist;
                             }
                         }
                     }
+
                     return target.apply(that, arguments[2]);
                 }
             })
