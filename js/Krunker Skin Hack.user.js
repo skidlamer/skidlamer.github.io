@@ -60,10 +60,10 @@
                         if (pInfo[i] === ws.socketId||0) {
                             pInfo[i + 12] = [config.skins.main, config.skins.secondary];
                             pInfo[i + 13] = config.skins.hat;
-                            pInfo[i + 14] = config.body;
-                            pInfo[i + 19] = config.knife;
-                            pInfo[i + 25] = config.dye;
-                            pInfo[i + 33] = config.waist;
+                            pInfo[i + 14] = config.skins.body;
+                            pInfo[i + 19] = config.skins.knife;
+                            pInfo[i + 25] = config.skins.dye;
+                            pInfo[i + 33] = config.skins.waist;
                         }
                     }
                 }

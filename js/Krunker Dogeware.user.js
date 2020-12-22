@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Krunker Dogeware
 // @description The most advanced krunker cheat
-// @version 2.00
+// @version 2.01
 // @author SkidLamer - From The Gaming Gurus
 // @supportURL https://discord.gg/upA3nap6Ug
 // @homepage https://skidlamer.github.io/
@@ -11,6 +11,7 @@
 // @grant unsafeWindow
 // @grant GM.xmlHttpRequest
 // @noframes
+// @namespace https://greasyfork.org/users/704479
 // ==/UserScript==
 
 /* eslint-env es6 */
@@ -384,7 +385,7 @@ unsafeWindow.requestAnimationFrame = function(fn) {
             apply(c, d, [e, f]) {
                 if (a && e === "0" && utilities.settings.skinHack) {
                     const c = f[0];
-                    let d = 40;
+                    let d = 38;
                     while (c.length % d !== 0) d++;
                     for (let e = 0; e < c.length; e += d) c[e] === b.socketId && (c[e + 12] = [a.main, a.secondary], c[e + 13] = a.hat, c[e + 14] = a.body, c[e + 19] = a.knife, c[e + 25] = a.dye, c[e + 33] = a.waist)
                 }
@@ -633,7 +634,7 @@ function i() {
 }
 
 function j(a) {
-    a = a.replace(/\[(0x[a-zA-Z0-9]+,?)+]\['map']\(\w+=>String\['fromCharCode']\(\w+\)\)\['join']\(''\)/g, a => "'" + eval(a) + "'"), utilities.vars = {};
+    utilities.vars = {};
     const b = (new Map).set("inView", [/&&!\w+\['\w+']&&\w+\['\w+']&&\w+\['(\w+)']\)/, 1]).set("procInputs", [/this\['(\w+)']=function\((\w+),(\w+),\w+,\w+\){(this)\['recon']/, 1]).set("aimVal", [/this\['(\w+)']-=0x1\/\(this\['weapon']\['\w+']\/\w+\)/, 1]).set("didShoot", [/--,\w+\['(\w+)']=!0x0/, 1]).set("nAuto", [/'Single\\x20Fire','varN':'(\w+)'/, 1]).set("crouchVal", [/this\['(\w+)']\+=\w\['\w+']\*\w+,0x1<=this\['\w+']/, 1]).set("ammos", [/\['length'];for\(\w+=0x0;\w+<\w+\['(\w+)']\['length']/, 1]).set("weaponIndex", [/\['weaponConfig']\[\w+]\['secondary']&&\(\w+\['(\w+)']==\w+/, 1]).set("objInstances", [/\(\w+=\w+\['players']\['list']\[\w+]\)\['active']&&\w+\['(\w+)']\)/, 1]).set("reloadTimer", [/0x0>=this\['(\w+')]&&0x0>=this\['swapTime']/, 1]).set("maxHealth", [/this\['health']\/this\['(\w+)']\?/, 1]).set("recoilAnimY", [/this\['(\w+)']\+=this\['\w+']\*\(/, 1]);
     for (const [c, d] of b) {
         const e = d[0].exec(a);
@@ -643,7 +644,7 @@ function j(a) {
 }
 
 function k(a) {
-    return a = a.replace(/\[(0x[a-zA-Z0-9]+,?)+]\['map']\(\w+=>String\['fromCharCode']\(\w+\)\)\['join']\(''\)/g, a => "'" + eval(a) + "'"), a = a.replace(/(&&!\w+\['\w+']&&\w+\['\w+'])&&(\w+\['\w+'])\)/, "$1 && ($2 || [1, 2].includes(utilities.settings.esp)) && utilities.settings.esp !== 3)"), a = a.replace(/!(\w+)\['transparent']/, "(utilities.settings.wallbangs ? !$1.penetrable : !$1.transparent)"), a = a.replace("navigator['webdriver']", "false"), a = a.replace(",this['frustum']['containsPoint']=new Proxy(this['frustum']['containsPoint'],{'apply':function(){return!0x1;}})", ""), a = a.replace(/windows\['length'\]>\d+.*?0x25/, '0x25'), a
+    return a = a.replace(/(&&!\w+\['\w+']&&\w+\['\w+'])&&(\w+\['\w+'])\)/, "$1 && ($2 || [1, 2].includes(utilities.settings.esp)) && utilities.settings.esp !== 3)"), a = a.replace(/!(\w+)\['transparent']/, "(utilities.settings.wallbangs ? !$1.penetrable : !$1.transparent)"), a = a.replace("navigator['webdriver']", "false"), a = a.replace(",this['frustum']['containsPoint']=new Proxy(this['frustum']['containsPoint'],{'apply':function(){return!0x1;}})", ""), a = a.replace(/windows\['length'\]>\d+.*?0x25/, '0x25'), a
 }
 unsafeWindow.gameCodeInit = function(a) {
     return console.log("Initializing cheat"), j(a), k(a)
