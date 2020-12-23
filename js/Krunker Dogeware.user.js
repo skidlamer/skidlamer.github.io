@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Krunker Dogeware
 // @description The most advanced krunker cheat
-// @version 2.01
+// @version 2.02
 // @author SkidLamer - From The Gaming Gurus
 // @supportURL https://discord.gg/upA3nap6Ug
 // @homepage https://skidlamer.github.io/
@@ -387,7 +387,7 @@ unsafeWindow.requestAnimationFrame = function(fn) {
                     const c = f[0];
                     let d = 38;
                     while (c.length % d !== 0) d++;
-                    for (let e = 0; e < c.length; e += d) c[e] === b.socketId && (c[e + 12] = [a.main, a.secondary], c[e + 13] = a.hat, c[e + 14] = a.body, c[e + 19] = a.knife, c[e + 25] = a.dye, c[e + 33] = a.waist)
+                    for (let e = 0; e < c.length; e += d) c[e] === b.socketId && (c[e + 12] = [a.main, a.secondary], c[e + 13] = a.hat, c[e + 14] = a.body, c[e + 19] = a.knife, c[e + 24] = a.dye, c[e + 33] = a.waist)
                 }
                 return c.apply(d, arguments[2])
             }

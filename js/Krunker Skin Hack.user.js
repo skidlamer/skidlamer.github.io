@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Krunker Skin Hack
-// @version      1.0
+// @version      1.1
 // @author       SkidLamer - From The Gaming Gurus
 // @homepage     https://skidlamer.github.io/
 // @supportURL   https://discord.gg/2uqj5Y6h7s
@@ -62,7 +62,7 @@
                             pInfo[i + 13] = config.skins.hat;
                             pInfo[i + 14] = config.skins.body;
                             pInfo[i + 19] = config.skins.knife;
-                            pInfo[i + 25] = config.skins.dye;
+                            pInfo[i + 24] = config.skins.dye;
                             pInfo[i + 33] = config.skins.waist;
                         }
                     }

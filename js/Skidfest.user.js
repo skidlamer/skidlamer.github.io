@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Krunker SkidFest
 // @description A full featured Mod menu for game Krunker.io!
-// @version 2.01
+// @version 2.02
 // @author SkidLamer - From The Gaming Gurus
 // @supportURL https://discord.gg/2uqj5Y6h7s
 // @homepage https://skidlamer.github.io/
@@ -765,7 +765,7 @@ class Utilities {
                                 pInfo[i + 13] = skins.hat;
                                 pInfo[i + 14] = skins.body;
                                 pInfo[i + 19] = skins.knife;
-                                pInfo[i + 25] = skins.dye;
+                                pInfo[i + 24] = skins.dye;
                                 pInfo[i + 33] = skins.waist;
                             }
                         }
