@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Krunker SkidFest
 // @description A full featured Mod menu for game Krunker.io!
-// @version 2.02
+// @version 2.03
 // @author SkidLamer - From The Gaming Gurus
 // @supportURL https://discord.gg/2uqj5Y6h7s
 // @homepage https://skidlamer.github.io/
@@ -625,8 +625,10 @@ class Utilities {
     }
 
     onLoad() {
-        this.createSettings();
         this.deObfuscate();
+
+        this.createSettings();
+
         this.createObserver(window.instructionsUpdate, 'style', (target) => {
             if (this.settings.autoFindNew.val) {
                 console.log(target)
@@ -695,6 +697,34 @@ class Utilities {
                     })
                 })
             })
+        }).then(_=>{
+            this.ctx = this.overlay.canvas.getContext('2d');
+            this.overlay.render = new original_Proxy(this.overlay.render, {
+                apply: function(target, that, args) {
+                    return target.apply(that, args), render.apply(that, args)
+                }
+            })
+            function render(scale, game, controls, renderer, me) {
+                let width = window.utilities.overlay.canvas.width / scale;
+                let height = window.utilities.overlay.canvas.height / scale;
+                const renderArgs = [scale, game, controls, renderer, me];
+                if (renderArgs && void 0 !== window.utilities && window.utilities) {
+                    ["scale", "game", "controls", "renderer", "me"].forEach((item, index)=>{
+                        window.utilities[item] = renderArgs[index];
+                    });
+                    if (me) {
+                        window.utilities.ctx.save();
+                        window.utilities.ctx.scale(scale, scale);
+                        //window.utilities.ctx.clearRect(0, 0, width, height);
+                        window.utilities.onRender();
+                        //window.requestAnimationFrame.call(window, renderArgs.callee.caller.bind(this));
+                        window.utilities.ctx.restore();
+                    }
+                    if(window.utilities.settings && window.utilities.settings.autoClick.val && window.endUI.style.display == "none" && window.windowHolder.style.display == "none") {
+                        controls.toggle(true);
+                    }
+                }
+            }
         })
 
         // Skins
@@ -722,6 +752,7 @@ class Utilities {
             this.ws.__send = this.ws.send.bind(this.ws);
             this.ws.send = new Proxy(this.ws.send, {
                 apply: function(target, that, args) {
+                    if (args[0] == "ah2") return;
                     try {
                         var original_fn = Function.prototype.apply.apply(target, [that, args]);
                     } catch (e) {
@@ -747,7 +778,6 @@ class Utilities {
 
             this.ws._dispatchEvent = new Proxy(this.ws._dispatchEvent, {
                 apply: function(target, that, [type, event]) {
-
                     if (type =="init") {
                         if(event[9].bill && window.utilities.settings.customBillboard.val.length > 1) {
                             event[9].bill.txt = window.utilities.settings.customBillboard.val;
@@ -850,6 +880,10 @@ class Utilities {
         .set("fixHowler", [/(Howler\['orientation'](.+?)\)\),)/, ``])
         .set("respawnT", [/'\w+':0x3e8\*/g, `'respawnT':0x0*`])
         .set("anticheat", [/windows\['length'\]>\d+.*?0x25/, `0x25`])
+      //  .set("anticheat2", [/(__LOADER__sharedObj\?{}:__LOADER__sharedObj;).*?;(var \w+='undefined')/, "$1 var a4 = 0; $2"])
+        .set("anticheat2", [/'save','scale','beginPath','moveTo','lineTo','stroke','fillRect','fillText','strokeText','restore'/, "'quadraticCurveTo'"])
+        //.set("render", [/(\['\w+']=function\(\w+,\w+,\w+,\w+,\w+,\w+,\w+,\w+\){)/, "$1console.log(arguments)"])
+
         //.set("FPS", [/(window\['mozRequestAnimationFrame']\|\|function\(\w+\){window\['setTimeout'])\(\w+,0x3e8\/0x3c\);/, "$1()"])
         //.set("Update", [/(\w+=window\['setTimeout']\(function\(\){\w+)\((\w+)\+(\w+)\)/, "$1($2=$3=0)"])
        // .set("weaponZoom", [/(,'zoom':)(\d.+?),/g, "$1window.utilities.settings.weaponZoom.val||$2"])
@@ -891,7 +925,7 @@ class Utilities {
         const obfu = {
             //\]\)continue;if\(!\w+\['(.+?)\']\)continue;
             inView: { regex: /(\w+\['(\w+)']\){if\(\(\w+=\w+\['\w+']\['position']\['clone']\(\))/, pos: 2 },
-
+            spectating: { regex: /\['team']:window\['(\w+)']/, pos: 1 },
             //inView: { regex: /\]\)continue;if\(!\w+\['(.+?)\']\)continue;/, pos: 1 },
             //canSee: { regex: /\w+\['(\w+)']\(\w+,\w+\['x'],\w+\['y'],\w+\['z']\)\)&&/, pos: 1 },
             //procInputs: { regex: /this\['(\w+)']=function\((\w+),(\w+),\w+,\w+\){(this)\['recon']/, pos: 1 },
@@ -957,6 +991,7 @@ class Utilities {
 
         if (this.settings.autoActivateNuke.val && this.me && Object.keys(this.me.streaks).length) { /*chonker*/
             this.ws.__send("k", 0);
+            this.ws__send("lfkr");
         }
 
         if (espVal !== "off") {
@@ -1446,6 +1481,22 @@ class Utilities {
                     let string = args[args.length - 1];
 
                     if (string.length > 38e5) {
+/*
+                        let match = string.match(/\['team']:window\['(\w+)']/);
+                        if (match && match[1]) {
+                            original_Object.defineProperty(window, match[1], {
+                                get : function() {
+                                    (function() {
+                                        let caller = arguments.callee.caller.caller;
+                                        if (caller && caller.arguments && caller.arguments.length == 3)
+                                            console.log(caller.arguments[2])
+                                    })();
+
+                                    return false;
+                                }
+                            });
+                        } else throw(new Error("initial Hook Not Found"));
+*/
                         window.utilities = new Utilities(string);
                         string = window.utilities.patchScript();
                     }
@@ -1462,6 +1513,7 @@ class Utilities {
             }
         })
 
+        /*
         CanvasRenderingContext2D.prototype.clearRect = function(x, y, width, height) {
             original_clearRect.apply(this, [x, y, width, height]);
             if (void 0 !== window.utilities) window.utilities.ctx = this;
@@ -1483,7 +1535,7 @@ class Utilities {
                     }
                 }
             })();
-        }
+        }*/
     }
     let observer = new MutationObserver(mutations => {
         for (let mutation of mutations) {
