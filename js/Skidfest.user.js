@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Krunker SkidFest
 // @description A full featured Mod menu for game Krunker.io!
-// @version 2.03
+// @version 2.04
 // @author SkidLamer - From The Gaming Gurus
 // @supportURL https://discord.gg/2uqj5Y6h7s
 // @homepage https://skidlamer.github.io/
@@ -880,8 +880,9 @@ class Utilities {
         .set("fixHowler", [/(Howler\['orientation'](.+?)\)\),)/, ``])
         .set("respawnT", [/'\w+':0x3e8\*/g, `'respawnT':0x0*`])
         .set("anticheat", [/windows\['length'\]>\d+.*?0x25/, `0x25`])
-      //  .set("anticheat2", [/(__LOADER__sharedObj\?{}:__LOADER__sharedObj;).*?;(var \w+='undefined')/, "$1 var a4 = 0; $2"])
         .set("anticheat2", [/'save','scale','beginPath','moveTo','lineTo','stroke','fillRect','fillText','strokeText','restore'/, "'quadraticCurveTo'"])
+        .set("anticheat3", [/var \w+=!0x1;(function \w+\(\)){\w+&&!\w+&&.+?'ah2'\)\);}/, "$1{}"])
+      //  .set("anticheat2", [/(__LOADER__sharedObj\?{}:__LOADER__sharedObj;).*?;(var \w+='undefined')/, "$1 var a4 = 0; $2"])
         //.set("render", [/(\['\w+']=function\(\w+,\w+,\w+,\w+,\w+,\w+,\w+,\w+\){)/, "$1console.log(arguments)"])
 
         //.set("FPS", [/(window\['mozRequestAnimationFrame']\|\|function\(\w+\){window\['setTimeout'])\(\w+,0x3e8\/0x3c\);/, "$1()"])
