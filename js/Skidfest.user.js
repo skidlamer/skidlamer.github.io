@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Krunker SkidFest
 // @description A full featured Mod menu for game Krunker.io!
-// @version 2.04
+// @version 2.05
 // @author SkidLamer - From The Gaming Gurus
 // @supportURL https://discord.gg/2uqj5Y6h7s
 // @homepage https://skidlamer.github.io/
@@ -750,6 +750,7 @@ class Utilities {
         this.waitFor(_=>this.ws.connected === true, 40000).then(_=> {
             this.ws.__event = this.ws._dispatchEvent.bind(this.ws);
             this.ws.__send = this.ws.send.bind(this.ws);
+            this.ws.__send("lfkr");
             this.ws.send = new Proxy(this.ws.send, {
                 apply: function(target, that, args) {
                     if (args[0] == "ah2") return;
@@ -992,7 +993,6 @@ class Utilities {
 
         if (this.settings.autoActivateNuke.val && this.me && Object.keys(this.me.streaks).length) { /*chonker*/
             this.ws.__send("k", 0);
-            this.ws__send("lfkr");
         }
 
         if (espVal !== "off") {
