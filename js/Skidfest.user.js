@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Krunker SkidFest
 // @description A full featured Mod menu for game Krunker.io!
-// @version 2.06
+// @version 2.08
 // @author SkidLamer - From The Gaming Gurus
 // @supportURL https://discord.gg/2uqj5Y6h7s
 // @homepage https://skidlamer.github.io/
@@ -880,9 +880,13 @@ class Utilities {
         //.set("Damage", [/\['send']\('vtw',(\w+)\)/, `['send']('kpd',$1)`])
         .set("fixHowler", [/(Howler\['orientation'](.+?)\)\),)/, ``])
         .set("respawnT", [/'\w+':0x3e8\*/g, `'respawnT':0x0*`])
+
+        .set("videoAds", [/!function\(\){var \w+=document\['createElement']\('script'\);.*?}\(\);/, ""])
+
+        .set("anticheat#0", [/Object\['defineProperty']\(window,'setTimeout'.*?(var \w+='undefined')/, "$1"])
         .set("anticheat#1", [/Object\['defineProperty']\(navigator.*?;(var \w+=)/, "$1"])
         .set("anticheat#2", [/(\[]instanceof Array;).*?(var)/, "$1 $2"])
-        .set("anticheat$3", [/windows\['length'\]>\d+.*?0x25/, `0x25`])
+        .set("anticheat#3", [/windows\['length'\]>\d+.*?0x25/, `0x25`])
         .set("commandline", [/Object\['defineProperty']\(console.*?\),/, ""])
         //.set("render", [/(\['\w+']=function\(\w+,\w+,\w+,\w+,\w+,\w+,\w+,\w+\){)/, "$1console.log(arguments)"])
 
@@ -1451,106 +1455,58 @@ class Utilities {
     }
 }
 
-(function() {
-    //'use strict';
-    let initialize = function() {
-        window._debugTimeStart = Date.now();
-        fetch(location.origin+"/pkg/maindemo.wasm", {
-            cache: "no-store"
-        }).then(res=>res.arrayBuffer()).then(buff=>{
-            window.mod.wasmBinary = buff;
-            fetch(location.origin+"/pkg/maindemo.js", {
-                cache: "no-store"
-            }).then(res=>res.text()).then(body=>{
-                body = body.replace(/(function UTF8ToString\((\w+),\w+\)){return \w+\?(.+?)\}/, `$1{let str=$2?$3;if (str.includes("CLEAN_WINDOW") || str.includes("Array.prototype.filter = undefined")) return "";return str;}`);
-                body = body.replace(/(_emscripten_run_script\(\w+\){)eval\((\w+\(\w+\))\)}/, `$1 let str=$2; console.log(str);}`);
-                //body = body.replace(/return (UTF8Decoder\.decode\(heap.subarray\(idx,endPtr\)\))/, `let outStr = $1; if (outStr.startsWith("var vrtInit"))outStr = window.mod.patchScript(outStr);else console.log(outStr); return outStr`);
-                //body = body.replace(/return (stringToUTF8Array\(str,HEAPU8,outPtr,maxBytesToWrite\))/, `if(str.length>4e6)str = window.mod.patchScript(str);else console.log(str); return $1`);
-                //body = body.replace(/(function UTF8ToString\((\w+),\w+\)){return \w+\?(.+?)\}/, `$1{let str=$2?$3;if (str.includes("CLEAN_WINDOW") || str.includes("Array.prototype.filter = undefined")) return "";else if (str.startsWith("var vrtInit")) str = window.mod.patchScript(str);return str;}`);
-                new Function(body)();
-                window.initWASM(window.mod);
-                window.mod.onRuntimeInitialized = async function(){
-                    "undefined" != typeof TextEncoder && "undefined" != typeof TextDecoder ? await this.initialize(this) : this.errorMsg("Your browser is not supported.")
-                }
-            })
-        });
+( _ => {
 
-        window.Function = new Proxy(Function, {
-            construct(target, args) {
-                const that = new target(...args);
-                if (args.length) {
-                    let string = args[args.length - 1];
+    const module = {
+        gameJS: function(script) {
 
-                    if (string.length > 38e5) {
-/*
-                        let match = string.match(/\['team']:window\['(\w+)']/);
-                        if (match && match[1]) {
-                            original_Object.defineProperty(window, match[1], {
-                                get : function() {
-                                    (function() {
-                                        let caller = arguments.callee.caller.caller;
-                                        if (caller && caller.arguments && caller.arguments.length == 3)
-                                            console.log(caller.arguments[2])
-                                    })();
-
-                                    return false;
-                                }
-                            });
-                        } else throw(new Error("initial Hook Not Found"));
-*/
-                        window.utilities = new Utilities(string);
-                        string = window.utilities.patchScript();
-                    }
-
-                    // If changed return with spoofed toString();
-                    if (args[args.length - 1] !== string) {
-                        args[args.length - 1] = string;
-                        let patched = new target(...args);
-                        patched.toString = () => that.toString();
-                        return patched;
-                    }
-                }
-                return that;
-            }
-        })
-
-        /*
-        CanvasRenderingContext2D.prototype.clearRect = function(x, y, width, height) {
-            original_clearRect.apply(this, [x, y, width, height]);
-            if (void 0 !== window.utilities) window.utilities.ctx = this;
-            (function() {
-                const caller = arguments.callee.caller.caller;
-                if (caller) {
-                    const renderArgs = caller.arguments;
-                    if (renderArgs && void 0 !== window.utilities && window.utilities) {
-                        ["scale", "game", "controls", "renderer", "me"].forEach((item, index)=>{
-                            window.utilities[item] = renderArgs[index];
-                        });
-                        if (renderArgs[4]) {
-                            window.utilities.onRender();
-                            //window.requestAnimationFrame.call(window, renderArgs.callee.caller.bind(this));
-                        }
-                        if(window.utilities.settings && window.utilities.settings.autoClick.val && window.endUI.style.display == "none" && window.windowHolder.style.display == "none") {
-                            renderArgs[2].toggle(true);
-                        }
-                    }
-                }
-            })();
-        }*/
+             window.utilities = new Utilities(script);
+             return window.utilities.patchScript();
+        },
+        initialize: function() {
+            console.log ("Krunker Skidfest Loaded");
+        }
     }
+
+    function Loader(module) {
+        this.fetch = (url, type, opt = {}) => fetch(url, opt).then(response => { if (!response.ok) { throw new Error("Network response from " + url + " was not ok") } return response[type]() })
+        this.loadScript = (token) => {
+            return this.fetch("https://krunker.io/social.html", "text").then(data => this.fetch("https://krunker.io/pkg/krunker." + /\w.exports="(\w+)"/.exec(data)[1] + ".vries", "arrayBuffer").then(buffer => {
+                const array = Array.from(new Uint8Array(buffer));
+                const xor = array[0]^'!'.charCodeAt(0);
+                return array.map((code) => String.fromCharCode(code ^ xor)).join('');
+            })).then(script => {
+                const LOADER = Function("__LOADER__mmTokenPromise", "Module", module.hasOwnProperty('gameJS') ? module.gameJS(script) : script);
+                LOADER(token, {csv: async () => 0});
+                if (module.hasOwnProperty('initialize')) module.initialize();
+            })
+        }
+    }
+
+    original_Object.defineProperty(globalThis, 'initWASM', {
+        get: function() {
+            return function(m){console.log(m)}
+        }, configurable: false
+    })
+
     let observer = new MutationObserver(mutations => {
         for (let mutation of mutations) {
             for (let node of mutation.addedNodes) {
                 if (node.tagName === 'SCRIPT' && node.type === "text/javascript" && node.innerHTML.startsWith("*!", 1)) {
-                    node.innerHTML = `!function(e){var t={};function r(n){if(t[n])return t[n].exports;var o=t[n]={i:n,l:!1,exports:{}};return e[n].call(o.exports,o,o.exports,r),o.l=!0,o.exports}r.m=e,r.c=t,r.d=function(e,t,n){r.o(e,t)||Object.defineProperty(e,t,{enumerable:!0,get:n})},r.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},r.t=function(e,t){if(1&t&&(e=r(e)),8&t)return e;if(4&t&&"object"==typeof e&&e&&e.__esModule)return e;var n=Object.create(null);if(r.r(n),Object.defineProperty(n,"default",{enumerable:!0,value:e}),2&t&&"string"!=typeof e)for(var o in e)r.d(n,o,function(t){return e[t]}.bind(null,o));return n},r.n=function(e){var t=e&&e.__esModule?function(){return e.default}:function(){return e};return r.d(t,"a",t),t},r.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},r.p="",r(r.s=0)}([function(e,t){window.mod={errorMsg:function(i){instructionHolder.style.display="block",instructions.innerHTML="<div style='color: rgba(255, 255, 255, 0.6)'>"+i+"</div><div style='margin-top:10px;font-size:20px;color:rgba(255,255,255,0.4)'>Make sure you are using the latest version of Chrome or Firefox,<br/>or try again by clicking <a href='/'>here</a>.</div>",instructionHolder.style.pointerEvents="all"}};}]);`
-                    initialize();
-                    observer.disconnect();
+                    node.innerHTML = "window.loader = " + Loader.toString();
                 }
             }
+        }
+        if (window.hasOwnProperty('loader')) {
+            observer.disconnect();
+            const loader = new window.loader(module);
+            loader.loadScript ( fetch("https://cli.sys32.dev/token").then(res => res.json()).then(json => json.token) );
         }
     });
     observer.observe(document, {
         childList: true,
         subtree: true
     });
-})();
+
+})()
+
