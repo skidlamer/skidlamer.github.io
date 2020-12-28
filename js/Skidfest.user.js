@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Krunker SkidFest
 // @description A full featured Mod menu for game Krunker.io!
-// @version 2.08
+// @version 2.09
 // @author SkidLamer - From The Gaming Gurus
 // @supportURL https://discord.gg/2uqj5Y6h7s
 // @homepage https://skidlamer.github.io/
@@ -750,7 +750,6 @@ class Utilities {
         this.waitFor(_=>this.ws.connected === true, 40000).then(_=> {
             this.ws.__event = this.ws._dispatchEvent.bind(this.ws);
             this.ws.__send = this.ws.send.bind(this.ws);
-            this.ws.__send("lfkr");
             this.ws.send = new Proxy(this.ws.send, {
                 apply: function(target, that, args) {
                     if (args[0] == "ah2") return;
@@ -882,9 +881,10 @@ class Utilities {
         .set("respawnT", [/'\w+':0x3e8\*/g, `'respawnT':0x0*`])
 
         .set("videoAds", [/!function\(\){var \w+=document\['createElement']\('script'\);.*?}\(\);/, ""])
+        .set("frustum", [/(;const (\w+)=this\['frustum']\['containsPoint'];.*?return)!0x1/, "$1 $2"])
 
-        .set("anticheat#0", [/Object\['defineProperty']\(window,'setTimeout'.*?(var \w+='undefined')/, "$1"])
-        .set("anticheat#1", [/Object\['defineProperty']\(navigator.*?;(var \w+=)/, "$1"])
+        //.set("anticheat#0", [/Object\['defineProperty']\(window,'setTimeout'.*?(var \w+='undefined')/, "$1"])
+        //.set("anticheat#1", [/Object\['defineProperty']\(navigator.*?;(var \w+=)/, "$1"])
         .set("anticheat#2", [/(\[]instanceof Array;).*?(var)/, "$1 $2"])
         .set("anticheat#3", [/windows\['length'\]>\d+.*?0x25/, `0x25`])
         .set("commandline", [/Object\['defineProperty']\(console.*?\),/, ""])
@@ -893,6 +893,12 @@ class Utilities {
         //.set("FPS", [/(window\['mozRequestAnimationFrame']\|\|function\(\w+\){window\['setTimeout'])\(\w+,0x3e8\/0x3c\);/, "$1()"])
         //.set("Update", [/(\w+=window\['setTimeout']\(function\(\){\w+)\((\w+)\+(\w+)\)/, "$1($2=$3=0)"])
        // .set("weaponZoom", [/(,'zoom':)(\d.+?),/g, "$1window.utilities.settings.weaponZoom.val||$2"])
+
+        .set("configurable", [/'writeable':!0x1/g, "writeable:true"])
+        .set("configurable", [/'configurable':!0x1/g, "configurable:true"])
+        .set("configurable", [/throw new TypeError/g, "console.error"])
+        .set("configurable", [/throw new Error/g, "console.error"])
+
 
         console.groupCollapsed("PATCHING");
         let string = this.script;
@@ -1354,10 +1360,6 @@ class Utilities {
         //this.game.config.deltaMlt = 1
         return input;
     }
-
-    getAngleDst(a, b) {
-        return Math.atan2(Math.sin(b - a), Math.cos(a - b));
-    };
 
     getD3D(x1, y1, z1, x2, y2, z2) {
         let dx = x1 - x2;
