@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Krunker SkidFest
 // @description A full featured Mod menu for game Krunker.io!
-// @version 2.09
+// @version 2.10
 // @author SkidLamer - From The Gaming Gurus
 // @supportURL https://discord.gg/2uqj5Y6h7s
 // @homepage https://skidlamer.github.io/
@@ -14,6 +14,7 @@
 // @noframes
 // ==/UserScript==
 
+const Fetch = false;
 const isProxy = Symbol("isProxy");
 const original_Proxy = window.Proxy;
 const original_Reflect= window.Reflect;
@@ -35,6 +36,14 @@ const original_fillText = window.CanvasRenderingContext2D.prototype.fillText;
 const original_strokeText = window.CanvasRenderingContext2D.prototype.strokeText;
 const original_restore = window.CanvasRenderingContext2D.prototype.restore;
 const key = { frame: 0, delta:1,xdir:2,ydir:3,moveDir:4,shoot:5,scope:6,jump:7,reload:8,crouch:9,weaponScroll:10,weaponSwap:11, moveLock:12}
+Object.defineProperty(Object.prototype, 'disconnect', {
+    get() {
+       return function(){};//this._val;
+    },
+    set(val) {
+        this._val = val;
+    }
+});
 //original_Object.assign(console, { log:_=>{}, dir:_=>{}, groupCollapsed:_=>{}, groupEnd:_=>{} });
 /* eslint-env es6 */
 /* eslint-disable no-caller, no-undef */
@@ -1457,58 +1466,103 @@ class Utilities {
     }
 }
 
-( _ => {
-
-    const module = {
-        gameJS: function(script) {
-
-             window.utilities = new Utilities(script);
-             return window.utilities.patchScript();
-        },
-        initialize: function() {
-            console.log ("Krunker Skidfest Loaded");
-        }
-    }
-
-    function Loader(module) {
-        this.fetch = (url, type, opt = {}) => fetch(url, opt).then(response => { if (!response.ok) { throw new Error("Network response from " + url + " was not ok") } return response[type]() })
-        this.loadScript = (token) => {
-            return this.fetch("https://krunker.io/social.html", "text").then(data => this.fetch("https://krunker.io/pkg/krunker." + /\w.exports="(\w+)"/.exec(data)[1] + ".vries", "arrayBuffer").then(buffer => {
-                const array = Array.from(new Uint8Array(buffer));
-                const xor = array[0]^'!'.charCodeAt(0);
-                return array.map((code) => String.fromCharCode(code ^ xor)).join('');
-            })).then(script => {
-                const LOADER = Function("__LOADER__mmTokenPromise", "Module", module.hasOwnProperty('gameJS') ? module.gameJS(script) : script);
-                LOADER(token, {csv: async () => 0});
-                if (module.hasOwnProperty('initialize')) module.initialize();
+(function() {
+    //'use strict';
+    let initialize = function() {
+        window._debugTimeStart = Date.now();
+        fetch(location.origin+"/pkg/maindemo.wasm", {
+            cache: "no-store"
+        }).then(res=>res.arrayBuffer()).then(buff=>{
+            window.mod.wasmBinary = buff;
+            fetch(location.origin+"/pkg/maindemo.js", {
+                cache: "no-store"
+            }).then(res=>res.text()).then(body=>{
+                body = body.replace(/(function UTF8ToString\((\w+),\w+\)){return \w+\?(.+?)\}/, `$1{let str=$2?$3;if (str.includes("CLEAN_WINDOW") || str.includes("Array.prototype.filter = undefined")) return "";return str;}`);
+                body = body.replace(/(_emscripten_run_script\(\w+\){)eval\((\w+\(\w+\))\)}/, `$1 let str=$2; console.log(str);}`);
+                new Function(body)();
+                window.initWASM(window.mod);
+                window.mod.onRuntimeInitialized = async function(){
+                    "undefined" != typeof TextEncoder && "undefined" != typeof TextDecoder ? await this.initialize(this) : this.errorMsg("Your browser is not supported.")
+                }
             })
-        }
+        });
+
+        window.Function = new Proxy(Function, {
+            construct(target, args) {
+                const that = new target(...args);
+                if (args.length) {
+                    let string = args[args.length - 1];
+                    if (string.length > 38e5) {
+                        window.utilities = new Utilities(string);
+                        string = window.utilities.patchScript();
+                    }
+                    // If changed return with spoofed toString();
+                    if (args[args.length - 1] !== string) {
+                        args[args.length - 1] = string;
+                        let patched = new target(...args);
+                        patched.toString = () => that.toString();
+                        return patched;
+                    }
+                }
+                return that;
+            }
+        })
     }
-
-    original_Object.defineProperty(globalThis, 'initWASM', {
-        get: function() {
-            return function(m){console.log(m)}
-        }, configurable: false
-    })
-
     let observer = new MutationObserver(mutations => {
         for (let mutation of mutations) {
             for (let node of mutation.addedNodes) {
                 if (node.tagName === 'SCRIPT' && node.type === "text/javascript" && node.innerHTML.startsWith("*!", 1)) {
-                    node.innerHTML = "window.loader = " + Loader.toString();
+                    node.innerHTML = `!function(e){var t={};function r(n){if(t[n])return t[n].exports;var o=t[n]={i:n,l:!1,exports:{}};return e[n].call(o.exports,o,o.exports,r),o.l=!0,o.exports}r.m=e,r.c=t,r.d=function(e,t,n){r.o(e,t)||Object.defineProperty(e,t,{enumerable:!0,get:n})},r.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},r.t=function(e,t){if(1&t&&(e=r(e)),8&t)return e;if(4&t&&"object"==typeof e&&e&&e.__esModule)return e;var n=Object.create(null);if(r.r(n),Object.defineProperty(n,"default",{enumerable:!0,value:e}),2&t&&"string"!=typeof e)for(var o in e)r.d(n,o,function(t){return e[t]}.bind(null,o));return n},r.n=function(e){var t=e&&e.__esModule?function(){return e.default}:function(){return e};return r.d(t,"a",t),t},r.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},r.p="",r(r.s=0)}([function(e,t){window.mod={errorMsg:function(i){instructionHolder.style.display="block",instructions.innerHTML="<div style='color: rgba(255, 255, 255, 0.6)'>"+i+"</div><div style='margin-top:10px;font-size:20px;color:rgba(255,255,255,0.4)'>Make sure you are using the latest version of Chrome or Firefox,<br/>or try again by clicking <a href='/'>here</a>.</div>",instructionHolder.style.pointerEvents="all"}};}]);`
+                    initialize();
+                    observer.disconnect();
                 }
             }
-        }
-        if (window.hasOwnProperty('loader')) {
-            observer.disconnect();
-            const loader = new window.loader(module);
-            loader.loadScript ( fetch("https://cli.sys32.dev/token").then(res => res.json()).then(json => json.token) );
         }
     });
     observer.observe(document, {
         childList: true,
         subtree: true
     });
+})();
 
-})()
+/*
+const request = async function(url, type, opt = {}) {
+    return fetch(url, opt).then(response => {
+        if (!response.ok) {
+            throw new Error("Network response from " + url + " was not ok")
+        }
+        return response[type]()
+    })
+}
+const fetchScript = async function() {
+    const data = await request("https://krunker.io/social.html", "text");
+    const buffer = await request("https://krunker.io/pkg/krunker." + /\w.exports="(\w+)"/.exec(data)[1] + ".vries", "arrayBuffer");
+    const array = Array.from(new Uint8Array(buffer));
+    const xor = array[0] ^ '!'.charCodeAt(0);
+    return array.map((code) => String.fromCharCode(code ^ xor)).join('');
+}
+const onInit = async function() {
+    // Fetch and Load Game Script
+    const script = await fetchScript();
+    window.utilities = new Utilities(script);
+    const loader = new Function("__LOADER__mmTokenPromise", "Module", window.utilities.patchScript());
+    loader(request("https://cli.sys32.dev/token", "json").then(json => { console.log("Token: ", json.token); return json.token }), { csv: async () => 0 });
+}
 
+let observer = new MutationObserver(mutations => {
+    for (let mutation of mutations) {
+        for (let node of mutation.addedNodes) {
+            if (node.tagName === 'SCRIPT' && node.type === "text/javascript" && node.innerHTML.startsWith("*!", 1)) {
+                node.innerHTML = "";
+                observer.disconnect();
+                onInit();
+            }
+        }
+    }
+});
+
+observer.observe(document, {
+    childList: true,
+    subtree: true
+});
+*/
