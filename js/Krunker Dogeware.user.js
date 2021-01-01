@@ -1,10 +1,11 @@
 // ==UserScript==
-// @name Krunker Dogeware
+// @name Krunker Dogeware - by The Gaming Gurus
 // @description The most advanced krunker cheat
-// @version 2.03
+// @version 2.04
 // @author SkidLamer - From The Gaming Gurus
 // @supportURL https://discord.gg/upA3nap6Ug
 // @homepage https://skidlamer.github.io/
+// @iconURL https://i.imgur.com/MqW6Ufx.png
 // @match *.krunker.io/*
 // @exclude *krunker.io/social*
 // @run-at document-start
@@ -623,7 +624,7 @@
 
                             let built = `<div id="settHolder">
 <h3 style="margin-bottom: 10px">Dogeware v3</h3>
-<h5 style="margin: 15px 0">Made by The Gaming Gurus, Join <a href="https://vibedivide.github.io/">The Gaming Gurus discord server</a> for more hacks.<br></h5>`
+<h5 style="margin: 15px 0">Made by The Gaming Gurus, Join <a href="https://skidlamer.github.io/wp/index.html">The Gaming Gurus discord server</a> for more hacks.<br></h5>`
 
                             // fix ugly looking 'built +=' before every builder call
                             Object.keys(builder).forEach(name => {
