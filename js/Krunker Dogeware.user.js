@@ -826,7 +826,7 @@ background: #bbb;
         menuItemTitle.className = "menuItemTitle"
 
         menuItemTitle.innerHTML = name
-        menuItemIcon.style.backgroundImage = `url("https://i.imgur.com/QkEcRaR.png")`
+        menuItemIcon.style.backgroundImage = `url("https://i.imgur.com/fouuS5M.gif")`
 
         menuItem.append(menuItemIcon, menuItemTitle)
         menu.append(menuItem)
