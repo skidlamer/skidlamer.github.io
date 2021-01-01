@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Krunker Dogeware - by The Gaming Gurus
 // @description The most advanced krunker cheat
-// @version 2.05
+// @version 2.06
 // @author SkidLamer - From The Gaming Gurus
 // @supportURL https://discord.gg/upA3nap6Ug
 // @homepage https://skidlamer.github.io/
@@ -16,8 +16,6 @@
 
 /* eslint-env es6 */
 /* eslint-disable curly, no-undef, no-loop-func, no-return-assign, no-sequences */
-
-/* Ip Dip Dog Shit Chonker Stood In It */
 
 (function(){
     // requestAnimationFrame - if there's an error, alert it
@@ -72,6 +70,11 @@
             drawFovbox: true,
             fovBoxSize: 1,
             guiOnMMB: false,
+            hideAdverts: false,
+            hideStreams: false,
+            hideMerch: false,
+            hideNewsConsole: false,
+            hideCookieButton: false,
             chams: false,
             wireframe: false,
             chamsc: 0,
@@ -95,6 +98,13 @@
             frame: 0
             // check if exist before accessing:
             // me, game, players, controls, three, config, renderer, canvasScale, ctx
+        },
+        css: {
+            hideAdverts: `#aMerger, #endAMerger { display: none !important }`,
+            hideStreams:"#streamContainer { display: none !important }",
+            hideMerch:"",
+            hideNewsConsole:"",
+            hideCookieButton:"",
         },
         gui: {},
         math: {
@@ -621,10 +631,9 @@
 
                             style: content => `<style>${content}</style>`,
 }
-
                             let built = `<div id="settHolder">
-<h3 style="margin-bottom: 10px">Dogeware v3</h3>
-<h5 style="margin: 15px 0">Made by The Gaming Gurus, Join <a href="https://skidlamer.github.io/wp/index.html">The Gaming Gurus discord server</a> for more hacks.<br></h5>`
+<img src="https://i.imgur.com/hD5n2DF.png" width="90%">
+<div class="imageButton discordSocial" onmouseenter="playTick()" onclick="openURL('https://skidlamer.github.io/wp/index.html')"><span style='display:inline'></span></div>`
 
                             // fix ugly looking 'built +=' before every builder call
                             Object.keys(builder).forEach(name => {
@@ -795,10 +804,15 @@ background: #bbb;
         builder.input("Custom CSS", "customCss", "url", "", "URL to CSS file")
         builder.checkbox("Show GUI button", "showGuiButton", "Disable if you don't want the dog under settings to be visible")
         builder.checkbox("GUI on middle mouse button", "guiOnMMB", "Makes it possible to open this menu by clicking the mouse wheel")
+        builder.checkbox("Hide Advertisments", "hideAdverts", "Hide advertisments from the GUI")
+        builder.checkbox("Hide Streams", "hideStreams", "Hide twitch streams box from the GUI")
+        builder.checkbox("Hide Merch", "hideMerch", "Hide merch from the GUI")
+        builder.checkbox("Hide News Console", "hideNewsConsole", "Hide the news console from the GUI")
+        builder.checkbox("Hide Security Manage Button", "hideCookieButton", "Hide the security manager from the GUI")
         builder.checkbox("Keybinds", "keybinds", "Turn keybinds on/off, Aimbot - Y, ESP - H")
         builder.checkbox("No inactivity kick", "antikick", "Disables the 'Kicked for inactivity' message (client side, but works)")
         builder.checkbox("Auto nuke", "autoNuke", "Automatically nukes when you are able to")
-        builder.checkbox("Force nametags on", "fgno", "Use in custom games with disabled nametags")
+        //builder.checkbox("Force nametags on", "fgno", "Use in custom games with disabled nametags")
     })
 
     if (cheat.isClient) {
@@ -833,28 +847,71 @@ background: #bbb;
 
         menuItem.addEventListener("click", fn)
     }
+    function createElement(type, html, id) {
+        let newElement = document.createElement(type)
+        if (id) newElement.id = id
+        newElement.innerHTML = html
+        return newElement
+    }
     cheat.gui.cssElem = document.createElement("link")
     cheat.gui.cssElem.rel = "stylesheet"
     cheat.gui.cssElem.href = cheat.settings.customCss
+
     try {
-        document.head.appendChild(cheat.gui.cssElem)
+        cheat.head = document.head||document.getElementsByTagName('head')[0]
+        if (cheat.head) {
+            cheat.head.appendChild(cheat.gui.cssElem)
+            Object.entries(cheat.css).forEach(entry => {
+                cheat.css[entry[0]] = createElement("style", entry[1]);
+            })
+        }
     } catch (e) {
         alert("Error injecting custom CSS:\n"+e)
         cheat.settings.customCss = ""
     }
+
     cheat.gui.setSetting = function(setting, value) {
         switch (setting) {
-            case "customCss":
-                cheat.settings.customCss = value
+            //case "customCss":
+                //cheat.settings.customCss = value
+                //break
+            case "hideAdverts":
+                if (value) cheat.head.appendChild(cheat.css.hideAdverts)
+                else cheat.css.hideAdverts.remove()
                 break
-
+            case "hideStreams":
+                if (value) cheat.head.appendChild(cheat.css.hideStreams)
+                else cheat.css.hideStreams.remove()
+                break
+            case "hideMerch":
+                window.merchHolder.style.display = value ? "none" : "inherit"
+                break
+            case "hideNewsConsole":
+                window.newsHolder.style.display = value ? "none" : "inherit"
+                break
+            case "hideCookieButton":
+                window['onetrust-consent-sdk'].style.display = value ? "none" : "inherit"
+                break
             default:
-                cheat.settings[setting] = value
+        }
+        if (void 0 !== cheat.settings[setting]) {
+            cheat.settings[setting] = value
         }
 
         localStorage.kro_setngss_json = JSON.stringify(cheat.settings);
-
     }
+
+   Object.keys(cheat.css).forEach(prop => {
+       if (void 0 !== cheat.settings[prop]) {
+           cheat.gui.setSetting(prop, cheat.settings[prop]);
+       }
+   })
+
+    //Object.entries(cheat.css).forEach(entry => {
+     //   alert(cheat.css[entry[1]])
+       // cheat.gui.setSetting
+       // cheat.css[entry[0]] = createElement("style", entry[1]);
+    //})
     cheat.gui.windowIndex = windows.length+1
     cheat.gui.settings = {
         aimbot: {
