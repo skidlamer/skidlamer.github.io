@@ -1,16 +1,17 @@
 // ==UserScript==
-// @name Krunker SkidFest
-// @description A full featured Mod menu for game Krunker.io!
-// @version 2.11
-// @author SkidLamer - From The Gaming Gurus
-// @supportURL https://discord.gg/AJFXXACdrF
-// @homepage https://skidlamer.github.io/
-// @icon64 https://i.imgur.com/PPGAhg0.png
-// @match *.krunker.io/*
-// @exclude *krunker.io/social*
-// @updateURL https://skidlamer.github.io/js/Skidfest.user.js
-// @run-at document-start
-// @grant none
+// @name          Krunker SkidFest
+// @description   A full featured Mod menu for game Krunker.io!
+// @version       2.11
+// @author        SkidLamer - From The Gaming Gurus
+// @supportURL    https://discord.gg/AJFXXACdrF
+// @homepage      https://skidlamer.github.io/
+// @icon64        https://i.imgur.com/PPGAhg0.png
+// @match         *://krunker.io/*
+// @exclude       *://krunker.io/editor*
+// @exclude       *://krunker.io/social*
+// @updateURL     https://skidlamer.github.io/js/Skidfest.user.js
+// @run-at        document-start
+// @grant         none
 // @noframes
 // ==/UserScript==
 
