@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name Krunker SkidFest
 // @description A full featured Mod menu for game Krunker.io!
-// @version 2.10
+// @version 2.11
 // @author SkidLamer - From The Gaming Gurus
-// @supportURL https://discord.gg/2uqj5Y6h7s
+// @supportURL https://discord.gg/AJFXXACdrF
 // @homepage https://skidlamer.github.io/
 // @icon64 https://i.imgur.com/PPGAhg0.png
 // @match *.krunker.io/*
@@ -14,39 +14,10 @@
 // @noframes
 // ==/UserScript==
 
-const Fetch = false;
-const isProxy = Symbol("isProxy");
-const original_Proxy = window.Proxy;
-const original_Reflect= window.Reflect;
-const original_fetch = window.fetch;
-const original_Object = window.Object;
-const original_Promise = window.Promise;
-const original_Function = window.Function;
-const original_MutationObserver = window.MutationObserver;
-const original_decode = window.TextDecoder.prototype.decode;
-const original_clearRect = window.CanvasRenderingContext2D.prototype.clearRect;
-const original_save = window.CanvasRenderingContext2D.prototype.save;
-const original_scale = window.CanvasRenderingContext2D.prototype.scale;
-const original_beginPath = window.CanvasRenderingContext2D.prototype.beginPath;
-const original_moveTo = window.CanvasRenderingContext2D.prototype.moveTo;
-const original_lineTo = window.CanvasRenderingContext2D.prototype.lineTo;
-const original_stroke = window.CanvasRenderingContext2D.prototype.stroke;
-const original_fillRect = window.CanvasRenderingContext2D.prototype.fillRect;
-const original_fillText = window.CanvasRenderingContext2D.prototype.fillText;
-const original_strokeText = window.CanvasRenderingContext2D.prototype.strokeText;
-const original_restore = window.CanvasRenderingContext2D.prototype.restore;
-const key = { frame: 0, delta:1,xdir:2,ydir:3,moveDir:4,shoot:5,scope:6,jump:7,reload:8,crouch:9,weaponScroll:10,weaponSwap:11, moveLock:12}
-Object.defineProperty(Object.prototype, 'disconnect', {
-    get() {
-       return function(){};//this._val;
-    },
-    set(val) {
-        this._val = val;
-    }
-});
-//original_Object.assign(console, { log:_=>{}, dir:_=>{}, groupCollapsed:_=>{}, groupEnd:_=>{} });
 /* eslint-env es6 */
 /* eslint-disable no-caller, no-undef */
+
+const CRC2d = CanvasRenderingContext2D.prototype;
 
 class Utilities {
     constructor(script) {
@@ -127,6 +98,21 @@ class Utilities {
             nameOffset: 0.6,
             nameOffsetHat: 0.8,
         };
+        this.key = {
+            frame: 0,
+            delta: 1,
+            xdir: 2,
+            ydir: 3,
+            moveDir: 4,
+            shoot: 5,
+            scope: 6,
+            jump: 7,
+            reload: 8,
+            crouch: 9,
+            weaponScroll: 10,
+            weaponSwap: 11,
+            moveLock: 12
+        };
         this.css = {
             noTextShadows: `*, .button.small, .bigShadowT { text-shadow: none !important; }`,
             hideAdverts: `#aMerger, #endAMerger { display: none !important }`,
@@ -134,12 +120,13 @@ class Utilities {
             cookieButton: `#onetrust-consent-sdk { display: none !important }`,
             newsHolder: `#newsHolder { display: none !important }`,
         };
+        this.isProxy = Symbol("isProxy");
         this.spinTimer = 1800;
         let wait = setInterval(_ => {
             this.head = document.head||document.getElementsByTagName('head')[0]
             if (this.head) {
                 clearInterval(wait);
-                original_Object.entries(this.css).forEach(entry => {
+                Object.entries(this.css).forEach(entry => {
                     this.css[entry[0]] = this.createElement("style", entry[1])
                 })
                 this.onLoad();
@@ -184,12 +171,12 @@ class Utilities {
     }
 
     async waitFor(test, timeout_ms = 20000, doWhile = null) {
-        let sleep = (ms) => new original_Promise((resolve) => setTimeout(resolve, ms));
-        return new original_Promise(async (resolve, reject) => {
+        let sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+        return new Promise(async (resolve, reject) => {
             if (typeof timeout_ms != "number") reject("Timeout argument not a number in waitFor(selector, timeout_ms)");
             let result, freq = 100;
             while (result === undefined || result === false || result === null || result.length === 0) {
-                if (doWhile && doWhile instanceof original_Function) doWhile();
+                if (doWhile && doWhile instanceof Function) doWhile();
                 if (timeout_ms % 1000 < freq) console.log("waiting for: ", test);
                 if ((timeout_ms -= freq) < 0) {
                     console.log( "Timeout : ", test );
@@ -197,7 +184,7 @@ class Utilities {
                     return;
                 }
                 await sleep(freq);
-                result = typeof test === "string" ? original_Function(test)() : test();
+                result = typeof test === "string" ? Function(test)() : test();
             }
             console.log("Passed : ", test);
             resolve(result);
@@ -206,6 +193,7 @@ class Utilities {
 
     createSettings() {
         this.settings = {
+            //Rendering
             hideAdverts: {
                 pre: "<div class='setHed'>Rendering</div>",
                 name: "Hide Advertisments",
@@ -311,6 +299,7 @@ class Utilities {
                     "Custom Billboard Text"
                 ),
             },
+            //Weapon
             autoReload: {
                 pre: "<br><div class='setHed'>Weapon</div>",
                 name: "Auto Reload",
@@ -334,20 +323,21 @@ class Utilities {
                 html: () => this.generateSetting("checkbox", "wallPenetrate"),
             },
             weaponZoom: {
-				name: "Weapon Zoom",
-				val: 1.0,
-				min: 0,
-				max: 50.0,
-				step: 0.01,
-				html: () => this.generateSetting("slider", "weaponZoom"),
-				set: (value) => { if (this.renderer) this.renderer.adsFovMlt = value;}
-			},
+                name: "Weapon Zoom",
+                val: 1.0,
+                min: 0,
+                max: 50.0,
+                step: 0.01,
+                html: () => this.generateSetting("slider", "weaponZoom"),
+                set: (value) => { if (this.renderer) this.renderer.adsFovMlt = value;}
+            },
             weaponTrails: {
                 name: "Weapon Trails",
                 val: false,
                 html: () => this.generateSetting("checkbox", "weaponTrails"),
                 set: (value) => { if (this.me) this.me.weapon.trail = value;}
             },
+            //Player
             autoBhop: {
                 pre: "<br><div class='setHed'>Player</div>",
                 name: "Auto Bhop Type",
@@ -368,11 +358,17 @@ class Utilities {
                 val: false,
                 html: () => this.generateSetting("checkbox", "skinUnlock", this),
             },
+            //GamePlay
             disableWpnSnd: {
                 pre: "<br><div class='setHed'>GamePlay</div>",
                 name: "Disable Players Weapon Sounds",
                 val: false,
                 html: () => this.generateSetting("checkbox", "disableWpnSnd", this),
+            },
+            disableHckSnd: {
+                name: "Disable Hacker Fart Sounds",
+                val: false,
+                html: () => this.generateSetting("checkbox", "disableHckSnd", this),
             },
             autoActivateNuke: {
                 name: "Auto Activate Nuke",
@@ -394,6 +390,7 @@ class Utilities {
                 val: true,
                 html: () => this.generateSetting("checkbox", "autoClick", this),
             },
+            //Radio Stream Player
             playStream: {
                 pre: "<br><div class='setHed'>Radio Stream Player</div>",
                 name: "Stream Select",
@@ -440,43 +437,14 @@ class Utilities {
                 audio: null,
             },
             audioVolume: {
-				name: "Radio Volume",
-				val: 0.5,
-				min: 0,
-				max: 1,
-				step: 0.01,
-				html: () => this.generateSetting("slider", "audioVolume"),
-				set: (value) => { if (this.settings.playStream.audio) this.settings.playStream.audio.volume = value;}
-			},
-
-            /*
-            Alternate Howler Sound
-            playSound: {
-                name: "Sound Player",
-                val: "",
-                html: () => `<hr><audio controls><source src='window.utilities.settings.playSound.sound.src'/></audio>` + this.generateSetting("url", "playSound", "URL to Sound file"),
-                sound: null,
-                set: (value, init) => {
-                    //if ( value && value.startsWith("http") && (value.endsWith(".webm") || value.endsWith(".mp3") || value.endsWith(".wav")) ) {
-                        //this.settings.playSound.sound = new window.Howl({src: value, autoplay: true, loop: true, volume: 1.0, rate: 1.0})
-                   //
-                   // if (init) {
-                    //    if ( value.startsWith("http") && (value.endsWith(".webm") || value.endsWith(".mp3") || value.endsWith(".wav")) ) {
-                      //       let proxy = 'https://cors-anywhere.herokuapp.com/';
-                       //      let url = proxy + value;
-                       //     try {
-                        //        this.settings.playSound.sound = new window.Howl({src: value, autoplay: true, loop: true, volume: 1.0, rate: 1.0})
-                         //   } catch(e) {
-                          //      console.error(e)
-                          //      this.settings.playSound.sound = null
-                          //  }
-                        } else if (value) {
-                            alert("Sound file MUST be a .MP3, .webm or .wav !!")
-                            value = "";
-                        }
-                   // }
-                }
-            },*/
+                name: "Radio Volume",
+                val: 0.5,
+                min: 0,
+                max: 1,
+                step: 0.01,
+                html: () => this.generateSetting("slider", "audioVolume"),
+                set: (value) => { if (this.settings.playStream.audio) this.settings.playStream.audio.volume = value;}
+            },
         };
 
         // Inject Html
@@ -492,7 +460,6 @@ class Utilities {
                             " " + this.settings[key].html() + "</div>";
                     }
                     tmpHTML += `<br><hr><a onclick='window.utilities.resetSettings()' class='menuLink'>Reset Settings</a> | <a onclick='window.utilities.saveScript()' class='menuLink'>Save GameScript</a>`
-                   /// tmpHTML += `<audio controls><source src='window.utilities.settings.playSound.sound.src'/></audio>`
                     return tmpHTML;
                 };
                 clearInterval(waitForWindows);
@@ -503,7 +470,7 @@ class Utilities {
         for (const key in this.settings) {
             this.settings[key].def = this.settings[key].val;
             if (!this.settings[key].disabled) {
-                let tmpVal = this.getSavedVal(`kro_utilities_${key}`);
+                let tmpVal = this.getSavedVal(key);
                 this.settings[key].val = tmpVal !== null ? tmpVal : this.settings[key].val;
                 if (this.settings[key].val == "false") this.settings[key].val = false;
                 if (this.settings[key].val == "true") this.settings[key].val = true;
@@ -534,17 +501,18 @@ class Utilities {
 
     resetSettings() {
         if (confirm("Are you sure you want to reset all your settings? This will also refresh the page")) {
-            original_Object.keys(localStorage).filter(x => x.includes("kro_utilities_")).forEach(x => localStorage.removeItem(x));
+            Object.keys(localStorage).filter(x => x.includes("kro_utilities_")).forEach(x => localStorage.removeItem(x));
             location.reload();
         }
     }
 
     setSetting(t, e) {
         this.settings[t].val = e;
-        this.saveVal(`kro_utilities_${t}`, e);
+        this.saveVal(t, e);
         if (document.getElementById(`slid_utilities_${t}`)) document.getElementById(`slid_utilities_${t}`).innerHTML = e;
         if (this.settings[t].set) this.settings[t].set(e);
     }
+
     createObserver(elm, check, callback, onshow = true) {
         return new MutationObserver((mutationsList, observer) => {
             if (check == 'src' || onshow && mutationsList[0].target.style.display == 'block' || !onshow) {
@@ -569,8 +537,8 @@ class Utilities {
     }
 
     objectEntries(object, callback) {
-        let descriptors = original_Object.getOwnPropertyDescriptors(object);
-        original_Object.entries(descriptors).forEach(([key, { value, get, set, configurable, enumerable, writable }]) => callback([object, key, value, get, set, configurable, enumerable, writable]));
+        let descriptors = Object.getOwnPropertyDescriptors(object);
+        Object.entries(descriptors).forEach(([key, { value, get, set, configurable, enumerable, writable }]) => callback([object, key, value, get, set, configurable, enumerable, writable]));
     }
 
     getVersion() {
@@ -660,7 +628,7 @@ class Utilities {
             switch (event.code) {
                 case 'NumpadSubtract':
                     document.exitPointerLock();
-                   //console.log(document.exitPointerLock)
+                    //console.log(document.exitPointerLock)
                     console.dirxml(this)
                     break;
                 default:
@@ -708,9 +676,9 @@ class Utilities {
             })
         }).then(_=>{
             this.ctx = this.overlay.canvas.getContext('2d');
-            this.overlay.render = new original_Proxy(this.overlay.render, {
+            this.overlay.render = new Proxy(this.overlay.render, {
                 apply: function(target, that, args) {
-                    return target.apply(that, args), render.apply(that, args)
+                    return [target.apply(that, args), render.apply(that, args)]
                 }
             })
             function render(scale, game, controls, renderer, me) {
@@ -724,7 +692,7 @@ class Utilities {
                     if (me) {
                         window.utilities.ctx.save();
                         window.utilities.ctx.scale(scale, scale);
-                        //window.utilities.ctx.clearRect(0, 0, width, height);
+                        //this.ctx.clearRect(0, 0, width, height);
                         window.utilities.onRender();
                         //window.requestAnimationFrame.call(window, renderArgs.callee.caller.bind(this));
                         window.utilities.ctx.restore();
@@ -734,151 +702,113 @@ class Utilities {
                     }
                 }
             }
-        })
 
-        // Skins
-        const $skins = Symbol("skins");
-        original_Object.defineProperty(original_Object.prototype, "skins", {
-            set: function(fn) {
-                this[$skins] = fn;
-                if (void 0 == this.localSkins || !this.localSkins.length) {
-                    this.localSkins = Array.apply(null, Array(5e3)).map((x, i) => {
-                        return {
-                            ind: i,
-                            cnt: 0x1,
-                        }
-                    })
-                }
-                return fn;
-            },
-            get: function() {
-                return window.utilities.settings.skinUnlock.val && this.stats ? this.localSkins : this[$skins];
-            }
-        })
-
-        this.waitFor(_=>this.ws.connected === true, 40000).then(_=> {
-            this.ws.__event = this.ws._dispatchEvent.bind(this.ws);
-            this.ws.__send = this.ws.send.bind(this.ws);
-            this.ws.send = new Proxy(this.ws.send, {
-                apply: function(target, that, args) {
-                    if (args[0] == "ah2") return;
-                    try {
-                        var original_fn = Function.prototype.apply.apply(target, [that, args]);
-                    } catch (e) {
-                        e.stack = e.stack = e.stack.replace(/\n.*Object\.apply.*/, '');
-                        throw e;
+            // Skins
+            const $skins = Symbol("skins");
+            Object.defineProperty(Object.prototype, "skins", {
+                set: function(fn) {
+                    this[$skins] = fn;
+                    if (void 0 == this.localSkins || !this.localSkins.length) {
+                        this.localSkins = Array.apply(null, Array(5e3)).map((x, i) => {
+                            return {
+                                ind: i,
+                                cnt: 0x1,
+                            }
+                        })
                     }
-
-                    if (args[0] === "en") {
-                        window.utilities.skinCache = {
-                            main: args[1][2][0],
-                            secondary: args[1][2][1],
-                            hat: args[1][3],
-                            body: args[1][4],
-                            knife: args[1][9],
-                            dye: args[1][14],
-                            waist: args[1][17],
-                        }
-                    }
-
-                    return original_fn;
+                    return fn;
+                },
+                get: function() {
+                    return window.utilities.settings.skinUnlock.val && this.stats ? this.localSkins : this[$skins];
                 }
             })
 
-            this.ws._dispatchEvent = new Proxy(this.ws._dispatchEvent, {
-                apply: function(target, that, [type, event]) {
-                    if (type =="init") {
-                        if(event[9].bill && window.utilities.settings.customBillboard.val.length > 1) {
-                            event[9].bill.txt = window.utilities.settings.customBillboard.val;
+            this.waitFor(_=>this.ws.connected === true, 40000).then(_=> {
+                this.ws.__event = this.ws._dispatchEvent.bind(this.ws);
+                this.ws.__send = this.ws.send.bind(this.ws);
+                this.ws.send = new Proxy(this.ws.send, {
+                    apply: function(target, that, args) {
+                        if (args[0] == "ah2") return;
+                        try {
+                            var original_fn = Function.prototype.apply.apply(target, [that, args]);
+                        } catch (e) {
+                            e.stack = e.stack = e.stack.replace(/\n.*Object\.apply.*/, '');
+                            throw e;
                         }
-                    }
 
-                    if (window.utilities.settings.skinUnlock.val && window.utilities.skinCache && type === "0") {
-                        let skins = window.utilities.skinCache;
-                        let pInfo = event[0];
-                        let pSize = 38;
-                        while (pInfo.length % pSize !== 0) pSize++;
-                        for(let i = 0; i < pInfo.length; i += pSize) {
-                            if (pInfo[i] === window.utilities.ws.socketId||0) {
-                                pInfo[i + 12] = [skins.main, skins.secondary];
-                                pInfo[i + 13] = skins.hat;
-                                pInfo[i + 14] = skins.body;
-                                pInfo[i + 19] = skins.knife;
-                                pInfo[i + 24] = skins.dye;
-                                pInfo[i + 33] = skins.waist;
+                        if (args[0] === "en") {
+                            window.utilities.skinCache = {
+                                main: args[1][2][0],
+                                secondary: args[1][2][1],
+                                hat: args[1][3],
+                                body: args[1][4],
+                                knife: args[1][9],
+                                dye: args[1][14],
+                                waist: args[1][17],
                             }
                         }
+
+                        return original_fn;
                     }
+                })
 
-                    return target.apply(that, arguments[2]);
-                }
+                this.ws._dispatchEvent = new Proxy(this.ws._dispatchEvent, {
+                    apply: function(target, that, [type, event]) {
+                        if (type =="init") {
+                            if(event[9].bill && window.utilities.settings.customBillboard.val.length > 1) {
+                                event[9].bill.txt = window.utilities.settings.customBillboard.val;
+                            }
+                        }
+
+                        if (window.utilities.settings.skinUnlock.val && window.utilities.skinCache && type === "0") {
+                            let skins = window.utilities.skinCache;
+                            let pInfo = event[0];
+                            let pSize = 38;
+                            while (pInfo.length % pSize !== 0) pSize++;
+                            for(let i = 0; i < pInfo.length; i += pSize) {
+                                if (pInfo[i] === window.utilities.ws.socketId||0) {
+                                    pInfo[i + 12] = [skins.main, skins.secondary];
+                                    pInfo[i + 13] = skins.hat;
+                                    pInfo[i + 14] = skins.body;
+                                    pInfo[i + 19] = skins.knife;
+                                    pInfo[i + 24] = skins.dye;
+                                    pInfo[i + 33] = skins.waist;
+                                }
+                            }
+                        }
+
+                        return target.apply(that, arguments[2]);
+                    }
+                })
             })
-        })
 
-        if (this.isDefined(window.SOUND)) {
-            window.SOUND.play = new original_Proxy(window.SOUND.play, {
-                apply: function(target, that, [src, vol, loop, rate]) {
-                    if ( src.startsWith("fart_") ) return;
-                    return target.apply(that, [src, vol, loop, rate]);
-                }
-            })
-        }
-
-         //tmpSound = this.sounds[tmpIndx];
-           // if (!tmpSound) {
-             //   tmpSound = new Howl({
-               //     src: ".././sound/" + (window.activeHacker?
-               //         "fart_0":id) + ".mp3"
-              //  });
-              //  this.sounds[tmpIndx] = tmpSound;
-           // }
-
-        //if (this.isDefined(SOUND)) {
-        //    const play = SOUND.play;
-        //    SOUND.play = function() {
-        //       if (arguments[0].startsWith("weapon_")) return;
-        //        return play.apply(this, arguments)
-        //    }
-            //console.dir(window)
-           // chrome.runtime.onMessage.addListener((message, MessageSender, sendResponse)=>{
-          //      console.log(message)
-            //})
-        //}
-
-        // create audio context
-        //var AudioContext = window.AudioContext || window.webkitAudioContext;
-        //var audioCtx = new AudioContext();
-
-        //AudioParam.prototype.setTargetAtTime = new original_Proxy(AudioParam.prototype.setTargetAtTime, {
-        //    apply: function(target, that, [audioTarget, startTime, timeConstant]) {
-        //        let flt = target.apply(that, [audioTarget, startTime, timeConstant]);
-        //        return isFinite(flt) ? flt : 0.0;
-       //     }
-       // })
-
-      //  AudioParam.prototype.setValueAtTime = new original_Proxy(AudioParam.prototype.setValueAtTime, {
-       //     apply: function(target, that, [value, startTime]) {
-       //         return target.apply(that, [value / 100, startTime+1]);
-        //    }
-        // })
-
-        AudioParam.prototype.setValueAtTime = new Proxy(AudioParam.prototype.setValueAtTime, {
-            apply: function(target, that, [value, startTime]) {
-                return target.apply(that, [value, 0]);
+            if (this.isDefined(window.SOUND)) {
+                window.SOUND.play = new Proxy(window.SOUND.play, {
+                    apply: function(target, that, [src, vol, loop, rate]) {
+                        if ( src.startsWith("fart_") && window.utilities.settings.disableHckSnd.val ) return;
+                        return target.apply(that, [src, vol, loop, rate]);
+                    }
+                })
             }
-        })
 
+            AudioParam.prototype.setValueAtTime = new Proxy(AudioParam.prototype.setValueAtTime, {
+                apply: function(target, that, [value, startTime]) {
+                    return target.apply(that, [value, 0]);
+                }
+            })
+
+        })
     }
 
     patchScript() {
         const patches = new Map()
         .set("exports", [/(this\['\w+']\['\w+']\(this\);};},function\(\w+,\w+,(\w+)\){)/, `$1 window.utilities.exports=$2.c; window.utilities.modules=$2.m;`])
-        //.set("exports", [/(function\(\w+,\w+,(\w+)\){\(function\(\w+\){)(\w+\['exports'])/,`$1window.utilities.exports=$2.c; window.utilities.modules=$2.m;$3`])
+        //.set("exports", [/(function\(\w+,\w+,(\w+)\){\(function\(\w+\){)(\w+\['exports'])/,`$1window[${utlStr}].exports=$2.c; window[${utlStr}].modules=$2.m;$3`])
         //.set("inView", [/if\((!\w+\['\w+'])\)continue;/, "if($1&&void 0 !== window.utilities.nameTags)continue;"])
-        //.set("inView", [/(\w+\['\w+']\){if\(\(\w+=\w+\['\w+']\['position']\['clone']\(\))/, "(void 0 == window.utilities.nameTags)||$1"])
+        //.set("inView", [/(\w+\['\w+']\){if\(\(\w+=\w+\['\w+']\['position']\['clone']\(\))/, "(void 0 == window[${utlStr}].nameTags)||$1"])
         .set("inView", [/&&(\w+\['\w+'])\){(if\(\(\w+=\w+\['\w+']\['\w+']\['\w+'])/, "){if(!$1&&void 0 !== window.utilities.nameTags)continue;$2"])
         .set("inputs", [/(\w+\['\w+']\[\w+\['\w+']\['\w+']\?'\w+':'push']\()(\w+)\),/, `$1window.utilities.onInput($2)),`])
-        //.set("procInputs", [/(this\['\w+']\()(this\['inputs']\[\w+])(,\w+,!0x1,!\w+|\|\w+\['moveLock']\))/, `$1window.utilities.onInput($2)$3`])
+        //.set("procInputs", [/(this\['\w+']\()(this\['inputs']\[\w+])(,\w+,!0x1,!\w+|\|\w+\['moveLock']\))/, `$1window[${utlStr}].onInput($2)$3`])
 
         //.set("procInputs", [/this\['meleeAnim']\['armS']=0x0;},this\['\w+']=function\((\w+),\w+,\w+,\w+\){/, `$&window.cheat.onInput($1);`])
         //.set("wallBangs", [/!(\w+)\['transparent']/, "$&& (!cheat.settings.wallbangs || !$1.penetrable )"])
@@ -901,7 +831,7 @@ class Utilities {
 
         //.set("FPS", [/(window\['mozRequestAnimationFrame']\|\|function\(\w+\){window\['setTimeout'])\(\w+,0x3e8\/0x3c\);/, "$1()"])
         //.set("Update", [/(\w+=window\['setTimeout']\(function\(\){\w+)\((\w+)\+(\w+)\)/, "$1($2=$3=0)"])
-       // .set("weaponZoom", [/(,'zoom':)(\d.+?),/g, "$1window.utilities.settings.weaponZoom.val||$2"])
+        // .set("weaponZoom", [/(,'zoom':)(\d.+?),/g, "$1window.utilities.settings.weaponZoom.val||$2"])
 
         .set("configurable", [/'writeable':!0x1/g, "writeable:true"])
         .set("configurable", [/'configurable':!0x1/g, "configurable:true"])
@@ -1069,7 +999,7 @@ class Utilities {
 
             //Tracers
             if (this.settings.renderTracers.val) {
-                original_save.apply(this.ctx, []);
+                CRC2d.save.apply(this.ctx, []);
                 let screenPos = this.world2Screen(player[this.vars.objInstances].position);
                 this.ctx.lineWidth = 4.5;
                 this.ctx.beginPath();
@@ -1080,37 +1010,37 @@ class Utilities {
                 this.ctx.lineWidth = 2.5;
                 this.ctx.strokeStyle = this.settings.rainbowColor.val ? this.overlay.rainbow.col : "#eb5656"
                 this.ctx.stroke();
-                original_restore.apply(this.ctx, []);
+                CRC2d.restore.apply(this.ctx, []);
             }
 
-            original_save.apply(this.ctx, []);
+            CRC2d.save.apply(this.ctx, []);
             if (espVal == "twoD" || espVal == "full") {
                 // perfect box esp
                 this.ctx.lineWidth = 5;
                 this.ctx.strokeStyle = this.settings.rainbowColor.val ? this.overlay.rainbow.col : "#eb5656"
                 let distanceScale = Math.max(.3, 1 - this.getD3D(worldPosition.x, worldPosition.y, worldPosition.z, player.x, player.y, player.z) / 600);
-                original_scale.apply(this.ctx, [distanceScale, distanceScale]);
+                CRC2d.scale.apply(this.ctx, [distanceScale, distanceScale]);
                 let xScale = scaledWidth / distanceScale;
                 let yScale = scaledHeight / distanceScale;
-                original_beginPath.apply(this.ctx, []);
+                CRC2d.beginPath.apply(this.ctx, []);
                 ymin = yScale * (1 - ymin);
                 ymax = yScale * (1 - ymax);
                 xmin = xScale * xmin;
                 xmax = xScale * xmax;
-                original_moveTo.apply(this.ctx, [xmin, ymin]);
-                original_lineTo.apply(this.ctx, [xmin, ymax]);
-                original_lineTo.apply(this.ctx, [xmax, ymax]);
-                original_lineTo.apply(this.ctx, [xmax, ymin]);
-                original_lineTo.apply(this.ctx, [xmin, ymin]);
-                original_stroke.apply(this.ctx, []);
+                CRC2d.moveTo.apply(this.ctx, [xmin, ymin]);
+                CRC2d.lineTo.apply(this.ctx, [xmin, ymax]);
+                CRC2d.lineTo.apply(this.ctx, [xmax, ymax]);
+                CRC2d.lineTo.apply(this.ctx, [xmax, ymin]);
+                CRC2d.lineTo.apply(this.ctx, [xmin, ymin]);
+                CRC2d.stroke.apply(this.ctx, []);
 
                 if (espVal == "full") {
                     // health bar
                     this.ctx.fillStyle = "#000000";
                     let barMaxHeight = ymax - ymin;
-                    original_fillRect.apply(this.ctx, [xmin - 7, ymin, -10, barMaxHeight]);
+                    CRC2d.fillRect.apply(this.ctx, [xmin - 7, ymin, -10, barMaxHeight]);
                     this.ctx.fillStyle = player.health > 75 ? "green" : player.health > 40 ? "orange" : "red";
-                    original_fillRect.apply(this.ctx, [xmin - 7, ymin, -10, barMaxHeight * (player.health / player[this.vars.maxHealth])]);
+                    CRC2d.fillRect.apply(this.ctx, [xmin - 7, ymin, -10, barMaxHeight * (player.health / player[this.vars.maxHealth])]);
                     // info
                     this.ctx.font = "48px Sans-serif";
                     this.ctx.fillStyle = "white";
@@ -1118,19 +1048,19 @@ class Utilities {
                     this.ctx.lineWidth = 1;
                     let x = xmax + 7;
                     let y = ymax;
-                    original_fillText.apply(this.ctx, [player.name||player.alias, x, y]);
-                    original_strokeText.apply(this.ctx, [player.name||player.alias, x, y]);
+                    CRC2d.fillText.apply(this.ctx, [player.name||player.alias, x, y]);
+                    CRC2d.strokeText.apply(this.ctx, [player.name||player.alias, x, y]);
                     this.ctx.font = "30px Sans-serif";
                     y += 35;
-                    original_fillText.apply(this.ctx, [player.weapon.name, x, y]);
-                    original_strokeText.apply(this.ctx, [player.weapon.name, x, y]);
+                    CRC2d.fillText.apply(this.ctx, [player.weapon.name, x, y]);
+                    CRC2d.strokeText.apply(this.ctx, [player.weapon.name, x, y]);
                     y += 35;
-                    original_fillText.apply(this.ctx, [player.health + ' HP', x, y]);
-                    original_strokeText.apply(this.ctx, [player.health + ' HP', x, y]);
+                    CRC2d.fillText.apply(this.ctx, [player.health + ' HP', x, y]);
+                    CRC2d.strokeText.apply(this.ctx, [player.health + ' HP', x, y]);
                 }
             }
 
-            original_restore.apply(this.ctx, []);
+            CRC2d.restore.apply(this.ctx, []);
             this.ctx.strokeStyle = original_strokeStyle;
             this.ctx.lineWidth = original_lineWidth;
             this.ctx.font = original_font;
@@ -1140,7 +1070,7 @@ class Utilities {
             if (this.isDefined(player[this.vars.objInstances])) {
                 let obj = player[this.vars.objInstances];
                 if (!obj.visible) {
-                    original_Object.defineProperty(player[this.vars.objInstances], 'visible', {
+                    Object.defineProperty(player[this.vars.objInstances], 'visible', {
                         value: true,
                         writable: false
                     });
@@ -1150,13 +1080,13 @@ class Utilities {
                     let chamsEnabled = chamColor !== "off";
                     if (child && child.type == "Mesh" && child.material) {
                         child.material.depthTest = chamsEnabled ? false : true;
-                      if (this.isDefined(child.material.fog)) child.material.fog = chamsEnabled ? false : true;
-                      if (child.material.emissive) {
-                          child.material.emissive.r = chamColor == 'off' || chamColor == 'teal' || chamColor == 'green' || chamColor == 'blue' ? 0 : 0.55;
-                          child.material.emissive.g = chamColor == 'off' || chamColor == 'purple' || chamColor == 'blue' || chamColor == 'red' ? 0 : 0.55;
-                          child.material.emissive.b = chamColor == 'off' || chamColor == 'yellow' || chamColor == 'green' || chamColor == 'red' ? 0 : 0.55;
-                      }
-                      child.material.wireframe = this.settings.renderWireFrame.val ? true : false
+                        if (this.isDefined(child.material.fog)) child.material.fog = chamsEnabled ? false : true;
+                        if (child.material.emissive) {
+                            child.material.emissive.r = chamColor == 'off' || chamColor == 'teal' || chamColor == 'green' || chamColor == 'blue' ? 0 : 0.55;
+                            child.material.emissive.g = chamColor == 'off' || chamColor == 'purple' || chamColor == 'blue' || chamColor == 'red' ? 0 : 0.55;
+                            child.material.emissive.b = chamColor == 'off' || chamColor == 'yellow' || chamColor == 'green' || chamColor == 'red' ? 0 : 0.55;
+                        }
+                        child.material.wireframe = this.settings.renderWireFrame.val ? true : false
                     }
                 })
             }
@@ -1177,20 +1107,20 @@ class Utilities {
 
     raidBot(input) {
         let target = this.game.AI.ais.filter(enemy => {
-           return undefined !== enemy.mesh && enemy.mesh && enemy.mesh.children[0] && enemy.canBSeen && enemy.health > 0
+            return undefined !== enemy.mesh && enemy.mesh && enemy.mesh.children[0] && enemy.canBSeen && enemy.health > 0
         }).sort((p1, p2) => this.getD3D(this.me.x, this.me.z, p1.x, p1.z) - this.getD3D(this.me.x, this.me.z, p2.x, p2.z)).shift();
         if (target) {
             let canSee = this.renderer.frustum.containsPoint(target.mesh.position)
             let yDire = (this.getDir(this.me.z, this.me.x, target.z, target.x) || 0)
             let xDire = ((this.getXDire(this.me.x, this.me.y, this.me.z, target.x, target.y + target.mesh.children[0].scale.y * 0.85, target.z) || 0) - this.consts.recoilMlt * this.me[this.vars.recoilAnimY])
-            if (this.me.weapon[this.vars.nAuto] && this.me[this.vars.didShoot]) { input[key.shoot] = 0; input[key.scope] = 0; this.me.inspecting = false; this.me.inspectX = 0; }
+            if (this.me.weapon[this.vars.nAuto] && this.me[this.vars.didShoot]) { input[this.key.shoot] = 0; input[this.key.scope] = 0; this.me.inspecting = false; this.me.inspectX = 0; }
             else {
                 if (!this.me.aimDir && canSee) {
-                    input[key.scope] = 1;
+                    input[this.key.scope] = 1;
                     if (!this.me[this.vars.aimVal]) {
-                        input[key.shoot] = 1;
-                        input[key.ydir] = yDire * 1e3
-                        input[key.xdir] = xDire * 1e3
+                        input[this.key.shoot] = 1;
+                        input[this.key.ydir] = yDire * 1e3
+                        input[this.key.xdir] = xDire * 1e3
                         this.lookDir(xDire, yDire);
                     }
                 }
@@ -1210,38 +1140,14 @@ class Utilities {
         if (this.me) {
             this.inputFrame ++;
             if (this.inputFrame >= 100000) this.inputFrame = 0;
-            /*
-            if (!this.game.decreaseWeapon[isProxy]) {
-                this.game.decreaseWeapon = new original_Proxy(this.game.decreaseWeapon, {
-                    apply: function(target, that, args) {
-                        if (args[0] == this.me) return;
-                        return target.apply(that, args);
-                    },
-                    get: function(target, key) {
-                        return key === isProxy ? true : Reflect.get(target, key);
-                    },
-                })
-            }
-            if (!this.game.increaseWeapon[isProxy]) {
-                this.game.increaseWeapon = new original_Proxy(this.game.increaseWeapon, {
-                    apply: function(target, that, args) {
-                        if (args[0] !== this.me) return;
-                        return target.apply(that, args);
-                    },
-                    get: function(target, key) {
-                        return key === isProxy ? true : Reflect.get(target, key);
-                    },
-                })
-            }*/
-
-            if (!this.game.playerSound[isProxy]) {
-                this.game.playerSound = new original_Proxy(this.game.playerSound, {
+            if (!this.game.playerSound[this.isProxy]) {
+                this.game.playerSound = new Proxy(this.game.playerSound, {
                     apply: function(target, that, args) {
                         if (window.utilities.settings.disableWpnSnd.val && args[0] && typeof args[0] == "string" && args[0].startsWith("weapon_")) return;
                         return target.apply(that, args);
                     },
                     get: function(target, key) {
-                        return key === isProxy ? true : Reflect.get(target, key);
+                        return key === window.utilities.isProxy ? true : Reflect.get(target, key);
                     },
                 })
             }
@@ -1259,7 +1165,7 @@ class Utilities {
                     }
                 } else if (!ammoLeft) {
                     this.game.players.reload(this.me);
-                    input[key.reload] = 1;
+                    input[this.key.reload] = 1;
                     // this.me[this.vars.reloadTimer] = 1;
                     //this.me.resetAmmo();
                 }
@@ -1300,53 +1206,53 @@ class Utilities {
                     let yDire = (this.getDir(this.me.z, this.me.x, target.z, target.x) || 0)
                     let xDire = ((this.getXDire(this.me.x, this.me.y, this.me.z, target.x, target.y - target[this.vars.crouchVal] * this.consts.crouchDst + this.me[this.vars.crouchVal] * this.consts.crouchDst, target.z) || 0) - this.consts.recoilMlt * this.me[this.vars.recoilAnimY])
                     if (this.me.weapon[this.vars.nAuto] && this.me[this.vars.didShoot]) {
-                        input[key.shoot] = 0;
-                        input[key.scope] = 0;
+                        input[this.key.shoot] = 0;
+                        input[this.key.scope] = 0;
                         this.me.inspecting = false;
                         this.me.inspectX = 0;
                     }
                     else if (!canSee && this.settings.frustrumCheck.val) this.resetLookAt();
                     else {
-                        input[key.scope] = this.settings.autoAim.val === "assist"||this.settings.autoAim.val === "correction" ? this.controls[this.vars.mouseDownR] : this.settings.autoAim.val === "trigger" ? canSee ? 1 : 0 : 1;
+                        input[this.key.scope] = this.settings.autoAim.val === "assist"||this.settings.autoAim.val === "correction" ? this.controls[this.vars.mouseDownR] : this.settings.autoAim.val === "trigger" ? canSee ? 1 : 0 : 1;
                         switch (this.settings.autoAim.val) {
                             case "quickScope":
-                                input[key.scope] = 1;
+                                input[this.key.scope] = 1;
                                 if (!this.me[this.vars.aimVal]) {
-                                    if (!this.me.canThrow||!isMelee) input[key.shoot] = 1;
-                                    input[key.ydir] = yDire * 1e3
-                                    input[key.xdir] = xDire * 1e3
+                                    if (!this.me.canThrow||!isMelee) input[this.key.shoot] = 1;
+                                    input[this.key.ydir] = yDire * 1e3
+                                    input[this.key.xdir] = xDire * 1e3
                                     this.lookDir(xDire, yDire);
                                 }
                                 break;
                             case "assist": case "easyassist":
-                                if (input[key.scope] || this.settings.autoAim.val === "easyassist") {
+                                if (input[this.key.scope] || this.settings.autoAim.val === "easyassist") {
                                     if (!this.me.aimDir && canSee || this.settings.autoAim.val === "easyassist") {
-                                        input[key.ydir] = yDire * 1e3
-                                        input[key.xdir] = xDire * 1e3
+                                        input[this.key.ydir] = yDire * 1e3
+                                        input[this.key.xdir] = xDire * 1e3
                                         this.lookDir(xDire, yDire);
                                     }
                                 }
                                 break;
                             case "silent":
                                 if (!this.me[this.vars.aimVal]) {
-                                    if (!this.me.canThrow||!isMelee) input[key.shoot] = 1;
-                                } else input[key.scope] = 1;
-                                input[key.ydir] = yDire * 1e3
-                                input[key.xdir] = xDire * 1e3
+                                    if (!this.me.canThrow||!isMelee) input[this.key.shoot] = 1;
+                                } else input[this.key.scope] = 1;
+                                input[this.key.ydir] = yDire * 1e3
+                                input[this.key.xdir] = xDire * 1e3
                                 break;
                             case "trigger":
                                 if (!this.me.aimDir) {
                                     if (!this.me[this.vars.aimVal] && this.me.aimTime > 180) {
-                                        if (!this.me.canThrow) input[key.shoot] = 1;
-                                        input[key.ydir] = yDire * 1e3
-                                        input[key.xdir] = xDire * 1e3
+                                        if (!this.me.canThrow) input[this.key.shoot] = 1;
+                                        input[this.key.ydir] = yDire * 1e3
+                                        input[this.key.xdir] = xDire * 1e3
                                     }
                                 }
                                 break;
                             case "correction":
-                                if (input[key.shoot] == 1) {
-                                    input[key.ydir] = yDire * 1e3
-                                    input[key.xdir] = xDire * 1e3
+                                if (input[this.key.shoot] == 1) {
+                                    input[this.key.ydir] = yDire * 1e3
+                                    input[this.key.xdir] = xDire * 1e3
                                 }
                                 break;
                             default:
@@ -1362,8 +1268,8 @@ class Utilities {
         }
 
         //else if (this.settings.autoClick.val && !this.ui.hasEndScreen) {
-            //this.config.deathDelay = 0;
-            //this.controls.toggle(true);
+        //this.config.deathDelay = 0;
+        //this.controls.toggle(true);
         //}
 
         //this.game.config.deltaMlt = 1
@@ -1408,7 +1314,7 @@ class Utilities {
         let terrain = this.game.map.terrain;
         if (terrain) {
             let terrainRaycast = terrain.raycast(from.x, -from.z, yOffset, 1 / dx, -1 / dz, 1 / dy);
-            if (terrainRaycast) return this.getD3D(from.x, from.y, from.z, terrainRaycast.x, terrainRaycast.z, -terrainRaycast.y);
+            if (terrainRaycast) return utl.getD3D(from.x, from.y, from.z, terrainRaycast.x, terrainRaycast.z, -terrainRaycast.y);
         }
         */
         return null;
@@ -1466,64 +1372,118 @@ class Utilities {
     }
 }
 
-(function() {
-    //'use strict';
-    let initialize = function() {
-        window._debugTimeStart = Date.now();
-        fetch(location.origin+"/pkg/maindemo.wasm", {
-            cache: "no-store"
-        }).then(res=>res.arrayBuffer()).then(buff=>{
-            window.mod.wasmBinary = buff;
-            fetch(location.origin+"/pkg/maindemo.js", {
-                cache: "no-store"
-            }).then(res=>res.text()).then(body=>{
-                body = body.replace(/(function UTF8ToString\((\w+),\w+\)){return \w+\?(.+?)\}/, `$1{let str=$2?$3;if (str.includes("CLEAN_WINDOW") || str.includes("Array.prototype.filter = undefined")) return "";return str;}`);
-                body = body.replace(/(_emscripten_run_script\(\w+\){)eval\((\w+\(\w+\))\)}/, `$1 let str=$2; console.log(str);}`);
-                new Function(body)();
-                window.initWASM(window.mod);
-                window.mod.onRuntimeInitialized = async function(){
-                    "undefined" != typeof TextEncoder && "undefined" != typeof TextDecoder ? await this.initialize(this) : this.errorMsg("Your browser is not supported.")
-                }
-            })
-        });
-
-        window.Function = new Proxy(Function, {
-            construct(target, args) {
-                const that = new target(...args);
-                if (args.length) {
-                    let string = args[args.length - 1];
-                    if (string.length > 38e5) {
-                        window.utilities = new Utilities(string);
-                        string = window.utilities.patchScript();
-                    }
-                    // If changed return with spoofed toString();
-                    if (args[args.length - 1] !== string) {
-                        args[args.length - 1] = string;
-                        let patched = new target(...args);
-                        patched.toString = () => that.toString();
-                        return patched;
-                    }
-                }
-                return that;
+window.Function = new Proxy(Function, {
+    construct(target, args) {
+        const original = new target(...args);
+        if (args.length) {
+            let body = args[args.length - 1];
+            if (body.length > 38e5) {
+                // game.js at game loader
+                //console.log(body)
             }
-        })
-    }
-    let observer = new MutationObserver(mutations => {
-        for (let mutation of mutations) {
-            for (let node of mutation.addedNodes) {
-                if (node.tagName === 'SCRIPT' && node.type === "text/javascript" && node.innerHTML.startsWith("*!", 1)) {
-                    node.innerHTML = `!function(e){var t={};function r(n){if(t[n])return t[n].exports;var o=t[n]={i:n,l:!1,exports:{}};return e[n].call(o.exports,o,o.exports,r),o.l=!0,o.exports}r.m=e,r.c=t,r.d=function(e,t,n){r.o(e,t)||Object.defineProperty(e,t,{enumerable:!0,get:n})},r.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},r.t=function(e,t){if(1&t&&(e=r(e)),8&t)return e;if(4&t&&"object"==typeof e&&e&&e.__esModule)return e;var n=Object.create(null);if(r.r(n),Object.defineProperty(n,"default",{enumerable:!0,value:e}),2&t&&"string"!=typeof e)for(var o in e)r.d(n,o,function(t){return e[t]}.bind(null,o));return n},r.n=function(e){var t=e&&e.__esModule?function(){return e.default}:function(){return e};return r.d(t,"a",t),t},r.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},r.p="",r(r.s=0)}([function(e,t){window.mod={errorMsg:function(i){instructionHolder.style.display="block",instructions.innerHTML="<div style='color: rgba(255, 255, 255, 0.6)'>"+i+"</div><div style='margin-top:10px;font-size:20px;color:rgba(255,255,255,0.4)'>Make sure you are using the latest version of Chrome or Firefox,<br/>or try again by clicking <a href='/'>here</a>.</div>",instructionHolder.style.pointerEvents="all"}};}]);`
-                    initialize();
-                    observer.disconnect();
-                }
+            else if (args[0] == "requireRegisteredType") {
+                return (function(...fnArgs){
+                    // Expose WASM functions
+                    if (!window.hasOwnProperty("WASM")) {
+                        Object.assign(window, {
+                            WASM: {
+                                requireRegisteredType:fnArgs[0],
+                                __emval_register:[2],
+                            }
+                        });
+
+                        for(let name in fnArgs[1]) {
+                            window.WASM[name] = fnArgs[1][name];
+                            switch (name) {
+                                case "fetchCallback": //game.js after fetch and decode
+                                    fnArgs[1][name] = function(body) {
+                                        window.utilities = new Utilities(body);
+                                        body = window.utilities.patchScript();
+                                        return window.WASM[name].apply(this, [body]);
+                                    };
+                                    break;
+
+                                case "fetchMMToken__cb1": //generate token promise
+                                    fnArgs[1][name] = function(response) {
+                                        if (!response.ok) {
+                                            throw new Error("Network response from " + response.url + " was not ok")
+                                        }
+                                        let promise = window.WASM[name].apply(this, [response]);
+                                        return promise;
+                                    };
+                                    break;
+                                case "fetchMMToken__cb2": //hmac token function
+                                    fnArgs[1][name] = function() {
+                                        console.log(arguments[0]);
+                                        return window.WASM[name].apply(this, arguments);
+                                    };
+                                    break;
+
+                            }
+                        }
+                    }
+                    return new target(...args).apply(this, fnArgs);
+                })
+            }
+            // If changed return with spoofed toString();
+            if (args[args.length - 1] !== body) {
+                args[args.length - 1] = body;
+                let patched = new target(...args);
+                patched.toString = () => original.toString();
+                return patched;
             }
         }
+        return original;
+    }
+})
+
+function onPageLoad() {
+    window.instructionHolder.style.display = "block";
+    window.instructions.innerHTML = `<div id="settHolder"><img src="https://i.imgur.com/yzb2ZmS.gif" width="25%"></div><a href='https://skidlamer.github.io/wp/' target='_blank.'><div class="imageButton discordSocial"></div></a>`
+    window.request = (url, type, opt = {}) => fetch(url, opt).then(response => response.ok ? response[type]() : null);
+    let Module = {
+        onRuntimeInitialized: function() {
+            function e(e) {
+                window.instructionHolder.style.display = "block";
+                window.instructions.innerHTML = "<div style='color: rgba(255, 255, 255, 0.6)'>" + e + "</div><div style='margin-top:10px;font-size:20px;color:rgba(255,255,255,0.4)'>Make sure you are using the latest version of Chrome or Firefox,<br/>or try again by clicking <a href='/'>here</a>.</div>";
+                window.instructionHolder.style.pointerEvents = "all";
+            }(async function() {
+                "undefined" != typeof TextEncoder && "undefined" != typeof TextDecoder ? await Module.initialize(Module) : e("Your browser is not supported.")
+            })().catch(err => {
+                e("Failed to load game.");
+                throw new Error(err);
+            })
+        }
+    };
+    window._debugTimeStart = Date.now();
+    window.request("/pkg/maindemo.wasm","arrayBuffer",{cache: "no-store"}).then(body => {
+        Module.wasmBinary = body;
+        window.request("/pkg/maindemo.js","text",{cache: "no-store"}).then(body => {
+            body = body.replace(/(function UTF8ToString\((\w+),\w+\)){return \w+\?(.+?)\}/, `$1{let str=$2?$3;if (str.includes("CLEAN_WINDOW") || str.includes("Array.prototype.filter = undefined")) return "";return str;}`);
+            body = body.replace(/(_emscripten_run_script\(\w+\){)eval\((\w+\(\w+\))\)}/, `$1 let str=$2; console.log(str);}`);
+            new Function(body)();
+            window.initWASM(Module);
+        })
     });
-    observer.observe(document, {
-        childList: true,
-        subtree: true
-    });
-})();
+}
+
+let observer = new MutationObserver(mutations => {
+    for (let mutation of mutations) {
+        for (let node of mutation.addedNodes) {
+            if (node.tagName === 'SCRIPT' && node.type === "text/javascript" && node.innerHTML.startsWith("*!", 1)) {
+                node.innerHTML = onPageLoad.toString() + "\nonPageLoad();";
+                observer.disconnect();
+                //console.log(node.innerHTML)
+            }
+        }
+    }
+});
+observer.observe(document, {
+    childList: true,
+    subtree: true
+}); addEventListener('DOMContentLoaded', (event) => {
+    console.log('DOM fully loaded and parsed');
+});
 
 /*
 const request = async function(url, type, opt = {}) {
