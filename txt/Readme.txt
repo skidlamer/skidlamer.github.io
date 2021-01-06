@@ -41,6 +41,9 @@ https://skidlamer.github.io/
 > ### Github
 https://github.com/skidlamer
 
+> ### Discord
+https://discord.gg/AJFXXACdrF
+
 ## Donate
 >BTC 3MziGzVnRUi37u3eNpx2AbHmgpRmhV5VbP
 
