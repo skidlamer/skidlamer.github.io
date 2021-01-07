@@ -1,41 +1,30 @@
 // ==UserScript==
-// @name Krunker Dogeware - by The Gaming Gurus
-// @description The most advanced krunker cheat
-// @version 2.06
-// @author SkidLamer - From The Gaming Gurus
-// @supportURL https://discord.gg/upA3nap6Ug
-// @homepage https://skidlamer.github.io/
-// @iconURL https://i.imgur.com/MqW6Ufx.png
-// @match *.krunker.io/*
-// @exclude *krunker.io/social*
-// @run-at document-start
-// @grant none
+// @name Krunker  Dogeware - by The Gaming Gurus
+// @description   The most advanced krunker krunker
+// @version       2.06
+// @author        SkidLamer - From The Gaming Gurus
+// @supportURL    https://discord.gg/upA3nap6Ug
+// @homepage      https://skidlamer.github.io/
+// @iconURL       https://i.imgur.com/MqW6Ufx.png
+// @namespace     https://greasyfork.org/users/704479
+// @match         *://krunker.io/*
+// @exclude       *://krunker.io/editor*
+// @exclude       *://krunker.io/social*
+// @run-at        document-start
+// @grant         none
 // @noframes
-// @namespace https://greasyfork.org/users/704479
 // ==/UserScript==
 
 /* eslint-env es6 */
 /* eslint-disable curly, no-undef, no-loop-func, no-return-assign, no-sequences */
 
-(function(){
-    // requestAnimationFrame - if there's an error, alert it
-    window.requestAnimationFrame = new Proxy(window.requestAnimationFrame, {
-        apply(target, thisArg, argArray) {
-            const cb = argArray[0];
-            argArray[0] = function () {
-                try {
-                    return cb.apply(this, arguments)
-                } catch (e) {
-                    alert("FATAL ERROR:\n"+e+"\n"+e.stack)
-                }
-            }
-            return target.apply(thisArg, argArray)
-        }
-    })
+var dog, dogStr = [...Array(8)].map(_ => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'[~~(Math.random()*52)]).join('');
 
-    window.cheat = {
-        // default settings
-        settings: {
+class Dogeware {
+    constructor() {
+        dog = this;
+        console.dir(this);
+        this.settings = Object.assign({}, {
             aimbot: 1,
             superSilent: true,
             AImbot: true,
@@ -86,8 +75,8 @@
             //autoSwap: false,
             forceNametagsOn: false,
             aimbotRange: 0,
-        },
-        state: {
+        });
+        this.state = Object.assign({}, {
             bindAimbotOn: true,
             quickscopeCanShoot: true,
             spinFrame: 0,
@@ -95,312 +84,897 @@
             shouldCrouch: false,
             spinCounter: 0,
             activeTab: 0,
+            nameTags:false,
             frame: 0
-            // check if exist before accessing:
-            // me, game, players, controls, three, config, renderer, canvasScale, ctx
-        },
-        css: {
-            hideAdverts: `#aMerger, #endAMerger { display: none !important }`,
-            hideStreams:"#streamContainer { display: none !important }",
-            hideMerch:"",
-            hideNewsConsole:"",
-            hideCookieButton:"",
-        },
-        gui: {},
-        math: {
-            getDir: function(x1, y1, x2, y2) {
-                return Math.atan2(y1 - y2, x1 - x2)
-            },
-            getDistance: function(x1, y1, x2, y2) {
-                return Math.sqrt((x2 -= x1) * x2 + (y2 -= y1) * y2)
-            },
-            getD3D: function(x1, y1, z1, x2, y2, z2) {
-                const dx = x1 - x2, dy = y1 - y2, dz = z1 - z2
-                return Math.sqrt(dx * dx + dy * dy + dz * dz)
-            },
-            // getAngleDst: function(a, b) {k
-            //     return Math.atan2(Math.sin(b - a), Math.cos(a - b))
-            // },
-            getXDire: function(x1, y1, z1, x2, y2, z2) {
-                const h = Math.abs(y1 - y2), dst = this.getD3D(x1, y1, z1, x2, y2, z2)
-                return (Math.asin(h / dst) * ((y1 > y2) ? -1 : 1))
-            },
-            lineInRect: function(lx1, lz1, ly1, dx, dz, dy, x1, z1, y1, x2, z2, y2) {
-                const t1 = (x1 - lx1) * dx, t2 = (x2 - lx1) * dx, t3 = (y1 - ly1) * dy
-                const t4 = (y2 - ly1) * dy, t5 = (z1 - lz1) * dz, t6 = (z2 - lz1) * dz
-                const tmin = Math.max(Math.max(Math.min(t1, t2), Math.min(t3, t4)), Math.min(t5, t6))
-                const tmax = Math.min(Math.min(Math.max(t1, t2), Math.max(t3, t4)), Math.max(t5, t6))
-                return (tmax < 0 || tmin > tmax) ? false : tmin
-            },
-        },
-        isClient: !!window.doge_work
+        });
+        this.vars = {};
+        this.GUI = {};
+        try {
+            this.onLoad();
+        }
+        catch(e) {
+            console.error(e);
+            console.trace(e.stack);
+        }
     }
 
-    localStorage.kro_setngss_json ? Object.assign(window.cheat.settings, JSON.parse(localStorage.kro_setngss_json)) : localStorage.kro_setngss_json = JSON.stringify(window.cheat.settings)
+    onLoad() {
+        this.defines();
+        localStorage.kro_setngss_json ? Object.assign(this.settings, JSON.parse(localStorage.kro_setngss_json)) :
+        localStorage.kro_setngss_json = JSON.stringify(this.settings);
+        this.listeners();
+        this.hooking();
+    }
 
-    // disable audioparam errors
-    Object.keys(AudioParam.prototype).forEach(name => {
-        if (Object.getOwnPropertyDescriptor(AudioParam.prototype, name).get)
-            return
-        const old = AudioParam.prototype[name]
-        AudioParam.prototype[name] = function() {
-            try {
-                return old.apply(this, arguments)
-            } catch (e) {
-                console.log("AudioParam error:\n"+e)
-                return false
-            }
-        }
-    })
+    isType(item, type) {
+        return typeof item === type;
+    }
 
+    isDefined(item) {
+        return !this.isType(item, "undefined") && item !== null;
+    }
 
-    // object.prototype defines
+    objectHas(obj, arr) {
+        return arr.some(prop => obj.hasOwnProperty(prop));
+    }
 
-    Object.defineProperties(Object.prototype, {
-        thirdPerson: {
-            get() {return cheat.settings.thirdPerson}
-        },
-        renderer: { // Get renderer, mostly for stuff like frustum or camera
-            enumerable: false, get() {
-                if (this.camera) {
-                    cheat.state.renderer = this
-                }
-                return this._renderer
-            }, set(v) {
-                this._renderer = v
-            }
-        },
-        OBJLoader: { // THREE
-            enumerable: false, get() {
-                return this._OBJLoader
-            }, set(v) {
-                cheat.state.three = this
-                this._OBJLoader = v
-            }
-        },
-        useLooseClient: {
-            enumerable: false, get() {
-                return this._ulc
-            }, set(v) {
-                cheat.state.config = this
-                // Increase the rate in which inView is updated to every frame, making aimbot way more responsive
-                Object.defineProperty(this, "nameVisRate", {
-                    value: 0,
-                    writable: false,
-                    configurable: true,
-                })
-                this._ulc = v
-            }
-        },
-        trail: { // All weapon tracers
-            enumerable: false,
-            get() { return cheat.settings.alwaysTrail || this._trail },
-            set(v) { this._trail = v }
-        },
-        showTracers: {
-            enumerable: false,
-            get() { return cheat.settings.alwaysTrail || this._showTracers },
-            set(v) { this._showTracers = v }
-        },
-        shaderId: { // Animated billboards
-            enumerable: false,
-            get() {
-                if (this.src && this.src.startsWith("pubs/")) return cheat.settings.animatedBillboards ? 1 : this.rshaderId;
-                else return this.rshaderId
-            },
-            set(v) {
-                this.rshaderId = v
-            }
-        },
-        // Clientside prevention of inactivity kick
-        idleTimer: {
-            enumerable: false, get() {
-                return cheat.settings.antikick ? 0 : this._idleTimer
-            }, set(v) {
-                this._idleTimer = v
-            }
-        },
-        kickTimer: {
-            enumerable: false, get() {
-                return cheat.settings.antikick ? Infinity : this._kickTimer
-            }, set(v) {
-                this._kickTimer = v
-            }
-        }
+    getVersion() {
+        const elems = document.getElementsByClassName('terms');
+        const version = elems[elems.length - 1].innerText;
+        return version;
+    }
 
-    });
+    saveAs(name, data) {
+        let blob = new Blob([data], {type: 'text/plain'});
+        let el = window.document.createElement("a");
+        el.href = window.URL.createObjectURL(blob);
+        el.download = name;
+        window.document.body.appendChild(el);
+        el.click();
+        window.document.body.removeChild(el);
+    }
 
-    function initCheatCanvas(inGameUI) {
-        cheat.canvas = document.createElement("canvas")
-        cheat.canvas.width = innerWidth
-        cheat.canvas.height = innerHeight
-        window.addEventListener("resize", () => {
-            const scale = cheat.state.canvasScale || 1
-            cheat.canvas.width = innerWidth/scale
-            cheat.canvas.height = innerHeight/scale
+    saveScript() {
+        this.fetchScript().then(script => {
+            this.saveAs("game_" + this.getVersion() + ".js", script)
         })
-        inGameUI.insertAdjacentElement("beforeend", cheat.canvas)
-        cheat.state.ctx = cheat.canvas.getContext("2d")
     }
-    const itv = setInterval(() => {
-        if (document.getElementById("inGameUI")) {
-            clearInterval(itv)
-            initCheatCanvas(document.getElementById("inGameUI"))
+
+    gameJS(script) {
+        let entries = {
+            inView: {regex: /(\w+\['(\w+)']\){if\(\(\w+=\w+\['\w+']\['position']\['clone']\(\))/, index: 2},
+            procInputs: {regex: /this\['(\w+)']=function\((\w+),(\w+),\w+,\w+\){(this)\['recon']/, index: 1},
+            aimVal: {regex: /this\['(\w+)']-=0x1\/\(this\['weapon']\['\w+']\/\w+\)/, index: 1},
+            didShoot: {regex: /--,\w+\['(\w+)']=!0x0/, index: 1},
+            nAuto: {regex: /'Single\\x20Fire','varN':'(\w+)'/, index: 1},
+            crouchVal: {regex: /this\['(\w+)']\+=\w\['\w+']\*\w+,0x1<=this\['\w+']/, index: 1},
+            ammos: {regex: /\['length'];for\(\w+=0x0;\w+<\w+\['(\w+)']\['length']/, index: 1},
+            weaponIndex: {regex: /\['weaponConfig']\[\w+]\['secondary']&&\(\w+\['(\w+)']==\w+/, index: 1},
+            objInstances: {regex: /\(\w+=\w+\['players']\['list']\[\w+]\)\['active']&&\w+\['(\w+)']\)/, index: 1},
+            //reloadTimer: {regex: /this\['(\w+)']&&\(\w+\['\w+']\(this\),\w+\['\w+']\(this\)/, index: 1},
+            reloadTimer: {regex: /0x0>=this\['(\w+')]&&0x0>=this\['swapTime']/, index: 1},
+            recoilAnimY: {regex: /this\['(\w+)']\+=this\['\w+']\*\(/, index: 1},
+            maxHealth: {regex: /this\['health']\/this\['(\w+)']\?/, index: 1},
+            // Patches
+            socket: {regex: /\['onopen']=\(\)=>{/, patch: `$&${dogStr}.socket=this;`},
+            //frustum: {regex: /(;const (\w+)=this\['frustum']\['containsPoint'];.*?return)!0x1/, patch: "$1 $2"},
+            videoAds: {regex: /!function\(\){var \w+=document\['createElement']\('script'\);.*?}\(\);/, patch: ""},
+            anticheat1: {regex: /(\[]instanceof Array;).*?(var)/, patch: "$1 $2"},
+            anticheat2: {regex: /windows\['length'\]>\d+.*?0x25/, patch: "0x25"},
+            writeable: {regex: /'writeable':!0x1/g, patch: "writeable:true"},
+            configurable: {regex: /'configurable':!0x1/g, patch: "configurable:true"},
+            typeError: {regex: /throw new TypeError/g, patch: "console.error"},
+            error: {regex: /throw new Error/g, patch: "console.error"},
+            //exports: {regex: /(this\['\w+']\['\w+']\(this\);};},function\(\w+,\w+,(\w+)\){)/, patch: `$1 ${dogStr}.exports=$2.c; ${dogStr}.modules=$2.m;`},
+            inputs: {regex: /(\w+\['\w+']\[\w+\['\w+']\['\w+']\?'\w+':'push']\()(\w+)\),/, patch: `$1${dogStr}.inputs($2)),`},
+            nametags: {regex: /&&(\w+\['\w+'])\){(if\(\(\w+=\w+\['\w+']\['\w+']\['\w+'])/, patch: `){if(!$1&&!${dogStr}.state.nameTags)continue;$2`},
+            wallbangs: {regex: /!(\w+)\['transparent']/, patch: `${dogStr}.settings.wallbangs?!$1.penetrable : !$1.transparent`}
+        };
+        for(let name in entries) {
+            let object = entries[name];
+            let found = object.regex.exec(script);
+            if (object.hasOwnProperty('index')) {
+                if (!found) {
+                    object.val = null;
+                    alert("Failed to Find " + name);
+                } else {
+                    object.val = found[object.index];
+                    console.log ("Found ", name, ":", object.val);
+                }
+                Object.defineProperty(dog.vars, name, {
+                    configurable: false,
+                    value: object.val
+                });
+            } else if (found) {
+                script = script.replace(object.regex, object.patch);
+                console.log ("Patched ", name);
+            } else alert("Failed to Patch " + name);
         }
-    }, 100)
-    function renderHook() {
-        if (!cheat.state.renderHookArgs) return
-        const [_, game, controls, renderer, me, delta] = cheat.state.renderHookArgs
-        cheat.state.canvasScale = parseFloat(document.getElementById("uiBase").style.transform.match(/\((.+)\)/)[1])
-        cheat.state.players = game.players
-        cheat.state.game = game
-        cheat.state.controls = controls
-        cheat.state.renderer = renderer
-        cheat.state.me = me
+        return script;
+    }
 
-        if (!cheat.state.renderer.frustum) return
+    async fetchScript() {
+        const data = await this.request("https://krunker.io/social.html", "text");
+        const buffer = await this.request("https://krunker.io/pkg/krunker." + /\w.exports="(\w+)"/.exec(data)[1] + ".vries", "arrayBuffer");
+        const array = Array.from(new Uint8Array(buffer));
+        const xor = array[0] ^ '!'.charCodeAt(0);
+        return array.map((code) => String.fromCharCode(code ^ xor)).join('');
+    }
 
-        if (me && me.weapon && !me.weapon.zoomHooked) {
-            me.weapon.zoomHooked = true
-            me.weapon._zoom = me.weapon.zoom
-            Object.defineProperty(me.weapon, "zoom", {
-                get() {return cheat.settings.staticWeaponZoom ? 1 : this._zoom }
+    async request(url, type, opt = {}) {
+        return fetch(url, opt).then(response => {
+            if (!response.ok) {
+                throw new Error("Network response from " + url + " was not ok")
+            }
+            return response[type]()
+        })
+    }
+
+    async waitFor(test, timeout_ms = 30000, doWhile = null) {
+        let sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+        return new Promise(async (resolve, reject) => {
+            if (typeof timeout_ms != "number") reject("Timeout argument not a number in waitFor(selector, timeout_ms)");
+            let result, freq = 100;
+            while (result === undefined || result === false || result === null || result.length === 0) {
+                if (doWhile && doWhile instanceof Function) doWhile();;
+                if (timeout_ms % 10000 < freq) console.log("waiting for: ", test);
+                if ((timeout_ms -= freq) < 0) {
+                    console.log( "Timeout : ", test );
+                    resolve(false);
+                    return;
+                }
+                await sleep(freq);
+                result = typeof test === "string" ? Function(test)() : test();
+            }
+            console.log("Passed : ", test);
+            resolve(result);
+        });
+    };
+
+    async hooking() {
+        await this.waitFor(_=>this.isDefined(this.socket))
+        if (!this.isDefined(this.socket)) location.assign(location.origin);
+        this.wsEvent = this.socket._dispatchEvent.bind(this.socket);
+        this.wsSend = this.socket.send.bind(this.ws);
+        this.socket.send = new Proxy(this.socket.send, {
+            apply(target, that, args) {
+                if (args[0] === "en") {
+                    that.skinCache = {
+                        main: args[1][2][0],
+                        secondary: args[1][2][1],
+                        hat: args[1][3],
+                        body: args[1][4],
+                        knife: args[1][9],
+                        dye: args[1][14],
+                        waist: args[1][17],
+                    }
+                }
+                return Reflect.apply(...arguments);
+            }
+        })
+        this.socket._dispatchEvent = new Proxy(this.socket._dispatchEvent, {
+            apply(target, that, args) {
+                if (dog.settings.skinHack && that.skinCache && args[0] === "0") {
+                    let pInfo = args[1][0];
+                    let pSize = 38;
+                    while (pInfo.length % pSize !== 0) pSize++;
+                    for(let i = 0; i < pInfo.length; i += pSize) {
+                        if (pInfo[i] === that.socketId||0) {
+                            pInfo[i + 12] = [that.skinCache.main, that.skinCache.secondary];
+                            pInfo[i + 13] = that.skinCache.hat;
+                            pInfo[i + 14] = that.skinCache.body;
+                            pInfo[i + 19] = that.skinCache.knife;
+                            pInfo[i + 24] = that.skinCache.dye;
+                            pInfo[i + 33] = that.skinCache.waist;
+                        }
+                    }
+                }
+
+                return target.apply(that, args);
+            }
+        })
+
+        await this.waitFor(_=>this.isDefined(this.overlay))
+        this.ctx = this.overlay.canvas.getContext('2d');
+        this.overlay.render = new Proxy(this.overlay.render, {
+            apply(target, that, args) {
+                ["scale", "game", "controls", "renderer", "me"].forEach((item, index)=>{ dog[item] = args[index] });
+                Reflect.apply(...arguments);
+                if (dog.me && dog.ctx) {
+                    dog.ctx.save();
+                    dog.ctx.scale(dog.scale, dog.scale);
+                    dog.render();
+                    dog.ctx.restore();
+                }
+            }
+        })
+        await this.waitFor(_=>this.isDefined(window.windows));
+        this.initGUI();
+    }
+
+    defines() {
+        const $origSkins = Symbol("origSkins"),
+              $localSkins = Symbol("localSkins");
+
+        Object.defineProperties(Object.prototype, {
+            canvas: {
+                set(val) {
+                    this._value = val;
+                },
+                get() {
+                    let object = this;
+                    if (dog.objectHas(object, ["healthColE", "healthColT", "dmgColor"])) {
+                        dog.overlay = this;
+                    }
+                    return this._value;
+                }
+            },
+            RENDER: {
+                set(val) {
+                    this._value = val;
+                    dog.renderer = this._value;
+
+                    Object.defineProperty(this._value, "zoom", {
+                        get() {
+                            return _=> dog.settings.zoom||1;
+                        }
+                    })
+
+                    dog.fxComposer = this;
+                },
+                get() {
+                    return this._value;
+                }
+            },
+            OBJLoader: {
+                set(val) {
+                    dog.three = this;
+                    this._value = val;
+                },
+                get() {
+                    return this._value;
+                }
+            },
+            skins: {
+                set(fn) {
+                    this[$origSkins] = fn;
+                    if (void 0 == this.localSkins || !this.localSkins.length) {
+                        this[$localSkins] = Array.apply(null, Array(5e3)).map((x, i) => {
+                            return {
+                                ind: i,
+                                cnt: 0x1,
+                            }
+                        })
+                    }
+                    return fn;
+                },
+                get() {
+                    return dog.settings.skinHack && this.stats ? this[$localSkins] : this[$origSkins];
+                }
+            },
+            useLooseClient: {
+                enumerable: false, get() {
+                    return this._ulc
+                }, set(v) {
+                    //dog.config = this
+                    // Increase the rate in which inView is updated to every frame, making aimbot way more responsive
+                    Object.defineProperty(this, "nameVisRate", {
+                        value: 0,
+                        writable: false,
+                        configurable: true,
+                    })
+                    this._ulc = v
+                }
+            },
+            trail: { // All weapon tracers
+                enumerable: false,
+                get() { return dog.settings.alwaysTrail || this._trail },
+                set(v) { this._trail = v }
+            },
+            showTracers: {
+                enumerable: false,
+                get() { return dog.settings.alwaysTrail || this._showTracers },
+                set(v) { this._showTracers = v }
+            },
+            shaderId: { // Animated billboards
+                enumerable: false,
+                get() {
+                    if (this.src && this.src.startsWith("pubs/")) return dog.settings.animatedBillboards ? 1 : this.rshaderId;
+                    else return this.rshaderId
+                },
+                set(v) {
+                    this.rshaderId = v
+                }
+            },
+            // Clientside prevention of inactivity kick
+            idleTimer: {
+                enumerable: false, get() {
+                    return dog.settings.antikick ? 0 : this._idleTimer
+                }, set(v) {
+                    this._idleTimer = v
+                }
+            },
+            kickTimer: {
+                enumerable: false, get() {
+                    return dog.settings.antikick ? Infinity : this._kickTimer
+                }, set(v) {
+                    this._kickTimer = v
+                }
+            },
+        })
+
+        // disable audioparam errors
+        Object.keys(AudioParam.prototype).forEach(name => {
+            if (Object.getOwnPropertyDescriptor(AudioParam.prototype, name).get) return
+            const old = AudioParam.prototype[name]
+            AudioParam.prototype[name] = function() {
+                try {
+                    return old.apply(this, arguments)
+                } catch (e) {
+                    console.log("AudioParam error:\n"+e)
+                    return false
+                }
+            }
+        })
+    }
+
+    listeners() {
+        window.addEventListener("mouseup", (e) => {
+            if(e.which === 2 && dog.settings.guiOnMMB) {
+                e.preventDefault()
+                dog.showGUI()
+            }
+        })
+        window.addEventListener("keydown", ev => {
+            if (ev.key === "F1") {
+                ev.preventDefault()
+                dog.showGUI()
+            }
+            if (ev.code === "NumpadSubtract") {
+                ev.preventDefault()
+                document.exitPointerLock();
+                dog.showGUI()
+                console.dirxml(dog)
+            }
+        })
+        window.addEventListener("keydown", ev => {
+            if (!dog.state.pressedKeys.has(ev.code)) {
+                dog.state.pressedKeys.add(ev.code)
+            }
+        })
+        window.addEventListener("keyup", ev => {
+            if (dog.state.pressedKeys.has(ev.code)) {
+                dog.state.pressedKeys.delete(ev.code)
+            }
+            if (!(document.activeElement.tagName === "INPUT" || !window.endUI && window.endUI.style.display) && dog.settings.keybinds) {
+                switch (ev.code) {
+                    case "KeyY":
+                        dog.state.bindAimbotOn = !dog.state.bindAimbotOn
+                        dog.wsEvent("ch", [null, ("Aimbot "+(dog.state.bindAimbotOn?"on":"off")), 1])
+                        break
+                    case "KeyH":
+                        dog.settings.esp = (dog.settings.esp+1)%4
+                        dog.wsEvent("ch", [null, "ESP: "+["disabled", "nametags", "box", "full"][dog.settings.esp], 1])
+                        break
+                }
+            }
+        })
+    }
+
+    inputs(input) {
+        const key = {
+            frame: 0,
+            delta: 1,
+            xdir: 2,
+            ydir: 3,
+            moveDir: 4,
+            shoot: 5,
+            scope: 6,
+            jump: 7,
+            reload: 8,
+            crouch: 9,
+            weaponScroll: 10,
+            weaponSwap: 11,
+            moveLock: 12
+        }
+
+        const moveDir = {
+            leftStrafe: 0,
+            forward: 1,
+            rightStrafe: 2,
+            right: 3,
+            backwardRightStrafe: 4,
+            backward: 5,
+            backwardLeftStrafe: 6,
+            left: 7
+        }
+
+        this.state.frame = input[key.frame];
+        this.state.nameTags = [1, 2].some(n => n == this.settings.esp) || this.settings.forceNametagsOn;
+
+        if (this.me) {
+
+            // AUTO NUKE
+            if (this.settings.autoNuke && Object.keys(this.me.streaks).length) {
+                this.wsSend("k", 0)
+            }
+
+            // BHOP
+            if (this.settings.bhop) {
+                if (this.state.pressedKeys.has("Space") || [1, 3].includes(this.settings.bhop)) {
+                    this.controls.keys[this.controls.binds.jumpKey.val] ^= 1
+                    if (this.controls.keys[this.controls.binds.jumpKey.val]) {
+                        this.controls.didPressed[this.controls.binds.jumpKey.val] = 1
+                    }
+                    if ([3, 4].includes(this) && ((this.state.pressedKeys.has('Space') || this === 3) && (this.me.canSlide))) {
+                        setTimeout(() => {
+                            this.state.shouldCrouch = false
+                        }, 350)
+                        this.state.shouldCrouch = true
+                    }
+                }
+            }
+            if (this.state.shouldCrouch) {
+                this[key.crouch] = 1
+            }
+
+            // Makes nametags show in custom games, where nametags are disabled
+            if (this.settings.forceNametagsOn) {
+                try {
+                    Object.defineProperty(this.game.config, "nameTags", {
+                        get() {
+                            return dog.settings.forceNametagsOn ? false : this.game._nametags
+                        },
+                        set(v) {
+                            this.game._nametags = v
+                        }
+                    })
+                } catch (e) {}
+            }
+
+
+            if (this.settings.spinBot) {
+                const rate = 1
+                input[key.moveDir] !== -1 && (input[key.moveDir] = (input[key.moveDir] + this.state.spinCounter - Math.round(7 * (input[key.ydir] / (Math.PI * 2000)))) % 7)
+                input[key.ydir] = this.state.spinCounter / 7 * (Math.PI * 2000)
+                input[key.frame] % rate === 0 && (this.state.spinCounter = (this.state.spinCounter + 1) % 7)
+            }
+
+            // AUTO SWAP (not working idk why)
+            // if (this.settings.autoSwap && !this.me.weapon.secondary && this.me[this.vars.ammos][0] === 0 && this.me[this.vars.ammos][1] > 0 && !this.me.swapTime && !this.me[this.vars.reloadTimer]) {
+            // 	input[key.weaponSwap] = 1
+            //}
+
+            // AUTO RELOAD
+            if (this.settings.autoReload && this.me[this.vars.ammos][this.me[this.vars.weaponIndex]] === 0) {
+                input[key.reload] = 1
+            }
+
+            // PITCH HACK
+            if (this.settings.pitchHack) {
+                switch (this.settings.pitchHack) {
+                    case 1:
+                        input[key.xdir] = -Math.PI * 500
+                        break
+                    case 2:
+                        input[key.xdir] = Math.PI * 500
+                        break
+                    case 3:
+                        input[key.xdir] = Math.sin(Date.now() / 50) * Math.PI * 500
+                        break
+                    case 4:
+                        input[key.xdir] = Math.sin(Date.now() / 250) * Math.PI * 500
+                        break
+                    case 5:
+                        input[key.xdir] = input[key.frame] % 2 ? Math.PI * 500 : -Math.PI * 500
+                        break
+                    case 6:
+                        input[key.xdir] = (Math.random() * Math.PI - Math.PI / 2) * 1000
+                        break
+                }
+            }
+
+            // Add the `pos` property to Players and AIs
+            const getNoise = () => (Math.random() * 2 - 1) * this.settings.aimNoise
+            this.game.players.list.forEach(v => {
+                v.pos = {
+                    x: v.x,
+                    y: v.y,
+                    z: v.z
+                };
+                v.npos = {
+                    x: v.x + getNoise(),
+                    y: v.y + getNoise(),
+                    z: v.z + getNoise()
+                };
+                v.isTarget = false
+            })
+            if (this.game.AI.ais) {
+                this.game.AI.ais.forEach(v => v.npos = v.pos = {
+                    x: v.x,
+                    y: v.y,
+                    z: v.z
+                })
+            }
+
+            // AIMBOT
+            if (this.renderer && this.renderer.frustum && this.me.active) {
+                this.controls.target = null
+
+                // Finds all the visible enemies
+                let targets = this.game.players.list.filter(enemy => !enemy.isYTMP && enemy.hasOwnProperty('npos') && (!this.settings.frustumCheck || this.containsPoint(enemy.npos)) && ((this.me.team === null || enemy.team !== this.me.team) && enemy.health > 0 && enemy[this.vars.inView])).sort((e, e2) => this.getDistance(this.me.x, this.me.z, e.npos.x, e.npos.z) - this.getDistance(this.me.x, this.me.z, e2.npos.x, e2.npos.z));
+                let target = targets[0];
+
+                // If there's a fov box, pick an enemy inside it instead (if there is)
+                if (this.settings.fovbox) {
+                    const scale = this.scale||parseFloat(document.getElementById("uiBase").style.transform.match(/\((.+)\)/)[1])
+                    const width = innerWidth / scale,
+                          height = innerHeight / scale
+
+                    let foundTarget = false
+                    for (let i = 0; i < targets.length; i++) {
+                        const t = targets[i]
+                        const sp = this.world2Screen(new this.three.Vector3(t.x, t.y, t.z), width, height, t.height / 2)
+                        let fovBox = [width / 3, height / 4, width * (1 / 3), height / 2]
+                        switch (this.settings.fovBoxSize) {
+                                // medium
+                            case 2:
+                                fovBox = [width * 0.4, height / 3, width * 0.2, height / 3]
+                                break
+                                // small
+                            case 3:
+                                fovBox = [width * 0.45, height * 0.4, width * 0.1, height * 0.2]
+                                break
+                        }
+                        if (sp.x >= fovBox[0] && sp.x <= (fovBox[0] + fovBox[2]) && sp.y >= fovBox[1] && sp.y < (fovBox[1] + fovBox[3])) {
+                            target = targets[i]
+                            foundTarget = true
+                            break
+                        }
+                    }
+                    if (!foundTarget) {
+                        target = void "kpal"
+                    }
+                }
+
+                let isAiTarget = false
+                if (this.game.AI.ais && this.settings.AImbot) {
+                    let aiTarget = this.game.AI.ais.filter(ent => ent.mesh && ent.mesh.visible && ent.health && ent.pos && ent.canBSeen).sort((p1, p2) => this.getDistance(this.me.x, this.me.z, p1.pos.x, p1.pos.z) - this.getDistance(this.me.x, this.me.z, p2.pos.x, p2.pos.z)).shift()
+                    if (!target || (aiTarget && this.getDistance(this.me.x, this.me.z, aiTarget.pos.x, aiTarget.pos.z) > this.getDistance(this.me.x, this.me.z, target.pos.x, target.pos.z))) {
+                        target = aiTarget
+                        isAiTarget = true
+                    }
+                }
+
+                const isShooting = input[key.shoot]
+                if (target && this.settings.aimbot &&
+                    this.state.bindAimbotOn &&
+                    (!this.settings.aimbotRange || this.getDistance3D(this.me.x, this.me.y, this.me.z, target.x, target.y, target.z) < this.settings.aimbotRange) &&
+                    (!this.settings.rangeCheck || this.getDistance3D(this.me.x, this.me.y, this.me.z, target.x, target.y, target.z) <= this.me.weapon.range) &&
+                    !this.me[this.vars.reloadTimer]) {
+
+                    if (this.settings.awtv) {
+                        input[key.scope] = 1
+                    }
+                    target.isTarget = this.settings.markTarget
+
+                    const yDire = (this.getDir(this.me.z, this.me.x, target.npos.z, target.npos.x) || 0) * 1000
+                    const xDire = isAiTarget ?
+                          ((this.getXDir(this.me.x, this.me.y, this.me.z, target.npos.x, target.npos.y - target.dat.mSize / 2, target.npos.z) || 0) - (0.3 * this.me[this.vars.recoilAnimY])) * 1000 :
+                    ((this.getXDir(this.me.x, this.me.y, this.me.z, target.npos.x, target.npos.y - target[this.vars.crouchVal] * 3 + this.me[this.vars.crouchVal] * 3 + this.settings.aimOffset, target.npos.z) || 0) - (0.3 * this.me[this.vars.recoilAnimY])) * 1000
+
+                    // aimbot tweak
+                    if (this.settings.forceUnsilent) {
+                        this.controls.target = {
+                            xD: xDire / 1000,
+                            yD: yDire / 1000
+                        }
+                        this.controls.update(400)
+                    }
+
+                    // Different aimbot modes can share the same code
+                    switch (this.settings.aimbot) {
+                            // quickscope, silent, trigger aim, silent on aim, aim correction, unsilent
+                        case 1:
+                        case 2:
+                        case 5:
+                        case 6:
+                        case 9:
+                        case 10: {
+                            let onAim = [5, 6, 9].some(n => n == this.settings.aimbot)
+                            if ((this.settings.aimbot === 5 && input[key.scope]) || this.settings.aimbot === 10) {
+                                this.controls.target = {
+                                    xD: xDire / 1000,
+                                    yD: yDire / 1000
+                                }
+                                this.controls.update(400)
+                            }
+                            if ([2, 10].some(n => n == this.settings.aimbot) || (this.settings.aimbot === 1 && this.me.weapon.id)) {
+                                !this.me.weapon.melee && (input[key.scope] = 1)
+                            }
+                            if (this.me[this.vars.didShoot]) {
+                                input[key.shoot] = 0
+                                this.state.quickscopeCanShoot = false
+                                setTimeout(() => {
+                                    this.state.quickscopeCanShoot = true
+                                }, this.me.weapon.rate * .85)
+                            } else if (this.state.quickscopeCanShoot && (!onAim || input[key.scope])) {
+                                if (!this.me.weapon.melee) {
+                                    input[key.scope] = 1
+                                }
+                                if (!this.settings.superSilent && this.settings.aimbot !== 9) {
+                                    input[key.ydir] = yDire
+                                    input[key.xdir] = xDire
+                                }
+                                if ((this.settings.aimbot !== 9 && (!this.me[this.vars.aimVal] || this.me.weapon.noAim || this.me.weapon.melee)) ||
+                                    (this.settings.aimbot === 9 && isShooting)) {
+                                    input[key.ydir] = yDire
+                                    input[key.xdir] = xDire
+                                    input[key.shoot] = 1
+                                }
+                            }
+                        }
+                            break
+                            // spin aim useless rn
+                            // case 3: {
+                            //     if (me[krunker.vars.didShoot]) {
+                            //         input[key.shoot] = 0
+                            //         krunker.state.quickscopeCanShoot = false
+                            //         setTimeout(() => {
+                            //             krunker.state.quickscopeCanShoot = true
+                            //         }, me.weapon.rate)
+                            //     } else if (krunker.state.quickscopeCanShoot && !krunker.state.spinFrame) {
+                            //         krunker.state.spinFrame = input[key.frame]
+                            //     } else {
+                            //         const fullSpin = Math.PI * 2000
+                            //         const spinFrames = krunker.settings.spinAimFrames
+                            //         const currentSpinFrame = input[key.frame]-krunker.state.spinFrame
+                            //         if (currentSpinFrame < 0) {
+                            //             krunker.state.spinFrame = 0
+                            //         }
+                            //         if (currentSpinFrame > spinFrames) {
+                            //             if (!krunker.settings.superSilent) {
+                            //                 input[key.ydir] = yDire
+                            //                 input[key.xdir] = xDire
+                            //             }
+                            //             if (!me[krunker.vars.aimVal] || me.weapon.noAim || me.weapon.melee) {
+                            //                 input[key.ydir] = yDire
+                            //                 input[key.xdir] = xDire
+                            //                 input[key.shoot] = 1
+                            //                 krunker.state.spinFrame = 0
+                            //             }
+                            //         } else {
+                            //             input[key.ydir] = currentSpinFrame/spinFrames * fullSpin
+                            //             if (!me.weapon.melee)
+                            //                 input[key.scope] = 1
+                            //         }
+                            //     }
+                            // } break
+
+                            // aim assist, smooth on aim, smoother, easy aim assist
+                        case 4:
+                        case 7:
+                        case 8:
+                        case 11:
+                            if (input[key.scope] || this.settings.aimbot === 11) {
+                                this.controls.target = {
+                                    xD: xDire / 1000,
+                                    yD: yDire / 1000
+                                }
+                                this.controls.update(({
+                                    4: 400,
+                                    7: 110,
+                                    8: 70,
+                                    11: 400
+                                })[this.settings.aimbot])
+                                if ([4, 11].some(n => n == this.settings.aimbot)) {
+                                    input[key.xdir] = xDire
+                                    input[key.ydir] = yDire
+                                }
+                                if (this.me[this.vars.didShoot]) {
+                                    input[key.shoot] = 0
+                                    this.state.quickscopeCanShoot = false
+                                    setTimeout(() => {
+                                        this.state.quickscopeCanShoot = true
+                                    }, this.me.weapon.rate * 0.85)
+                                } else if (this.state.quickscopeCanShoot) {
+                                    input[this.me.weapon.melee ? key.shoot : key.scope] = 1
+                                }
+                            } else {
+                                this.controls.target = null
+                            }
+                            break
+                            // trigger bot
+                        case 12: {
+                            if (!this.three ||
+                                !this.renderer ||
+                                !this.renderer.camera ||
+                                !this.game ||
+                                !this.game.players ||
+                                !this.game.players.list.length ||
+                                !input[key.scope] ||
+                                this.me[this.vars.aimVal]) {
+                                break
+                            }
+                            // Only create these once for performance
+                            if (!this.state.raycaster) {
+                                this.state.raycaster = new this.three.Raycaster()
+                                this.state.mid = new this.three.Vector2(0, 0)
+                            }
+                            const playerMaps = []
+                            for (let i = 0; i < this.game.players.list.length; i++) {
+                                let p = this.game.players.list[i]
+                                if (!p || !p[this.vars.objInstances] || p.isYTMP || !(this.me.team === null || p.team !== this.me.team) || !p[this.vars.inView]) {
+                                    continue
+                                }
+                                playerMaps.push(p[this.vars.objInstances])
+                            }
+                            const raycaster = this.state.raycaster
+                            raycaster.setFromCamera(this.state.mid, this.renderer.camera)
+                            if (raycaster.intersectObjects(playerMaps, true).length) {
+                                input[key.shoot] = this.me[this.vars.didShoot] ? 0 : 1
+                            }
+                        }
+                            break
+                    }
+                } else {
+                    if (this.settings.uwtv) {
+                        input[key.scope] = 0
+                    }
+                    this.state.spinFrame = 0
+                }
+            }
+
+            if (this.settings.alwaysAim) {
+                input[key.scope] = 1
+            }
+            if (this.settings.preventMeleeThrowing && this.me.weapon.melee) {
+                input[key.scope] = 0
+            }
+        }
+        return input;
+    }
+
+    render() {
+        if (!this.renderer.frustum) return
+
+        if (this.me && this.me.weapon && !this.me.weapon.zoomHooked) {
+            this.me.weapon.zoomHooked = true
+            this.me.weapon._zoom = this.me.weapon.zoom
+            Object.defineProperty(this.me.weapon, "zoom", {
+                get() {return dog.settings.staticWeaponZoom ? 1 : this._zoom }
             })
         }
 
-        const ctx = cheat.state.ctx
-        const scale = parseFloat(document.getElementById("uiBase").style.transform.match(/\((.+)\)/)[1])
-        const width = innerWidth/scale, height = innerHeight/scale
-        cheat.canvas.width = width
-        cheat.canvas.height = height
+        var scale = this.scale||parseFloat(document.getElementById("uiBase").style.transform.match(/\((.+)\)/)[1]);
+        let width = innerWidth / scale, height = innerHeight / scale
 
-        if (!ctx) return
-
-        function world2Screen(pos, yOffset = 0) {
+        let world2Screen = (pos, yOffset = 0) => {
             pos.y += yOffset
-            pos.project(cheat.state.renderer.camera)
+            pos.project(this.renderer.camera)
             pos.x = (pos.x + 1) / 2
             pos.y = (-pos.y + 1) / 2
             pos.x *= width
             pos.y *= height
             return pos
         }
-        function line(x1, y1, x2, y2, lW, sS) {
-            ctx.save()
-            ctx.lineWidth = lW + 2
-            ctx.beginPath()
-            ctx.moveTo(x1, y1)
-            ctx.lineTo(x2, y2)
-            ctx.strokeStyle = "rgba(0, 0, 0, 0.25)"
-            ctx.stroke()
-            ctx.lineWidth = lW
-            ctx.strokeStyle = sS
-            ctx.stroke()
-            ctx.restore()
+        let line = (x1, y1, x2, y2, lW, sS) => {
+            this.ctx.save()
+            this.ctx.lineWidth = lW + 2
+            this.ctx.beginPath()
+            this.ctx.moveTo(x1, y1)
+            this.ctx.lineTo(x2, y2)
+            this.ctx.strokeStyle = "rgba(0, 0, 0, 0.25)"
+            this.ctx.stroke()
+            this.ctx.lineWidth = lW
+            this.ctx.strokeStyle = sS
+            this.ctx.stroke()
+            this.ctx.restore()
         }
-        function rect(x, y, ox, oy, w, h, color, fill) {
-            ctx.save()
-            ctx.translate(~~x, ~~y)
-            ctx.beginPath()
-            fill ? ctx.fillStyle = color : ctx.strokeStyle = color
-            ctx.rect(ox, oy, w, h)
-            fill ? ctx.fill() : ctx.stroke()
-            ctx.closePath()
-            ctx.restore()
+        let rect = (x, y, ox, oy, w, h, color, fill) => {
+            this.ctx.save()
+            this.ctx.translate(~~x, ~~y)
+            this.ctx.beginPath()
+            fill ? this.ctx.fillStyle = color : this.ctx.strokeStyle = color
+            this.ctx.rect(ox, oy, w, h)
+            fill ? this.ctx.fill() : this.ctx.stroke()
+            this.ctx.closePath()
+            this.ctx.restore()
         }
-        function getTextMeasurements(arr) {
+        let getTextMeasurements = (arr) => {
             for (let i = 0; i < arr.length; i++) {
-                arr[i] = ~~ctx.measureText(arr[i]).width
+                arr[i] = ~~this.ctx.measureText(arr[i]).width
             }
             return arr
         }
-        function gradient(x, y, w, h, colors) {
-            const grad = ctx.createLinearGradient(x, y, w, h)
+        let gradient = (x, y, w, h, colors) => {
+            const grad = this.ctx.createLinearGradient(x, y, w, h)
             for (let i = 0; i < colors.length; i++) {
                 grad.addColorStop(i, colors[i])
             }
             return grad
         }
-        function text(txt, font, color, x, y) {
-            ctx.save()
-            ctx.translate(~~x, ~~y)
-            ctx.fillStyle = color
-            ctx.strokeStyle = "rgba(0, 0, 0, 0.5)"
-            ctx.font = font
-            ctx.lineWidth = 1
-            ctx.strokeText(txt, 0, 0)
-            ctx.fillText(txt, 0, 0)
-            ctx.restore()
+        let text = (txt, font, color, x, y) => {
+            this.ctx.save()
+            this.ctx.translate(~~x, ~~y)
+            this.ctx.fillStyle = color
+            this.ctx.strokeStyle = "rgba(0, 0, 0, 0.5)"
+            this.ctx.font = font
+            this.ctx.lineWidth = 1
+            this.ctx.strokeText(txt, 0, 0)
+            this.ctx.fillText(txt, 0, 0)
+            this.ctx.restore()
         }
 
         const padding = 2
 
-        ctx.clearRect(0, 0, width, height)
+        //this.ctx.clearRect(0, 0, width, height)
         // tecchhchy (with some stuff by me)
-        if (cheat.settings.esp > 1) {
-            for(const player of cheat.state.players.list.filter(v => (!v.isYTMP && v.active && (v.pos = {x: v.x, y: v.y, z: v.z})))) {
-                const pos = new cheat.state.three.Vector3(player.pos.x, player.pos.y, player.pos.z)
+        if (this.settings.esp > 1) {
+            for(const player of this.game.players.list.filter(v => (!v.isYTMP && v.active && (v.pos = {x: v.x, y: v.y, z: v.z})))) {
+                const pos = new this.three.Vector3(player.pos.x, player.pos.y, player.pos.z)
                 const screenR = world2Screen(pos.clone())
                 const screenH = world2Screen(pos.clone(), player.height)
                 const hDiff = ~~(screenR.y - screenH.y)
                 const bWidth = ~~(hDiff * 0.6)
-                const font = cheat.settings.espFontSize+"px GameFont"
+                const font = this.settings.espFontSize+"px GameFont"
 
-                if (!cheat.state.renderer.frustum.containsPoint(player.pos)) {
+                if (!this.containsPoint(player.pos)) {
                     continue
                 }
 
-                if (cheat.settings.tracers) {
-                    line(width / 2, (cheat.settings.tracers === 2 ? height / 2 : height - 1), screenR.x, screenR.y, 2, player.team === null ? "#FF4444" : player.team === cheat.state.me.team ? "#44AAFF" : "#FF4444")
-                }
+                console.log(this)
 
+                if (this.settings.tracers) {
+                    line(width / 2, (krunker.settings.tracers === 2 ? height / 2 : height - 1), screenR.x, screenR.y, 2, player.team === null ? "#FF4444" : player.team === this.me.team ? "#44AAFF" : "#FF4444")
+                }
 
                 if (player.isTarget) {
-                    ctx.save()
+                    this.ctx.save()
                     const meas = getTextMeasurements(["TARGET"])
-                    text("TARGET", font, "#FFFFFF", screenH.x-meas[0]/2, screenH.y-cheat.settings.espFontSize*1.5)
+                    text("TARGET", font, "#FFFFFF", screenH.x-meas[0]/2, screenH.y-this.settings.espFontSize*1.5)
 
-                    ctx.beginPath()
+                    this.ctx.beginPath()
 
-                    ctx.translate(screenH.x, screenH.y+Math.abs(hDiff/2))
-                    ctx.arc(0, 0, Math.abs(hDiff/2)+10, 0, Math.PI*2)
+                    this.ctx.translate(screenH.x, screenH.y+Math.abs(hDiff/2))
+                    this.ctx.arc(0, 0, Math.abs(hDiff/2)+10, 0, Math.PI*2)
 
-                    ctx.strokeStyle = "#FFFFFF"
-                    ctx.stroke()
-                    ctx.closePath()
-                    ctx.restore()
+                    this.ctx.strokeStyle = "#FFFFFF"
+                    this.ctx.stroke()
+                    this.ctx.closePath()
+                    this.ctx.restore()
                 }
 
-                if (cheat.settings.esp === 2) {
-                    ctx.save()
-                    ctx.strokeStyle = (me.team === null || player.team !== me.team) ? "#FF4444" : "#44AAFF"
-                    ctx.strokeRect(screenH.x-bWidth/2, screenH.y, bWidth, hDiff)
-                    ctx.restore()
+                if (this.settings.esp === 2) {
+                    this.ctx.save()
+                    this.ctx.strokeStyle = (this.me.team === null || player.team !== this.me.team) ? "#FF4444" : "#44AAFF"
+                    this.ctx.strokeRect(screenH.x-bWidth/2, screenH.y, bWidth, hDiff)
+                    this.ctx.restore()
                     continue
                 }
 
                 rect((screenH.x - bWidth / 2) - 7, ~~screenH.y - 1, 0, 0, 4, hDiff + 2, "#000000", false)
                 rect((screenH.x - bWidth / 2) - 7, ~~screenH.y - 1, 0, 0, 4, hDiff + 2, "#44FF44", true)
-                rect((screenH.x - bWidth / 2) - 7, ~~screenH.y - 1, 0, 0, 4, ~~((player[cheat.vars.maxHealth] - player.health) / player[cheat.vars.maxHealth] * (hDiff + 2)), "#000000", true)
-                ctx.save()
-                ctx.lineWidth = 4
-                ctx.translate(~~(screenH.x - bWidth / 2), ~~screenH.y)
-                ctx.beginPath()
-                ctx.rect(0, 0, bWidth, hDiff)
-                ctx.strokeStyle = "rgba(0, 0, 0, 0.25)"
-                ctx.stroke()
-                ctx.lineWidth = 2
-                ctx.strokeStyle = player.team === null ? '#FF4444' : cheat.state.me.team === player.team ? '#44AAFF' : '#FF4444'
-                ctx.stroke()
-                ctx.closePath()
-                ctx.restore()
+                rect((screenH.x - bWidth / 2) - 7, ~~screenH.y - 1, 0, 0, 4, ~~((player[this.vars.maxHealth] - player.health) / player[this.vars.maxHealth] * (hDiff + 2)), "#000000", true)
+                this.ctx.save()
+                this.ctx.lineWidth = 4
+                this.ctx.translate(~~(screenH.x - bWidth / 2), ~~screenH.y)
+                this.ctx.beginPath()
+                this.ctx.rect(0, 0, bWidth, hDiff)
+                this.ctx.strokeStyle = "rgba(0, 0, 0, 0.25)"
+                this.ctx.stroke()
+                this.ctx.lineWidth = 2
+                this.ctx.strokeStyle = player.team === null ? '#FF4444' : this.me.team === player.team ? '#44AAFF' : '#FF4444'
+                this.ctx.stroke()
+                this.ctx.closePath()
+                this.ctx.restore()
 
 
-                const playerDist = ~~(cheat.math.getD3D(me.x, me.y, me.z, player.pos.x, player.pos.y, player.pos.z) / 10)
-                ctx.save()
-                ctx.font = font
+                const playerDist = ~~(this.getDistance3D(this.me.x, this.me.y, this.me.z, player.pos.x, player.pos.y, player.pos.z) / 10)
+                this.ctx.save()
+                this.ctx.font = font
                 const meas = getTextMeasurements(["[", playerDist, "m]", player.level, "©", player.name])
-                ctx.restore()
+                this.ctx.restore()
                 const grad2 = gradient(0, 0, meas[4] * 5, 0, ["rgba(0, 0, 0, 0.25)", "rgba(0, 0, 0, 0)"])
                 if (player.level) {
                     const grad = gradient(0, 0, (meas[4] * 2) + meas[3] + (padding * 3), 0, ["rgba(0, 0, 0, 0)", "rgba(0, 0, 0, 0.25)"])
@@ -408,7 +982,7 @@
                     text(""+player.level, font, '#FFFFFF', ~~(screenH.x - bWidth / 2) - 16 - meas[3], ~~screenH.y + meas[4] * 1)
                 }
                 rect(~~(screenH.x + bWidth / 2) + padding, ~~screenH.y - padding, 0, 0, (meas[4] * 5), (meas[4] * 4) + (padding * 2), grad2, true)
-                text(player.name, font, player.team === null ? '#FFCDB4' : me.team === player.team ? '#B4E6FF' : '#FFCDB4', (screenH.x + bWidth / 2) + 4, screenH.y + meas[4] * 1)
+                text(player.name, font, player.team === null ? '#FFCDB4' : this.me.team === player.team ? '#B4E6FF' : '#FFCDB4', (screenH.x + bWidth / 2) + 4, screenH.y + meas[4] * 1)
                 if (player.clan) text("["+player.clan+"]", font, "#AAAAAA", (screenH.x + bWidth / 2) + 8 + meas[5], screenH.y + meas[4] * 1)
                 text(player.health+" HP", font, "#33FF33", (screenH.x + bWidth / 2) + 4, screenH.y + meas[4] * 2)
                 text(player.weapon.name, font, "#DDDDDD", (screenH.x + bWidth / 2) + 4, screenH.y + meas[4] * 3)
@@ -418,17 +992,16 @@
             }
         }
         // Chams
-        if (cheat.settings.chams && cheat.state.players) {
-            for (const player of cheat.state.players.list.filter(v => ((cheat.settings.selfChams || !v.isYTMP) && v.active && (v.pos = {x: v.x, y: v.y, z: v.z})))) {
-                const o = player[cheat.vars.objInstances]
+        if (this.settings.chams && this.game.players) {
+            for (const player of this.game.players.list.filter(v => ((this.settings.selfChams || !v.isYTMP) && v.active && (v.pos = {x: v.x, y: v.y, z: v.z})))) {
+                const o = player[this.vars.objInstances]
                 if (!o) {
                     continue
                 }
-                // Reflect.defineProperty doesnt throw errors
                 if (!o.visible) {
-                    Reflect.defineProperty(o, "visible", {
+                    Object.defineProperty(o, "visible", {
                         get() {
-                            return cheat.settings.chams || this._visible
+                            return this.settings.chams || this._visible
                         },
                         set(v){
                             this._visible = v
@@ -438,9 +1011,9 @@
 
                 o.traverse(e => {
                     if (e.type === "Mesh") {
-                        Reflect.defineProperty(e.material, "wireframe", {
+                        Object.defineProperty(e.material, "wireframe", {
                             get() {
-                                return cheat.settings.wireframe || this._wf
+                                return dog.settings.wireframe || this._wf
                             },
                             set(v){
                                 this._wf = v
@@ -461,24 +1034,24 @@
                             {r: 1, b: 1},
                             {r: 1, g: 1}
                         ]
-                        if (cheat.settings.chamsc === 7) {
+                        if (this.settings.chamsc === 7) {
                             // epilepsy
                             e.material.emissive = modes[1+Math.floor(Math.random()*6)]
-                        } else if (cheat.settings.chamsc === 8) {
+                        } else if (this.settings.chamsc === 8) {
                             // rgb
-                            const cur = ~~((Date.now()%(cheat.settings.chamsInterval*6))/cheat.settings.chamsInterval)
+                            const cur = ~~((Date.now()%(this.settings.chamsInterval*6))/this.settings.chamsInterval)
                             e.material.emissive = modes[cur+1]
                         } else {
-                            e.material.emissive = modes[cheat.settings.chamsc]
+                            e.material.emissive = modes[this.settings.chamsc]
                         }
                     }
                 })
             }
         }
 
-        if (cheat.settings.fovbox && cheat.settings.drawFovbox) {
+        if (this.settings.fovbox && this.settings.drawFovbox) {
             let fovBox = [width/3, height/4, width*(1/3), height/2]
-            switch (cheat.settings.fovBoxSize) {
+            switch (this.settings.fovBoxSize) {
                     // medium
                 case 2:
                     fovBox = [width*0.4, height/3, width*0.2, height/3]
@@ -488,981 +1061,427 @@
                     fovBox = [width*0.45, height*0.4, width*0.1, height*0.2]
                     break
             }
-            ctx.save()
-            ctx.strokeStyle = "red"
-            ctx.strokeRect(...fovBox)
-            ctx.restore()
+            this.ctx.save()
+            this.ctx.strokeStyle = "red"
+            this.ctx.strokeRect(...fovBox)
+            this.ctx.restore()
         }
     }
 
-    const isDefined = (x) => typeof x !== "undefined" && x !== null
-    // Hook render and run renderHook
-    Object.defineProperty(Object.prototype, "render", {
-        enumerable: false, get() {
-            return this._render
-        }, set(v) {
-            if (isDefined(this.showHits)) {
-                this._render = new Proxy(v, {
-                    apply(target, thisArg, argArray) {
-                        const ret = target.apply(thisArg, argArray)
-                        cheat.state.renderHookArgs = argArray
-                        renderHook()
-                        return ret
-                    }
-                })
-            } else {
-                this._render = v
-            }
+    initGUI() {
+        function createButton(name, iconURL, fn) {
+            const menu = document.querySelector("#menuItemContainer"), menuItem = document.createElement("div"), menuItemIcon = document.createElement("div"), menuItemTitle = document.createElement("div")
+
+            menuItem.className = "menuItem"
+            menuItemIcon.className = "menuItemIcon"
+            menuItemTitle.className = "menuItemTitle"
+
+            menuItemTitle.innerHTML = name
+            menuItemIcon.style.backgroundImage = `url("https://i.imgur.com/jjkFpnV.gif")`
+
+            menuItem.append(menuItemIcon, menuItemTitle)
+            menu.append(menuItem)
+
+            menuItem.addEventListener("click", fn)
         }
-    })
-
-
-
-    // skin hack
-
-    let skinConfig = {}
-
-    function s(c) {
-        window.dispatchWsEvent = c._dispatchEvent.bind(c)
-        window.sendWsMessage = c.send.bind(c)
-
-        c.send = new Proxy(c.send, {
-            apply(target, thisArg, msg) {
-                // Captures the skins selected from the "en" (enter game) message
-                if (msg[0] === "en")
-                    skinConfig = {
-                        main: msg[1][2][0],
-                        secondary: msg[1][2][1],
-                        hat: msg[1][3],
-                        body: msg[1][4],
-                        knife: msg[1][9],
-                        dye: msg[1][14],
-                        waist: msg[1][17],
-                    }
-
-                return target.apply(thisArg, msg)
-            }
-        })
-        c._dispatchEvent = new Proxy(c._dispatchEvent, {
-            apply(target, thisArg, [type, msg]) {
-                // Modifies the skins in the incoming "0" message
-                if (skinConfig && type === "0" && cheat.settings.skinHack) {
-                    const playersInfo = msg[0]
-                    let perPlayerSize = 38
-                    while (playersInfo.length % perPlayerSize !== 0) {
-                        perPlayerSize++
-                    }
-
-                    for(let i = 0; i < playersInfo.length; i += perPlayerSize) {
-                        if (playersInfo[i] === c.socketId) {
-                            playersInfo[i + 12] = [skinConfig.main, skinConfig.secondary]
-                            playersInfo[i + 13] = skinConfig.hat
-                            playersInfo[i + 14] = skinConfig.body
-                            playersInfo[i + 19] = skinConfig.knife
-                            playersInfo[i + 25] = skinConfig.dye
-                            playersInfo[i + 33] = skinConfig.waist
-                        }
-                    }
-                }
-                return target.apply(thisArg, arguments[2])
-            }
-        })
-    }
-
-    const events = Symbol("kpal")
-    // `events` is a property in the ws object
-    Object.defineProperty(Object.prototype, "events", {enumerable:!1,get(){return this[events]},set(v){if(this.ahNum===0){s(this)}this[events]=v}})
-    const skins = Symbol("lol anticheat")
-    // modifies the "skins" property to show the skins in GUI
-    Object.defineProperty(Object.prototype, "skins", {
-        enumerable: false,
-        get() {
-            if (this.stats && cheat.settings.skinHack) {
-                return this.fakeSkins
-            }
-            return this[skins]
-        },
-        set(v) {
-            if ("stats" in this) {
-                this.fakeSkins = []
-                for (let i = 0; i < 5000; i++) {
-                    if (v[i]) {
-                        this.fakeSkins.push({ind: i, cnt: v[i].cnt})
-                    } else {
-                        this.fakeSkins.push({ind: i, cnt: "SH"})
-                    }
-                }
-            }
-            this[skins] = v
-        }
-    })
-
-
-    // gui
-    let initGUI;
-
-    function getGuiHtml() {
-        // name - Visible setting name
-        // settingName - name of the property in cheat.settings
-        // needsRestart - shows this red asterisk next to the setting name
-        // description - the description on mouse hover
-        const builder = {
-            checkbox: (name, settingName, description = "", needsRestart = false) =>
-            `<div class="settName" title="${description}">${name} ${needsRestart ? "<span style=\"color: #eb5656\">*</span>" : ""}<label class="switch" style="margin-left:10px"><input type="checkbox" onclick='cheat.gui.setSetting("${settingName}", this.checked)' ${cheat.settings[settingName]?"checked":""}><span class="slider"></span></label></div>`,
-            client_setting: (name, settingName, description = "", needsRestart = true) =>
-            `<div class="settName" title="${description}">${name} ${needsRestart ? "<span style=\"color: #eb5656\">*</span>" : ""}<label class="switch" style="margin-left:10px"><input type="checkbox" onclick='doge_setsetting("${settingName}", this.checked?"1":"0")' ${cheat.settings[settingName]?"checked":""}><span class="slider"></span></label></div>`,
-    select: (name, settingName, options, description = "", needsRestart = false) => {
-        let built = `<div class="settName" title="${description}">${name} ${needsRestart ? "<span style=\"color: #eb5656\">*</span>" : ""}<select onchange='cheat.gui.setSetting("${settingName}", parseInt(this.value))' class="inputGrey2">`
-        for (const option in options) {
-            if (options.hasOwnProperty(option))
-                built += `<option value="${options[option]}" ${cheat.settings[settingName] == options[option]?"selected":""}>${option}</option>,`
-        }
-        return built + "</select></div>"
-    },
-        slider: (name, settingName, min, max, step, description = "") =>
-        `<div class="settName" title="${description}">${name} <input type="number" class="sliderVal" id="slid_input_${settingName}" min="${min}" max="${max}" value="${cheat.settings[settingName]}" onkeypress="cheat.gui.setSetting('${settingName}', parseFloat(this.value.replace(',', '.')));document.querySelector('#slid_input_${settingName}').value=this.value" style="margin-right:0;border-width:0"><div class="slidecontainer" style=""><input type="range" id="slid_${settingName}" min="${min}" max="${max}" step="${step}" value="${cheat.settings[settingName]}" class="sliderM" oninput="cheat.gui.setSetting('${settingName}', parseFloat(this.value));document.querySelector('#slid_input_${settingName}').value=this.value"></div></div>`,
-            input: (name, settingName, type, description, extra) =>
-            `<div class="settName" title="${description}">${name} <input type="${type}" name="${type}" id="slid_utilities_${settingName}"\n${'color' == type ? 'style="float:right;margin-top:5px"' : `class="inputGrey2" placeholder="${extra}"`}\nvalue="${cheat.settings[settingName]}" oninput="cheat.gui.setSetting(\x27${settingName}\x27, this.value)"/></div>`,
-                label: (name, description) =>
-                "<br><span style='color: black; font-size: 20px; margin: 20px 0'>"+name+"</span> <span style='color: dimgrey; font-size: 15px'>"+(description||"")+"</span><br>",
-                    nobrlabel: (name, description) =>
-                    "<span style='color: black; font-size: 20px; margin: 20px 0'>"+name+"</span> <span style='color: dimgrey; font-size: 15px'>"+(description||"")+"</span><br>",
-                        br: () => "<br>",
-
-                            style: content => `<style>${content}</style>`,
-}
-                            let built = `<div id="settHolder">
-<img src="https://i.imgur.com/hD5n2DF.png" width="90%">
-<div class="imageButton discordSocial" onmouseenter="playTick()" onclick="openURL('https://skidlamer.github.io/wp/index.html')"><span style='display:inline'></span></div>`
-
-                            // fix ugly looking 'built +=' before every builder call
-                            Object.keys(builder).forEach(name => {
-                                const o = builder[name]
-                                builder[name] = function () {
-                                    return built += o.apply(this, arguments), ""
-                                }
-                            })
-
-    // Tabs stuff
-    const tabNames = ["Weapon", "Wallhack", "Visual", "Tweaks", "Movement", "Other"]
-    if (cheat.isClient) {
-        tabNames.push("Client")
-    }
-    builder.style(`
-.cheatTabButton {
-color: black;
-background: #ddd;
-padding: 2px 7px;
-font-size: 15px;
-cursor: pointer;
-text-align: center;
-}
-.cheatTabActive {
-background: #bbb;
-}
-`)
-    cheat.gui.changeTab = function (tabbtn) {
-        const tn = tabbtn.innerText
-        document.getElementById("cheat-tabbtn-"+tabNames[cheat.state.activeTab]).classList.remove("cheatTabActive")
-        document.getElementById("cheat-tab-"+tabNames[cheat.state.activeTab]).style.display = "none"
-        tabbtn.classList.add("cheatTabActive")
-        document.getElementById("cheat-tab-"+tn).style.display = "block"
-        cheat.state.activeTab = tabNames.indexOf(tn)
-    }
-    built += `<table style="width: 100%; margin-bottom: 30px"><tr>`
-    for (let i = 0; i < tabNames.length; i++) {
-        const tab = tabNames[i]
-        built += `<td id="cheat-tabbtn-${tab}" onclick="cheat.gui.changeTab(this)" class="cheatTabButton ${tabNames[cheat.state.activeTab] === tab ? 'cheatTabActive' : ''}">`
-        built += tab
-        built += `</td>`
-    }
-    built += `</table></tr>`
-    function tab(i, cb) {
-        built += `<div style="display: ${cheat.state.activeTab === i ? 'block' : 'none'}" class="cheat-tab" id="cheat-tab-${tabNames[i]}">`
-        cb()
-        built += `</div>`
-    }
-
-    // build gui
-    tab(0, () => {
-        builder.select("Aimbot [Y]", "aimbot", {
-            "None": 0,
-            "Quickscope / Auto pick": 1,
-            "Silent aimbot": 2,
-            //"Spin aimbot": 3,
-            "Aim assist": 4,
-            "Easy aim assist": 11,
-            "SP Trigger bot": 12,
-            "Silent on aim": 6,
-            "Smooth": 7,
-            "Unsilent": 10,
-            "Unsilent on aim": 5,
-            "Aim correction": 9,
-        })
-        builder.select("Spin aimbot speed", "spinAimFrames", {
-            "1": 30,
-            "2": 20,
-            "3": 15,
-            "4": 10,
-            "5": 5,
-        })
-        builder.slider("Aim range", "aimbotRange", 0, 1000, 10, "Set above 0 to make the aimbot pick enemies only at the selected range")
-        builder.slider("Aim offset", "aimOffset", -4, 1, 0.1, "The lower it is, the lower the aimbot will shoot (0 - head, -4 - body)")
-        builder.slider("Aim noise", "aimNoise", 0, 2, 0.005, "The higher it is, the lower is the aimbot accuracy")
-        builder.checkbox("Supersilent aim", "superSilent", "Only works with quickscope and silent aim, makes it almost invisible that you're looking at somebody when you're shooting at him")
-        builder.checkbox("Aim at AIs", "AImbot", "Makes the aimbot shoot at NPCs")
-        builder.checkbox("FOV check", "frustumCheck", "Makes you only shoot at enemies that are in your field of view. Prevents 180 flicks")
-        builder.checkbox("FOV box", "fovbox", "Creates a box in which enemies can be targetted, enable with FOV check")
-        builder.select("FOV box size", "fovBoxSize", {
-            "Big": 1,
-            "Medium": 2,
-            "Small": 3,
-        })
-        builder.checkbox("Wallbangs", "wallbangs", "Makes the aimbot shoot enemies behind walls")
-        builder.checkbox("Aimbot range check", "rangeCheck", "Checks if the enemy is in range of your weapon before shooting it, disable for rocket launcher")
-        builder.checkbox("Auto reload", "autoReload", "Automatically reloads your weapon when it's out of ammo")
-        builder.checkbox("Prevent melee throwing", "preventMeleeThrowing", "Prevents you from throwing your knife")
-        //builder.checkbox("Auto swap", "autoSwap", "Automatically swaps the weapon when you're out of ammo")
-    })
-
-    tab(1, () => {
-        builder.select("ESP [H]", "esp", {
-            "None": 0,
-            "Nametags": 1,
-            "Box ESP": 2,
-            "Full ESP": 3,
-        })
-        builder.select("ESP Font Size", "espFontSize", {
-            "30px": 30,
-            "25px": 25,
-            "20px": 20,
-            "15px": 15,
-            "10px": 10,
-            "5px": 5,
-        })
-        builder.select("Tracers", "tracers", {
-            "None": 0,
-            "Bottom": 1,
-            "Middle": 2,
-        }, "Draws lines to players")
-        builder.checkbox("Mark aimbot target", "markTarget", "Shows who is the aimbot targetting at the time, useful for aim assist/aim correction")
-        builder.checkbox("Draw FOV box", "drawFovbox", "Draws the FOV box from aimbot settings")
-        builder.checkbox("Chams", "chams")
-        builder.select("Chams colour", "chamsc", {
-            "None": 0,
-            "Red": 1,
-            "Green": 2,
-            "Blue": 3,
-            "Cyan": 4,
-            "Pink": 5,
-            "Yellow": 6,
-            "RGB": 8,
-            "Epilepsy": 7,
-        })
-        builder.checkbox("Self chams", "selfChams", "Makes your weapon affected by chams")
-        builder.checkbox("Wireframe", "wireframe")
-        builder.slider("RGB interval", "chamsInterval", 50, 1000, 50, "How fast will the RGB chams change colour")
-    })
-
-    tab(2, () => {
-        builder.checkbox("Skin hack", "skinHack", "Makes you able to use any skin in game, only shows on your side")
-        builder.checkbox("Third person mode", "thirdPerson")
-        builder.checkbox("No weapon zoom", "staticWeaponZoom", "Removes the distracting weapon zoom animation")
-        builder.checkbox("Any weapon trail", "alwaysTrail")
-        builder.checkbox("Billboard shaders", "animatedBillboards", "Disable if you get fps drops")
-    })
-
-    tab(3, () => {
-        builder.checkbox("Always aim", "alwaysAim", "Makes you slower and jump lower, but the aimbot can start shooting at enemies  faster. Only use if ur good at bhopping")
-        builder.checkbox("Aim when target visible", "awtv")
-        builder.checkbox("Unaim when no target visible", "uwtv")
-        builder.checkbox("Force unsilent", "forceUnsilent")
-    })
-
-    tab(4, () => {
-        builder.select("Auto bhop", "bhop", {
-            "None": 0,
-            "Auto Jump": 1,
-            "Key Jump": 2,
-            "Auto Slide": 3,
-            "Key Slide": 4,
-        })
-        builder.label("Only use with silent aim")
-        builder.select("Pitch hax", "pitchHack", {
-            "Disabled": 0,
-            "Downward": 1,
-            "Upward": 2,
-            "sin(time)": 3,
-            "sin(time/5)": 4,
-            "double": 5,
-            "random": 6,
-        }, "Only use with aimbot on")
-        builder.checkbox("Spin bot", "spinBot")
-    })
-
-    tab(5, () => {
-        builder.input("Custom CSS", "customCss", "url", "", "URL to CSS file")
-        builder.checkbox("Show GUI button", "showGuiButton", "Disable if you don't want the dog under settings to be visible")
-        builder.checkbox("GUI on middle mouse button", "guiOnMMB", "Makes it possible to open this menu by clicking the mouse wheel")
-        builder.checkbox("Hide Advertisments", "hideAdverts", "Hide advertisments from the GUI")
-        builder.checkbox("Hide Streams", "hideStreams", "Hide twitch streams box from the GUI")
-        builder.checkbox("Hide Merch", "hideMerch", "Hide merch from the GUI")
-        builder.checkbox("Hide News Console", "hideNewsConsole", "Hide the news console from the GUI")
-        builder.checkbox("Hide Security Manage Button", "hideCookieButton", "Hide the security manager from the GUI")
-        builder.checkbox("Keybinds", "keybinds", "Turn keybinds on/off, Aimbot - Y, ESP - H")
-        builder.checkbox("No inactivity kick", "antikick", "Disables the 'Kicked for inactivity' message (client side, but works)")
-        builder.checkbox("Auto nuke", "autoNuke", "Automatically nukes when you are able to")
-        //builder.checkbox("Force nametags on", "fgno", "Use in custom games with disabled nametags")
-    })
-
-    if (cheat.isClient) {
-        tab(6, () => {
-            builder.nobrlabel("Restart is required after changing any of these settings")
-            builder.br()
-            builder.client_setting("Uncap FPS", "uncap_fps", "Disables V-Sync")
-            builder.client_setting("Adblock", "adblock", "Disables ads")
-        })
-    }
-
-    built += "</div>"
-
-    return built
-}
- initGUI = function() {
-    function createButton(name, iconURL, fn) {
-        const menu = document.querySelector("#menuItemContainer"),
-              menuItem = document.createElement("div"),
-              menuItemIcon = document.createElement("div"),
-              menuItemTitle = document.createElement("div")
-
-        menuItem.className = "menuItem"
-        menuItemIcon.className = "menuItemIcon"
-        menuItemTitle.className = "menuItemTitle"
-
-        menuItemTitle.innerHTML = name
-        menuItemIcon.style.backgroundImage = `url("https://i.imgur.com/fouuS5M.gif")`
-
-        menuItem.append(menuItemIcon, menuItemTitle)
-        menu.append(menuItem)
-
-        menuItem.addEventListener("click", fn)
-    }
-    function createElement(type, html, id) {
-        let newElement = document.createElement(type)
-        if (id) newElement.id = id
-        newElement.innerHTML = html
-        return newElement
-    }
-    cheat.gui.cssElem = document.createElement("link")
-    cheat.gui.cssElem.rel = "stylesheet"
-    cheat.gui.cssElem.href = cheat.settings.customCss
-
-    try {
-        cheat.head = document.head||document.getElementsByTagName('head')[0]
-        if (cheat.head) {
-            cheat.head.appendChild(cheat.gui.cssElem)
-            Object.entries(cheat.css).forEach(entry => {
-                cheat.css[entry[0]] = createElement("style", entry[1]);
-            })
-        }
-    } catch (e) {
-        alert("Error injecting custom CSS:\n"+e)
-        cheat.settings.customCss = ""
-    }
-
-    cheat.gui.setSetting = function(setting, value) {
-        switch (setting) {
-            //case "customCss":
-                //cheat.settings.customCss = value
-                //break
-            case "hideAdverts":
-                if (value) cheat.head.appendChild(cheat.css.hideAdverts)
-                else cheat.css.hideAdverts.remove()
-                break
-            case "hideStreams":
-                if (value) cheat.head.appendChild(cheat.css.hideStreams)
-                else cheat.css.hideStreams.remove()
-                break
-            case "hideMerch":
-                window.merchHolder.style.display = value ? "none" : "inherit"
-                break
-            case "hideNewsConsole":
-                window.newsHolder.style.display = value ? "none" : "inherit"
-                break
-            case "hideCookieButton":
-                window['onetrust-consent-sdk'].style.display = value ? "none" : "inherit"
-                break
-            default:
-        }
-        if (void 0 !== cheat.settings[setting]) {
-            cheat.settings[setting] = value
-        }
-
-        localStorage.kro_setngss_json = JSON.stringify(cheat.settings);
-    }
-
-   Object.keys(cheat.css).forEach(prop => {
-       if (void 0 !== cheat.settings[prop]) {
-           cheat.gui.setSetting(prop, cheat.settings[prop]);
-       }
-   })
-
-    //Object.entries(cheat.css).forEach(entry => {
-     //   alert(cheat.css[entry[1]])
-       // cheat.gui.setSetting
-       // cheat.css[entry[0]] = createElement("style", entry[1]);
-    //})
-    cheat.gui.windowIndex = windows.length+1
-    cheat.gui.settings = {
-        aimbot: {
-            val: cheat.settings.aimbot
-        }
-    }
-    cheat.gui.windowObj = {
-        header: "CH33T",
-        html: "",
-        gen() {
-            return getGuiHtml()
-        }
-    }
-    Object.defineProperty(window.windows, windows.length, {
-        value: cheat.gui.windowObj
-    })
-
-    if (cheat.settings.showGuiButton) {
-        createButton("CH33TS", null, () => {
-            window.showWindow(cheat.gui.windowIndex)
-        })
-    }
-}
-function showGUI() {
-    if (document.pointerLockElement || document.mozPointerLockElement) {
-        document.exitPointerLock()
-    }
-    window.showWindow(cheat.gui.windowIndex)
-}
-
-// event listeners
-// show gui
-window.addEventListener("mouseup", (e) => {
-    if(e.which === 2 && cheat.settings.guiOnMMB) {
-        e.preventDefault()
-        showGUI()
-    }
-})
-window.addEventListener("keydown", ev => {
-    if (ev.key === "F1") {
-        ev.preventDefault()
-        showGUI()
-    }
-})
-window.addEventListener("keydown", ev => {
-    if (!cheat.state.pressedKeys.has(ev.code)) {
-        cheat.state.pressedKeys.add(ev.code)
-    }
-})
-window.addEventListener("keyup", ev => {
-    if (cheat.state.pressedKeys.has(ev.code)) {
-        cheat.state.pressedKeys.delete(ev.code)
-    }
-    if (!(document.activeElement.tagName === "INPUT" || !window.endUI && window.endUI.style.display) && cheat.settings.keybinds) {
-        switch (ev.code) {
-            case "KeyY":
-                cheat.state.bindAimbotOn = !cheat.state.bindAimbotOn
-                dispatchWsEvent("ch", [null, ("Aimbot "+(cheat.state.bindAimbotOn?"on":"off")), 1])
-                break
-            case "KeyH":
-                cheat.settings.esp = (cheat.settings.esp+1)%4
-                dispatchWsEvent("ch", [null, "ESP: "+["disabled", "nametags", "box", "full"][cheat.settings.esp], 1])
-                break
-        }
-    }
-})
-
-
-function procInputs(me, input, game, recon, lock) {
-    const key = {
-        frame: 0,
-        delta: 1,
-        xdir: 2,
-        ydir: 3,
-        moveDir: 4,
-        shoot: 5,
-        scope: 6,
-        jump: 7,
-        reload: 8,
-        crouch: 9,
-        weaponScroll: 10,
-        weaponSwap: 11,
-        moveLock: 12
-    }
-
-    const moveDir = {
-        leftStrafe: 0,
-        forward: 1,
-        rightStrafe: 2,
-        right: 3,
-        backwardRightStrafe: 4,
-        backward: 5,
-        backwardLeftStrafe: 6,
-        left: 7
-    }
-
-    cheat.state.frame = input[key.frame]
-    cheat.state.players = game.players
-    cheat.state.game = game
-    cheat.state.me = me
-    cheat.state.controls = game.controls
-
-    // AUTO NUKE
-    if (cheat.settings.autoNuke && me && Object.keys(me.streaks).length) {
-        sendWsMessage("k", 0)
-    }
-
-    // BHOP
-    const bhop = cheat.settings.bhop
-    if (bhop) {
-        if (cheat.state.pressedKeys.has("Space") || [1,3].includes(bhop)) {
-            cheat.state.controls.keys[cheat.state.controls.binds.jumpKey.val] ^= 1
-            if (cheat.state.controls.keys[cheat.state.controls.binds.jumpKey.val]) {
-                cheat.state.controls.didPressed[cheat.state.controls.binds.jumpKey.val] = 1
-            }
-            if ([3,4].includes(bhop) && ((cheat.state.pressedKeys.has('Space') || bhop === 3) && (cheat.state.me.canSlide))) {
-                setTimeout(() => {
-                    cheat.state.shouldCrouch = false
-                }, 350)
-                cheat.state.shouldCrouch = true
-            }
-        }
-    }
-    if (cheat.state.shouldCrouch) {
-        input[key.crouch] = 1
-    }
-
-    // Makes nametags show in custom games, where nametags are disabled
-    if (cheat.settings.forceNametagsOn) {
+        dog.GUI.cssElem = document.createElement("link")
+        dog.GUI.cssElem.rel = "stylesheet"
+        dog.GUI.cssElem.href = this.settings.customCss
         try {
-            Object.defineProperty(game.config, "nameTags", {
-                get() {
-                    return cheat.settings.forceNametagsOn ? false : game._nametags
-                },
-                set(v) {
-                    game._nametags = v
-                }
+            document.head.appendChild(dog.GUI.cssElem)
+        } catch (e) {
+            alert("Error injecting custom CSS:\n"+e)
+            this.settings.customCss = ""
+        }
+        dog.GUI.setSetting = function(setting, value) {
+            switch (setting) {
+                case "customCss":
+                    dog.settings.customCss = value
+                    break
+
+                default:
+                    dog.settings[setting] = value
+            }
+
+            localStorage.kro_setngss_json = JSON.stringify(dog.settings);
+        }
+        dog.GUI.windowIndex = windows.length+1
+        dog.GUI.settings = {
+            aimbot: {
+                val: this.settings.aimbot
+            }
+        }
+        dog.GUI.windowObj = {
+            header: "CH33T",
+            html: "",
+            gen() {
+                return dog.getGuiHtml()
+            }
+        }
+        Object.defineProperty(window.windows, windows.length, {
+            value: dog.GUI.windowObj
+        })
+
+        if (this.settings.showGuiButton) {
+            createButton("CH33TS", null, () => {
+                window.showWindow(dog.GUI.windowIndex)
             })
-        } catch (e) {}
-    }
-
-
-    if (cheat.settings.spinBot) {
-        const rate = 1
-        input[key.moveDir] !== -1 && (input[key.moveDir] = (input[key.moveDir] + cheat.state.spinCounter - Math.round(7 * (input[key.ydir] / (Math.PI * 2000)))) % 7)
-        input[key.ydir] = cheat.state.spinCounter/7 * (Math.PI * 2000)
-        input[key.frame] % rate === 0 && (cheat.state.spinCounter = (cheat.state.spinCounter + 1) % 7)
-    }
-
-    // Auto swap (not working idk why)
-    // if (cheat.settings.autoSwap && !me.weapon.secondary && me[cheat.vars.ammos][0] === 0 && me[cheat.vars.ammos][1] > 0 && !me.swapTime && !me[cheat.vars.reloadTimer]) {
-    // 	input[key.weaponSwap] = 1
-    //}
-    // AUTO RELOAD
-    if (cheat.settings.autoReload && me[cheat.vars.ammos][me[cheat.vars.weaponIndex]] === 0) {
-        input[key.reload] = 1
-    }
-
-    // PITCH HACK
-    if (cheat.settings.pitchHack) {
-        switch (cheat.settings.pitchHack) {
-            case 1:
-                input[key.xdir] = -Math.PI*500
-                break
-            case 2:
-                input[key.xdir] = Math.PI*500
-                break
-            case 3:
-                input[key.xdir] = Math.sin(Date.now() / 50) * Math.PI * 500
-                break
-            case 4:
-                input[key.xdir] = Math.sin(Date.now() / 250) * Math.PI * 500
-                break
-            case 5:
-                input[key.xdir] = input[key.frame] % 2 ? Math.PI*500 : -Math.PI*500
-                break
-            case 6:
-                input[key.xdir] = (Math.random() * Math.PI - Math.PI/2) * 1000
-                break
         }
     }
 
-    // Add the `pos` property to Players and AIs
-    const getNoise = () => (Math.random()*2-1)*cheat.settings.aimNoise
-    game.players.list.forEach(v=>{v.pos={x:v.x,y:v.y,z:v.z}; v.npos={x:v.x+getNoise(),y:v.y+getNoise(),z:v.z+getNoise()}; v.isTarget=false})
-    if (game.AI.ais) {
-        game.AI.ais.forEach(v=>v.npos=v.pos={x:v.x,y:v.y,z:v.z})
+    showGUI() {
+        if (document.pointerLockElement || document.mozPointerLockElement) {
+            document.exitPointerLock()
+        }
+        window.showWindow(this.GUI.windowIndex)
     }
 
-    // AIMBOT
-    if (cheat.state.renderer && cheat.state.renderer.frustum && me.active) {
-        game.controls.target = null
-
-        // Finds all the visible enemies
-        const targets = game.players.list.filter(enemy =>
-                                                 !enemy.isYTMP &&
-                                                 enemy.hasOwnProperty('npos') &&
-                                                 (!cheat.settings.frustumCheck || cheat.state.renderer.frustum.containsPoint(enemy.npos)) &&
-                                                 ((me.team === null || enemy.team !== me.team) && enemy.health > 0 && enemy[cheat.vars.inView])
-                                                ).sort((e, e2) => cheat.math.getDistance(me.x, me.z, e.npos.x, e.npos.z) - cheat.math.getDistance(me.x, me.z, e2.npos.x, e2.npos.z))
-
-        let target = targets[0]
-        // If there's a fov box, pick an enemy inside it instead (if there is)
-        if (cheat.settings.fovbox) {
-            // scale - idk why but that's needed to get working width and height
-            const scale = parseFloat(document.getElementById("uiBase").style.transform.match(/\((.+)\)/)[1])
-            const width = innerWidth/scale, height = innerHeight/scale
-            function world2Screen(pos, yOffset = 0) {
-                pos.y += yOffset
-                pos.project(cheat.state.renderer.camera)
-                pos.x = (pos.x + 1) / 2
-                pos.y = (-pos.y + 1) / 2
-                pos.x *= width
-                pos.y *= height
-                return pos
-            }
-
-            let foundTarget = false
-            for (let i = 0; i < targets.length; i++) {
-                const t = targets[i]
-                const sp = world2Screen(new cheat.state.three.Vector3(t.x, t.y, t.z), t.height/2)
-                let fovBox = [width/3, height/4, width*(1/3), height/2]
-                switch (cheat.settings.fovBoxSize) {
-                        // medium
-                    case 2:
-                        fovBox = [width*0.4, height/3, width*0.2, height/3]
-                        break
-                        // small
-                    case 3:
-                        fovBox = [width*0.45, height*0.4, width*0.1, height*0.2]
-                        break
+    getGuiHtml() {
+        const builder = {
+            checkbox: (name, settingName, description = "", needsRestart = false) => `<div class="settName" title="${description}">${name} ${needsRestart ? "<span style=\"color: #eb5656\">*</span>" : ""}<label class="switch" style="margin-left:10px"><input type="checkbox" onclick='${dogStr}.GUI.setSetting("${settingName}", this.checked)' ${dog.settings[settingName]?"checked":""}><span class="slider"></span></label></div>`,
+            client_setting: (name, settingName, description = "", needsRestart = true) => `<div class="settName" title="${description}">${name} ${needsRestart ? "<span style=\"color: #eb5656\">*</span>" : ""}<label class="switch" style="margin-left:10px"><input type="checkbox" onclick='doge_setsetting("${settingName}", this.checked?"1":"0")' ${dog.settings[settingName]?"checked":""}><span class="slider"></span></label></div>`,
+            select: (name, settingName, options, description = "", needsRestart = false) => {
+                let built = `<div class="settName" title="${description}">${name} ${needsRestart ? "<span style=\"color: #eb5656\">*</span>" : ""}<select onchange='${dogStr}.GUI.setSetting("${settingName}", parseInt(this.value))' class="inputGrey2">`
+                for (const option in options) {
+                    if (options.hasOwnProperty(option)) built += `<option value="${options[option]}" ${dog.settings[settingName] == options[option]?"selected":""}>${option}</option>,`
                 }
-                if (sp.x >= fovBox[0] && sp.x <= (fovBox[0]+fovBox[2]) && sp.y >= fovBox[1] && sp.y < (fovBox[1]+fovBox[3])) {
-                    target = targets[i]
-                    foundTarget = true
-                    break
-                }
+                return built + "</select></div>"
+            },
+            slider: (name, settingName, min, max, step, description = "") => `<div class="settName" title="${description}">${name} <input type="number" class="sliderVal" id="slid_input_${settingName}" min="${min}" max="${max}" value="${dog.settings[settingName]}" onkeypress="${dogStr}.GUI.setSetting('${settingName}', parseFloat(this.value.replace(',', '.')));document.querySelector('#slid_input_${settingName}').value=this.value" style="margin-right:0;border-width:0"><div class="slidecontainer" style=""><input type="range" id="slid_${settingName}" min="${min}" max="${max}" step="${step}" value="${dog.settings[settingName]}" class="sliderM" oninput="${dogStr}.GUI.setSetting('${settingName}', parseFloat(this.value));document.querySelector('#slid_input_${settingName}').value=this.value"></div></div>`,
+            input: (name, settingName, type, description, extra) => `<div class="settName" title="${description}">${name} <input type="${type}" name="${type}" id="slid_utilities_${settingName}"\n${'color' == type ? 'style="float:right;margin-top:5px"' : `class="inputGrey2" placeholder="${extra}"`}\nvalue="${dog.settings[settingName]}" oninput="${dogStr}.GUI.setSetting(\x27${settingName}\x27, this.value)"/></div>`,
+            label: (name, description) => "<br><span style='color: black; font-size: 20px; margin: 20px 0'>"+name+"</span> <span style='color: dimgrey; font-size: 15px'>"+(description||"")+"</span><br>",
+            nobrlabel: (name, description) => "<span style='color: black; font-size: 20px; margin: 20px 0'>"+name+"</span> <span style='color: dimgrey; font-size: 15px'>"+(description||"")+"</span><br>",
+            br: () => "<br>",
+            style: content => `<style>${content}</style>`,
+        };
+        let built = `<div id="settHolder">
+        <img src="https://i.imgur.com/tE0QUPv.png" width="90%">
+        <div class="imageButton discordSocial" onmouseenter="playTick()" onclick="openURL('https://skidlamer.github.io/wp/index.html')"><span style='display:inline'></span></div>`
+
+        // fix fugly looking 'built +=' before every builder call
+        Object.keys(builder).forEach(name => {
+            const o = builder[name]
+            builder[name] = function () {
+                return built += o.apply(this, arguments), ""
             }
-            if (!foundTarget) {
-                target = void "kpal"
-            }
+        })
+
+        // Tabs stuff
+        const tabNames = ["Weapon", "Wallhack", "Visual", "Tweaks", "Movement", "Other"]
+        if (dog.isClient) {
+            tabNames.push("Client")
         }
-
-        let isAiTarget = false
-        if (game.AI.ais && cheat.settings.AImbot) {
-            let aiTarget = game.AI.ais.filter(ent => ent.mesh && ent.mesh.visible && ent.health && ent.pos && ent.canBSeen).sort((p1, p2) => cheat.math.getDistance(me.x, me.z, p1.pos.x, p1.pos.z) - cheat.math.getDistance(me.x, me.z, p2.pos.x, p2.pos.z)).shift()
-            if (!target || (aiTarget && cheat.math.getDistance(me.x, me.z, aiTarget.pos.x, aiTarget.pos.z) > cheat.math.getDistance(me.x, me.z, target.pos.x, target.pos.z))) {
-                target = aiTarget
-                isAiTarget = true
-            }
+        builder.style( `.cheatTabButton { color: black; background: #ddd; padding: 2px 7px; font-size: 15px; cursor: pointer; text-align: center; } .cheatTabActive { background: #bbb;}` )
+        this.GUI.changeTab = function (tabbtn) {
+            const tn = tabbtn.innerText
+            document.getElementById("cheat-tabbtn-"+tabNames[dog.state.activeTab]).classList.remove("cheatTabActive")
+            document.getElementById("cheat-tab-"+tabNames[dog.state.activeTab]).style.display = "none"
+            tabbtn.classList.add("cheatTabActive")
+            document.getElementById("cheat-tab-"+tn).style.display = "block"
+            dog.state.activeTab = tabNames.indexOf(tn)
         }
-
-        const isShooting = input[key.shoot]
-        if (target && cheat.settings.aimbot &&
-            cheat.state.bindAimbotOn &&
-            (!cheat.settings.aimbotRange || cheat.math.getD3D(me.x, me.y, me.z, target.x, target.y, target.z) < cheat.settings.aimbotRange) &&
-            (!cheat.settings.rangeCheck || cheat.math.getD3D(me.x, me.y, me.z, target.x, target.y, target.z) <= me.weapon.range) &&
-            !me[cheat.vars.reloadTimer]) {
-
-            if (cheat.settings.awtv) {
-                input[key.scope] = 1
-            }
-            target.isTarget = cheat.settings.markTarget
-
-            const yDire = (cheat.math.getDir(me.z, me.x, target.npos.z, target.npos.x) || 0) * 1000
-            const xDire = isAiTarget ?
-                  ((cheat.math.getXDire(me.x, me.y, me.z, target.npos.x, target.npos.y - target.dat.mSize/2, target.npos.z) || 0) - (0.3 * me[cheat.vars.recoilAnimY])) * 1000 :
-            ((cheat.math.getXDire(me.x, me.y, me.z, target.npos.x, target.npos.y - target[cheat.vars.crouchVal] * 3 + me[cheat.vars.crouchVal] * 3 + cheat.settings.aimOffset, target.npos.z) || 0) - (0.3 * me[cheat.vars.recoilAnimY])) * 1000
-
-            // aimbot tweak
-            if (cheat.settings.forceUnsilent) {
-                game.controls.target = {
-                    xD: xDire/1000,
-                    yD: yDire/1000
-                }
-                game.controls.update(400)
-            }
-
-            // Different aimbot modes can share the same code
-            switch (cheat.settings.aimbot) {
-                    // quickscope, silent, trigger aim, silent on aim, aim correction, unsilent
-                case 1: case 2: case 5: case 6: case 9: case 10: {
-                    let onAim = [5, 6, 9].includes(cheat.settings.aimbot)
-                    if ((cheat.settings.aimbot === 5 && input[key.scope]) || cheat.settings.aimbot === 10) {
-                        game.controls.target = {
-                            xD: xDire/1000,
-                            yD: yDire/1000
-                        }
-                        game.controls.update(400)
-                    }
-                    if ([2, 10].includes(cheat.settings.aimbot) || (cheat.settings.aimbot === 1 && cheat.state.me.weapon.id)) {
-                        !me.weapon.melee && (input[key.scope] = 1)
-                    }
-                    if ( /* me.weapon[cheat.vars.nAuto] && */ me[cheat.vars.didShoot]) {
-                        input[key.shoot] = 0
-                        cheat.state.quickscopeCanShoot = false
-                        setTimeout(() => {
-                            cheat.state.quickscopeCanShoot = true
-                        }, me.weapon.rate)
-                    } else if (cheat.state.quickscopeCanShoot && (!onAim || input[key.scope])) {
-                        if (!me.weapon.melee) {
-                            input[key.scope] = 1
-                        }
-                        if (!cheat.settings.superSilent && cheat.settings.aimbot !== 9) {
-                            input[key.ydir] = yDire
-                            input[key.xdir] = xDire
-                        }
-                        if ((cheat.settings.aimbot !== 9 && (!me[cheat.vars.aimVal] || me.weapon.noAim || me.weapon.melee)) ||
-                            (cheat.settings.aimbot === 9 && isShooting)) {
-                            input[key.ydir] = yDire
-                            input[key.xdir] = xDire
-                            input[key.shoot] = 1
-                        }
-                    }
-                } break
-                    // spin aim useless rn
-                    // case 3: {
-                    //     if (me[cheat.vars.didShoot]) {
-                    //         input[key.shoot] = 0
-                    //         cheat.state.quickscopeCanShoot = false
-                    //         setTimeout(() => {
-                    //             cheat.state.quickscopeCanShoot = true
-                    //         }, me.weapon.rate)
-                    //     } else if (cheat.state.quickscopeCanShoot && !cheat.state.spinFrame) {
-                    //         cheat.state.spinFrame = input[key.frame]
-                    //     } else {
-                    //         const fullSpin = Math.PI * 2000
-                    //         const spinFrames = cheat.settings.spinAimFrames
-                    //         const currentSpinFrame = input[key.frame]-cheat.state.spinFrame
-                    //         if (currentSpinFrame < 0) {
-                    //             cheat.state.spinFrame = 0
-                    //         }
-                    //         if (currentSpinFrame > spinFrames) {
-                    //             if (!cheat.settings.superSilent) {
-                    //                 input[key.ydir] = yDire
-                    //                 input[key.xdir] = xDire
-                    //             }
-                    //             if (!me[cheat.vars.aimVal] || me.weapon.noAim || me.weapon.melee) {
-                    //                 input[key.ydir] = yDire
-                    //                 input[key.xdir] = xDire
-                    //                 input[key.shoot] = 1
-                    //                 cheat.state.spinFrame = 0
-                    //             }
-                    //         } else {
-                    //             input[key.ydir] = currentSpinFrame/spinFrames * fullSpin
-                    //             if (!me.weapon.melee)
-                    //                 input[key.scope] = 1
-                    //         }
-                    //     }
-                    // } break
-
-                    // aim assist, smooth on aim, smoother, easy aim assist
-                case 4: case 7: case 8: case 11:
-                    if (input[key.scope] || cheat.settings.aimbot === 11) {
-                        game.controls.target = {
-                            xD: xDire/1000,
-                            yD: yDire/1000
-                        }
-                        game.controls.update(({
-                            4: 400,
-                            7: 110,
-                            8: 70,
-                            11: 400
-                        })[cheat.settings.aimbot])
-                        if ([4,11].includes(cheat.settings.aimbot)) {
-                            input[key.xdir] = xDire
-                            input[key.ydir] = yDire
-                        }
-                        if (me[cheat.vars.didShoot]) {
-                            input[key.shoot] = 0
-                            cheat.state.quickscopeCanShoot = false
-                            setTimeout(() => {
-                                cheat.state.quickscopeCanShoot = true
-                            }, me.weapon.rate)
-                        } else if (cheat.state.quickscopeCanShoot) {
-                            input[me.weapon.melee ? key.shoot : key.scope] = 1
-                        }
-                    } else {
-                        game.controls.target = null
-                    }
-                    break
-                    // trigger bot
-                case 12: {
-                    if (!cheat.state.three ||
-                        !cheat.state.renderer ||
-                        !cheat.state.renderer.camera ||
-                        !cheat.state.players ||
-                        !cheat.state.players.list.length ||
-                        !input[key.scope] ||
-                        me[cheat.vars.aimVal]) {
-                        break
-                    }
-                    // Only create these once for performance
-                    if (!cheat.state.raycaster) {
-                        cheat.state.raycaster = new cheat.state.three.Raycaster()
-                        cheat.state.mid = new cheat.state.three.Vector2(0, 0)
-                    }
-                    const playerMaps = []
-                    for (let i = 0; i < cheat.state.players.list.length; i++) {
-                        let p = cheat.state.players.list[i]
-                        if (!p || !p[cheat.vars.objInstances] || p.isYTMP || !(me.team === null || p.team !== me.team) || !p[cheat.vars.inView]) {
-                            continue
-                        }
-                        playerMaps.push(p[cheat.vars.objInstances])
-                    }
-                    const raycaster = cheat.state.raycaster
-                    raycaster.setFromCamera(cheat.state.mid, cheat.state.renderer.camera)
-                    if (raycaster.intersectObjects(playerMaps, true).length) {
-                        input[key.shoot] = me[cheat.vars.didShoot] ? 0 : 1
-                    }
-                } break
-            }
-        } else {
-            if (cheat.settings.uwtv) {
-                input[key.scope] = 0
-            }
-            cheat.state.spinFrame = 0
+        built += `<table style="width: 100%; margin-bottom: 30px"><tr>`
+        for (let i = 0; i < tabNames.length; i++) {
+            const tab = tabNames[i]
+            built += `<td id="cheat-tabbtn-${tab}" onclick="${dogStr}.GUI.changeTab(this)" class="cheatTabButton ${tabNames[dog.state.activeTab] === tab ? 'cheatTabActive' : ''}">`
+            built += tab
+            built += `</td>`
         }
-    }
-
-    if (cheat.settings.alwaysAim) {
-        input[key.scope] = 1
-    }
-    if (cheat.settings.preventMeleeThrowing && me.weapon.melee) {
-        input[key.scope] = 0
-    }
-
-}
-
-function onVars() {
-    Object.defineProperty(Object.prototype, cheat.vars.procInputs, {
-        enumerable: false,
-        get() {
-            return this._procInputs
-        },
-        set(v) {
-            if (typeof v === "function") {
-                this._procInputs = new Proxy(v, {
-                    apply(target, thisArg, [input, game, recon, lock]) {
-                        procInputs.apply(thisArg, [thisArg, input, game, recon, lock])
-                        return target.apply(thisArg, [input, game, recon, lock])
-                    }
-                })
-            } else {
-                this._procInputs = v
-            }
-        }
-    })
-}
-
-function setVars(script) {
-    //obfuscation bypass, not needed anymore
-    //script = script.replace(/\[(0x[a-zA-Z0-9]+,?)+]\['map']\(\w+=>String\['fromCharCode']\(\w+\)\)\['join']\(''\)/g, a => "'" + eval(a) + "'")
-    //-
-
-    cheat.vars = {}
-    const regexes = new Map()
-    .set("inView", [/&&!\w+\['\w+']&&\w+\['\w+']&&\w+\['(\w+)']\)/, 1])
-    //.set("canSee", [/\w+\['(\w+)']\(\w+,\w+\['x'],\w+\['y'],\w+\['z']\)\)&&/, 1])
-    .set("procInputs", [/this\['(\w+)']=function\((\w+),(\w+),\w+,\w+\){(this)\['recon']/, 1])
-    .set("aimVal", [/this\['(\w+)']-=0x1\/\(this\['weapon']\['\w+']\/\w+\)/, 1])
-    //.set("pchObjc", [/0x0,this\['(\w+)']=new \w+\['Object3D']\(\),this/, 1])
-    .set("didShoot", [/--,\w+\['(\w+)']=!0x0/, 1])
-    .set("nAuto", [/'Single\\x20Fire','varN':'(\w+)'/, 1])
-    .set("crouchVal", [/this\['(\w+)']\+=\w\['\w+']\*\w+,0x1<=this\['\w+']/, 1])
-    .set("ammos", [/\['length'];for\(\w+=0x0;\w+<\w+\['(\w+)']\['length']/, 1])
-    .set("weaponIndex", [/\['weaponConfig']\[\w+]\['secondary']&&\(\w+\['(\w+)']==\w+/, 1])
-    .set("objInstances", [/\(\w+=\w+\['players']\['list']\[\w+]\)\['active']&&\w+\['(\w+)']\)/, 1])
-    //.set("getWorldPosition", [/{\w+=\w+\['camera']\['(\w+)']\(\);/, 1])
-    //.set("mouseDownL", [/this\['\w+']=function\(\){this\['(\w+)']=\w*0,this\['(\w+)']=\w*0,this\['\w+']={}/, 1])
-    //.set("mouseDownR", [/this\['(\w+)']=0x0,this\['keys']=/, 1])
-    .set("reloadTimer", [/0x0>=this\['(\w+')]&&0x0>=this\['swapTime']/, 1])
-    .set("maxHealth", [/this\['health']\/this\['(\w+)']\?/, 1])
-    //.set("xVel", [/this\['x']\+=this\['(\w+)']\*\w+\['map']\['config']\['speedX']/, 1])
-    //.set("yVel", [/this\['y']\+=this\['(\w+)']\*\w+\['map']\['config']\['speedY']/, 1])
-    //.set("zVel", [/this\['z']\+=this\['(\w+)']\*\w+\['map']\['config']\['speedZ']/, 1])
-    .set("recoilAnimY", [/this\['(\w+)']\+=this\['\w+']\*\(/, 1])
-
-
-    for (const [name, arr] of regexes) {
-        const found = arr[0].exec(script)
-        if (!found) {
-            alert("Failed to find " + name)
-            cheat.vars[name] = name
-        } else {
-            cheat.vars[name] = found[arr[1]]
-        }
-    }
-    console.log("VARS:")
-    console.table(cheat.vars)
-    console.log(JSON.stringify(cheat.vars))
-
-    onVars()
-}
-function patch(gameCode) {
-    // nametags - makes the nametags always show when either nametags or boxesp are enabled, and never show when full esp is enabled
-    gameCode = gameCode.replace(/(&&!\w+\['\w+']&&\w+\['\w+'])&&(\w+\['\w+'])\)/, "$1 && ($2 || [1, 2].includes(cheat.settings.esp)) && cheat.settings.esp !== 3)")
-
-    // wallbangs
-    gameCode = gameCode.replace(/!(\w+)\['transparent']/, "(cheat.settings.wallbangs ? !$1.penetrable : !$1.transparent)")
-
-    // fix for client
-    gameCode = gameCode.replace("navigator['webdriver']", "false")
-
-    // gay prxoy rmeove
-    gameCode = gameCode.replace(",this['frustum']['containsPoint']=new Proxy(this['frustum']['containsPoint'],{'apply':function(){return!0x1;}})", "")
-
-    // aimbot (procinputs)
-    // moved to a object.defineproperty in the onVars() function
-    //gameCode = gameCode.replace(/(this\['\w+']=function\(\w+,\w+,\w+,\w+\){)(this\['recon'])/, "$1{\n"+window.chonkercheats+"};$2")
-
-    return gameCode
-}
-
-window.gameCodeInit = function(script) {
-    console.log("Initializing cheat")
-    return setVars(script), patch(script)
-}
-function when(fn, cb) {
-    if (fn()) {
-        return cb()
-    }
-    const itv = setInterval(() => {
-        if (fn()) {
-            clearInterval(itv)
+        built += `</table></tr>`
+        function tab(i, cb) {
+            built += `<div style="display: ${dog.state.activeTab === i ? 'block' : 'none'}" class="cheat-tab" id="cheat-tab-${tabNames[i]}">`
             cb()
+            built += `</div>`
         }
-    }, 100)
+
+        // build gui
+        tab(0, () => {
+            builder.select("Aimbot [Y]", "aimbot", {
+                "None": 0,
+                "Quickscope / Auto pick": 1,
+                "Silent aimbot": 2,
+                //"Spin aimbot": 3,
+                "Aim assist": 4,
+                "Easy aim assist": 11,
+                "SP Trigger bot": 12,
+                "Silent on aim": 6,
+                "Smooth": 7,
+                "Unsilent": 10,
+                "Unsilent on aim": 5,
+                "Aim correction": 9,
+            })
+            builder.select("Spin aimbot speed", "spinAimFrames", {
+                "1": 30,
+                "2": 20,
+                "3": 15,
+                "4": 10,
+                "5": 5,
+            })
+            builder.slider("Aim range", "aimbotRange", 0, 1000, 10, "Set above 0 to make the aimbot pick enemies only at the selected range")
+            builder.slider("Aim offset", "aimOffset", -4, 1, 0.1, "The lower it is, the lower the aimbot will shoot (0 - head, -4 - body)")
+            builder.slider("Aim noise", "aimNoise", 0, 2, 0.005, "The higher it is, the lower is the aimbot accuracy")
+            builder.checkbox("Supersilent aim", "superSilent", "Only works with quickscope and silent aim, makes it almost invisible that you're looking at somebody when you're shooting at him")
+            builder.checkbox("Aim at AIs", "AImbot", "Makes the aimbot shoot at NPCs")
+            builder.checkbox("FOV check", "frustumCheck", "Makes you only shoot at enemies that are in your field of view. Prevents 180 flicks")
+            builder.checkbox("FOV box", "fovbox", "Creates a box in which enemies can be targetted, enable with FOV check")
+            builder.select("FOV box size", "fovBoxSize", {
+                "Big": 1,
+                "Medium": 2,
+                "Small": 3,
+            })
+            builder.checkbox("Wallbangs", "wallbangs", "Makes the aimbot shoot enemies behind walls")
+            builder.checkbox("Aimbot range check", "rangeCheck", "Checks if the enemy is in range of your weapon before shooting it, disable for rocket launcher")
+            builder.checkbox("Auto reload", "autoReload", "Automatically reloads your weapon when it's out of ammo")
+            builder.checkbox("Prevent melee throwing", "preventMeleeThrowing", "Prevents you from throwing your knife")
+            //builder.checkbox("Auto swap", "autoSwap", "Automatically swaps the weapon when you're out of ammo")
+        })
+
+        tab(1, () => {
+            builder.select("ESP [H]", "esp", {
+                "None": 0,
+                "Nametags": 1,
+                "Box ESP": 2,
+                "Full ESP": 3,
+            })
+            builder.select("ESP Font Size", "espFontSize", {
+                "30px": 30,
+                "25px": 25,
+                "20px": 20,
+                "15px": 15,
+                "10px": 10,
+                "5px": 5,
+            })
+            builder.select("Tracers", "tracers", {
+                "None": 0,
+                "Bottom": 1,
+                "Middle": 2,
+            }, "Draws lines to players")
+            builder.checkbox("Mark aimbot target", "markTarget", "Shows who is the aimbot targetting at the time, useful for aim assist/aim correction")
+            builder.checkbox("Draw FOV box", "drawFovbox", "Draws the FOV box from aimbot settings")
+            builder.checkbox("Chams", "chams")
+            builder.select("Chams colour", "chamsc", {
+                "None": 0,
+                "Red": 1,
+                "Green": 2,
+                "Blue": 3,
+                "Cyan": 4,
+                "Pink": 5,
+                "Yellow": 6,
+                "RGB": 8,
+                "Epilepsy": 7,
+            })
+            builder.checkbox("Self chams", "selfChams", "Makes your weapon affected by chams")
+            builder.checkbox("Wireframe", "wireframe")
+            builder.slider("RGB interval", "chamsInterval", 50, 1000, 50, "How fast will the RGB chams change colour")
+        })
+
+        tab(2, () => {
+            builder.checkbox("Skin hack", "skinHack", "Makes you able to use any skin in game, only shows on your side")
+            builder.checkbox("Third person mode", "thirdPerson")
+            builder.checkbox("No weapon zoom", "staticWeaponZoom", "Removes the distracting weapon zoom animation")
+            builder.checkbox("Any weapon trail", "alwaysTrail")
+            builder.checkbox("Billboard shaders", "animatedBillboards", "Disable if you get fps drops")
+        })
+
+        tab(3, () => {
+            builder.checkbox("Always aim", "alwaysAim", "Makes you slower and jump lower, but the aimbot can start shooting at enemies  faster. Only use if ur good at bhopping")
+            builder.checkbox("Aim when target visible", "awtv")
+            builder.checkbox("Unaim when no target visible", "uwtv")
+            builder.checkbox("Force unsilent", "forceUnsilent")
+        })
+
+        tab(4, () => {
+            builder.select("Auto bhop", "bhop", {
+                "None": 0,
+                "Auto Jump": 1,
+                "Key Jump": 2,
+                "Auto Slide": 3,
+                "Key Slide": 4,
+            })
+            builder.label("Only use with silent aim")
+            builder.select("Pitch hax", "pitchHack", {
+                "Disabled": 0,
+                "Downward": 1,
+                "Upward": 2,
+                "sin(time)": 3,
+                "sin(time/5)": 4,
+                "double": 5,
+                "random": 6,
+            }, "Only use with aimbot on")
+            builder.checkbox("Spin bot", "spinBot")
+        })
+
+        tab(5, () => {
+            builder.input("Custom CSS", "customCss", "url", "", "URL to CSS file")
+            builder.checkbox("Show GUI button", "showGuiButton", "Disable if you don't want the dog under settings to be visible")
+            builder.checkbox("GUI on middle mouse button", "guiOnMMB", "Makes it possible to open this menu by clicking the mouse wheel")
+            builder.checkbox("Keybinds", "keybinds", "Turn keybinds on/off, Aimbot - Y, ESP - H")
+            builder.checkbox("No inactivity kick", "antikick", "Disables the 'Kicked for inactivity' message (client side, but works)")
+            builder.checkbox("Auto nuke", "autoNuke", "Automatically nukes when you are able to")
+            builder.checkbox("Force nametags on", "fgno", "Use in custom games with disabled nametags")
+        })
+
+        if (dog.isClient) {
+            tab(6, () => {
+                builder.nobrlabel("Restart is required after changing any of these settings")
+                builder.br()
+                builder.client_setting("Uncap FPS", "uncap_fps", "Disables V-Sync")
+                builder.client_setting("Adblock", "adblock", "Disables ads")
+            })
+        }
+
+        built += "</div>"
+
+        return built;
     }
 
-when(() => window.windows, initGUI)
-})()
+    getDistance(x1, y1, x2, y2) {
+        return Math.sqrt((x2 -= x1) * x2 + (y2 -= y1) * y2);
+    }
 
-async function onLoad() {
-    // Fetch and Load Game Script
-    const request = (url, type, opt = {}) => fetch(url, opt).then(response => response.ok ? response[type]() : null);
-    const data = await request("https://krunker.io/social.html", "text");
-    const buffer = await request("https://krunker.io/pkg/krunker." + /\w.exports="(\w+)"/.exec(data)[1] + ".vries", "arrayBuffer");
-    const array = Array.from(new Uint8Array(buffer));
-    const xor = array[0] ^ '!'.charCodeAt(0);
-    const script = array.map((code) => String.fromCharCode(code ^ xor)).join('');
-    const loader = new Function("__LOADER__mmTokenPromise", "Module", window.gameCodeInit(script));
-    loader(request("https://cli.sys32.dev/token", "json").then(json => json.token), { csv: async () => 0 });
+    getDistance3D(x1, y1, z1, x2, y2, z2) {
+        let dx = x1 - x2;
+        let dy = y1 - y2;
+        let dz = z1 - z2;
+        return Math.sqrt(dx * dx + dy * dy + dz * dz);
+    }
+
+    getXDir(x1, y1, z1, x2, y2, z2) {
+        let h = Math.abs(y1 - y2);
+        let dst = this.getDistance3D(x1, y1, z1, x2, y2, z2);
+        return (Math.asin(h / dst) * ((y1 > y2)?-1:1));
+    }
+
+    getDir(x1, y1, x2, y2) {
+        return Math.atan2(y1 - y2, x1 - x2);
+    }
+
+    getAngleDist(a, b) {
+        return Math.atan2(Math.sin(b - a), Math.cos(a - b));
+    }
+
+    containsPoint(point) {
+        let planes = this.renderer.frustum.planes;
+        for (let i = 0; i < 6; i ++) {
+            if (planes[i].distanceToPoint(point) < 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    world2Screen(pos, width, height, yOffset = 0) {
+        pos.y += yOffset
+        pos.project(this.renderer.camera)
+        pos.x = (pos.x + 1) / 2
+        pos.y = (-pos.y + 1) / 2
+        pos.x *= width
+        pos.y *= height
+        return pos
+    }
+};
+window[dogStr] = new Dogeware();
+window.Function = new Proxy(Function, {
+    construct(target, args) {
+        const original = new target(...args);
+        if (args.length) {
+            let body = args[args.length - 1];
+            if (body.length > 38e5) {
+                // game.js at game loader
+                //console.log(body)
+            }
+            else if (args[0] == "requireRegisteredType") {
+                return (function(...fnArgs){
+                    // Expose WASM functions
+                    if (!window.hasOwnProperty("WASM")) {
+                        Object.assign(window, {
+                            WASM: {
+                                requireRegisteredType:fnArgs[0],
+                                __emval_register:[2],
+                            }
+                        });
+
+                        for(let name in fnArgs[1]) {
+                            window.WASM[name] = fnArgs[1][name];
+                            switch (name) {
+                                case "fetchCallback": //game.js after fetch and decode
+                                    fnArgs[1][name] = function(body) {
+                                        body = dog.gameJS(body)||body;
+                                        return window.WASM[name].apply(this, [body]);
+                                    };
+                                    break;
+
+                                case "fetchMMToken__cb1": //generate token promise
+                                    fnArgs[1][name] = function(response) {
+                                        if (!response.ok) {
+                                            throw new Error("Network response from " + response.url + " was not ok")
+                                        }
+                                        let promise = window.WASM[name].apply(this, [response]);
+                                        return promise;
+                                    };
+                                    break;
+                                case "fetchMMToken__cb2": //hmac token function
+                                    fnArgs[1][name] = function() {
+                                        console.log(arguments[0]);
+                                        return window.WASM[name].apply(this, arguments);
+                                    };
+                                    break;
+
+                            }
+                        }
+                    }
+                    return new target(...args).apply(this, fnArgs);
+                })
+            }
+            // If changed return with spoofed toString();
+            if (args[args.length - 1] !== body) {
+                args[args.length - 1] = body;
+                let patched = new target(...args);
+                patched.toString = () => original.toString();
+                return patched;
+            }
+        }
+        return original;
+    }
+})
+
+function onPageLoad() {
+    window.instructionHolder.style.display = "block";
+    window.instructions.innerHTML = `<div id="settHolder"><img src="https://i.imgur.com/yzb2ZmS.gif" width="25%"></div><a href='https://skidlamer.github.io/wp/' target='_blank.'><div class="imageButton discordSocial"></div></a>`
+    window.request = (url, type, opt = {}) => fetch(url, opt).then(response => response.ok ? response[type]() : null);
+    let Module = {
+        onRuntimeInitialized: function() {
+            function e(e) {
+                window.instructionHolder.style.display = "block";
+                window.instructions.innerHTML = "<div style='color: rgba(255, 255, 255, 0.6)'>" + e + "</div><div style='margin-top:10px;font-size:20px;color:rgba(255,255,255,0.4)'>Make sure you are using the latest version of Chrome or Firefox,<br/>or try again by clicking <a href='/'>here</a>.</div>";
+                window.instructionHolder.style.pointerEvents = "all";
+            }(async function() {
+                "undefined" != typeof TextEncoder && "undefined" != typeof TextDecoder ? await Module.initialize(Module) : e("Your browser is not supported.")
+            })().catch(err => {
+                e("Failed to load game.");
+                throw new Error(err);
+            })
+        }
+    };
+    window._debugTimeStart = Date.now();
+    window.request("/pkg/maindemo.wasm","arrayBuffer",{cache: "no-store"}).then(body => {
+        Module.wasmBinary = body;
+        window.request("/pkg/maindemo.js","text",{cache: "no-store"}).then(body => {
+            body = body.replace(/(function UTF8ToString\((\w+),\w+\)){return \w+\?(.+?)\}/, `$1{let str=$2?$3;if (str.includes("CLEAN_WINDOW") || str.includes("Array.prototype.filter = undefined")) return "";return str;}`);
+            body = body.replace(/(_emscripten_run_script\(\w+\){)eval\((\w+\(\w+\))\)}/, `$1 let str=$2; console.log(str);}`);
+            new Function(body)();
+            window.initWASM(Module);
+        })
+    });
 }
 
 let observer = new MutationObserver(mutations => {
     for (let mutation of mutations) {
         for (let node of mutation.addedNodes) {
             if (node.tagName === 'SCRIPT' && node.type === "text/javascript" && node.innerHTML.startsWith("*!", 1)) {
-                node.innerHTML = onLoad.toString().concat("\n", "onLoad();");
+                node.innerHTML = onPageLoad.toString() + "\nonPageLoad();";
                 observer.disconnect();
+                //console.log(node.innerHTML)
             }
         }
     }
