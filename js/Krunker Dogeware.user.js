@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Krunker  Dogeware - by The Gaming Gurus
 // @description   The most advanced krunker krunker
-// @version       2.10
+// @version       2.11
 // @author        SkidLamer - From The Gaming Gurus
 // @supportURL    https://discord.gg/upA3nap6Ug
 // @homepage      https://skidlamer.github.io/
@@ -922,8 +922,6 @@ class Dogeware {
                 if (!this.containsPoint(player.pos)) {
                     continue
                 }
-
-                console.log(this)
 
                 if (this.settings.tracers) {
                     line(width / 2, (krunker.settings.tracers === 2 ? height / 2 : height - 1), screenR.x, screenR.y, 2, player.team === null ? "#FF4444" : player.team === this.me.team ? "#44AAFF" : "#FF4444")
