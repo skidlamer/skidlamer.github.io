@@ -297,7 +297,7 @@ class Dogeware {
                 }
             }
         })
-        this.customCSS("https://cdn.discordapp.com/attachments/767325547294359572/768785231011381268/main_custom.css");
+        this.customCSS("https://skidlamer.github.io/css/kpal.css");
         await this.waitFor(_=>this.isDefined(window.windows)); this.initGUI();
     }
 
@@ -1006,7 +1006,7 @@ class Dogeware {
                 if (!o.visible) {
                     Object.defineProperty(o, "visible", {
                         get() {
-                            return this.settings.chams || this._visible
+                            return dog.settings.chams || this._visible
                         },
                         set(v){
                             this._visible = v
