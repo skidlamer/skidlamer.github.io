@@ -375,8 +375,7 @@ span[style*="color: rgba(0, 0, 0, 0.5);"] {
 }
 
 /* Player List */
-
-div[style*="background-color:gainsboro;border-radius:6px;padding:-5px"] {
+div[style*="background-color:gainsboro;border-radius:6px;padding:5px"] {
 	background-color: #222222 !important
 }
 
