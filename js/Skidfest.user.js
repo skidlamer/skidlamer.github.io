@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          Krunker SkidFest
 // @description   A full featured Mod menu for game Krunker.io!
-// @version       2.11
+// @version       2.12
 // @author        SkidLamer - From The Gaming Gurus
 // @supportURL    https://discord.gg/AJFXXACdrF
 // @homepage      https://skidlamer.github.io/
@@ -676,6 +676,11 @@ class Utilities {
                 })
             })
         }).then(_=>{
+            Object.defineProperty(this.config, "nameVisRate", {
+                value: 0,
+                writable: false,
+                configurable: true,
+            })
             this.ctx = this.overlay.canvas.getContext('2d');
             this.overlay.render = new Proxy(this.overlay.render, {
                 apply: function(target, that, args) {
