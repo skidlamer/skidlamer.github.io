@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Krunker  Dogeware - by The Gaming Gurus
 // @description   The most advanced krunker krunker
-// @version       2.11
+// @version       2.12
 // @author        SkidLamer - From The Gaming Gurus
 // @supportURL    https://discord.gg/upA3nap6Ug
 // @homepage      https://skidlamer.github.io/
@@ -67,7 +67,7 @@ class Dogeware {
             chams: false,
             wireframe: false,
             chamsc: 0,
-            customCss: "",
+            //customCss: "",
             selfChams: false,
             autoNuke: false,
             chamsInterval: 500,
@@ -81,7 +81,6 @@ class Dogeware {
             quickscopeCanShoot: true,
             spinFrame: 0,
             pressedKeys: new Set(),
-            shouldCrouch: false,
             spinCounter: 0,
             activeTab: 0,
             nameTags:false,
@@ -116,6 +115,13 @@ class Dogeware {
 
     objectHas(obj, arr) {
         return arr.some(prop => obj.hasOwnProperty(prop));
+    }
+
+    createElement(type, html, id) {
+        let newElement = document.createElement(type)
+        if (id) newElement.id = id
+        newElement.innerHTML = html
+        return newElement
     }
 
     getVersion() {
@@ -155,6 +161,9 @@ class Dogeware {
             reloadTimer: {regex: /0x0>=this\['(\w+')]&&0x0>=this\['swapTime']/, index: 1},
             recoilAnimY: {regex: /this\['(\w+)']\+=this\['\w+']\*\(/, index: 1},
             maxHealth: {regex: /this\['health']\/this\['(\w+)']\?/, index: 1},
+            //xVel: { regex: /this\['x']\+=this\['(\w+)']\*\w+\['map']\['config']\['speedX']/, index: 1 },
+            yVel: { regex: /this\['y']\+=this\['(\w+)']\*\w+\['map']\['config']\['speedY']/, index: 1 },
+            //zVel: { regex: /this\['z']\+=this\['(\w+)']\*\w+\['map']\['config']\['speedZ']/, index: 1 },
             // Patches
             socket: {regex: /\['onopen']=\(\)=>{/, patch: `$&${dogStr}.socket=this;`},
             //frustum: {regex: /(;const (\w+)=this\['frustum']\['containsPoint'];.*?return)!0x1/, patch: "$1 $2"},
@@ -235,7 +244,7 @@ class Dogeware {
         await this.waitFor(_=>this.isDefined(this.socket))
         if (!this.isDefined(this.socket)) location.assign(location.origin);
         this.wsEvent = this.socket._dispatchEvent.bind(this.socket);
-        this.wsSend = this.socket.send.bind(this.ws);
+        this.wsSend = this.socket.send.bind(this.socket);
         this.socket.send = new Proxy(this.socket.send, {
             apply(target, that, args) {
                 if (args[0] === "en") {
@@ -288,8 +297,8 @@ class Dogeware {
                 }
             }
         })
-        await this.waitFor(_=>this.isDefined(window.windows));
-        this.initGUI();
+        this.customCSS("https://cdn.discordapp.com/attachments/767325547294359572/768785231011381268/main_custom.css");
+        await this.waitFor(_=>this.isDefined(window.windows)); this.initGUI();
     }
 
     defines() {
@@ -425,38 +434,36 @@ class Dogeware {
                 dog.showGUI()
             }
         })
-        window.addEventListener("keydown", ev => {
-            if (ev.key === "F1") {
-                ev.preventDefault()
-                dog.showGUI()
-            }
-            if (ev.code === "NumpadSubtract") {
-                ev.preventDefault()
-                document.exitPointerLock();
-                dog.showGUI()
-                console.dirxml(dog)
-            }
-        })
-        window.addEventListener("keydown", ev => {
-            if (!dog.state.pressedKeys.has(ev.code)) {
-                dog.state.pressedKeys.add(ev.code)
-            }
-        })
-        window.addEventListener("keyup", ev => {
-            if (dog.state.pressedKeys.has(ev.code)) {
-                dog.state.pressedKeys.delete(ev.code)
-            }
+        window.addEventListener("keyup", event => {
+            if (this.state.pressedKeys.has(event.code)) this.state.pressedKeys.delete(event.code)
             if (!(document.activeElement.tagName === "INPUT" || !window.endUI && window.endUI.style.display) && dog.settings.keybinds) {
-                switch (ev.code) {
+                switch (event.code) {
                     case "KeyY":
-                        dog.state.bindAimbotOn = !dog.state.bindAimbotOn
-                        dog.wsEvent("ch", [null, ("Aimbot "+(dog.state.bindAimbotOn?"on":"off")), 1])
+                        this.state.bindAimbotOn = !this.state.bindAimbotOn
+                        this.wsEvent("ch", [null, ("Aimbot "+(this.state.bindAimbotOn?"on":"off")), 1])
                         break
                     case "KeyH":
-                        dog.settings.esp = (dog.settings.esp+1)%4
-                        dog.wsEvent("ch", [null, "ESP: "+["disabled", "nametags", "box", "full"][dog.settings.esp], 1])
+                        this.settings.esp = (this.settings.esp+1)%4
+                        this.wsEvent("ch", [null, "ESP: "+["disabled", "nametags", "box", "full"][this.settings.esp], 1])
                         break
                 }
+            }
+        })
+        window.addEventListener("keydown", event => {
+            if (event.code == "F1") {
+                event.preventDefault();
+                dog.showGUI();
+            }
+            if ('INPUT' == document.activeElement.tagName || !window.endUI && window.endUI.style.display) return;
+            switch (event.code) {
+                case 'NumpadSubtract':
+                    document.exitPointerLock();
+                    //console.log(document.exitPointerLock)
+                    console.dirxml(this)
+                    break;
+                default:
+                    if (!this.state.pressedKeys.has(event.code)) this.state.pressedKeys.add(event.code);
+                    break;
             }
         })
     }
@@ -499,23 +506,23 @@ class Dogeware {
                 this.wsSend("k", 0)
             }
 
-            // BHOP
+            //AUTO BHOP
             if (this.settings.bhop) {
-                if (this.state.pressedKeys.has("Space") || [1, 3].includes(this.settings.bhop)) {
-                    this.controls.keys[this.controls.binds.jumpKey.val] ^= 1
+                if (this.state.pressedKeys.has("Space") || this.settings.bhop % 2 ) {
+                    this.controls.keys[this.controls.binds.jumpKey.val] ^= 1;
                     if (this.controls.keys[this.controls.binds.jumpKey.val]) {
-                        this.controls.didPressed[this.controls.binds.jumpKey.val] = 1
+                        this.controls.didPressed[this.controls.binds.jumpKey.val] = 1;
                     }
-                    if ([3, 4].includes(this) && ((this.state.pressedKeys.has('Space') || this === 3) && (this.me.canSlide))) {
-                        setTimeout(() => {
-                            this.state.shouldCrouch = false
-                        }, 350)
-                        this.state.shouldCrouch = true
+                    if (this.state.pressedKeys.has("Space") || this.settings.bhop == 3) {
+                        if (this.me[this.vars.yVel] < -0.03 && this.me.canSlide) {
+                            setTimeout(() => {
+                                this.controls.keys[this.controls.binds.crouchKey.val] = 0;
+                            }, this.me.slideTimer||325);
+                            this.controls.keys[this.controls.binds.crouchKey.val] = 1;
+                            this.controls.didPressed[this.controls.binds.crouchKey.val] = 1;
+                        }
                     }
                 }
-            }
-            if (this.state.shouldCrouch) {
-                this[key.crouch] = 1
             }
 
             // Makes nametags show in custom games, where nametags are disabled
@@ -717,31 +724,31 @@ class Dogeware {
                             break
                             // spin aim useless rn
                             // case 3: {
-                            //     if (me[krunker.vars.didShoot]) {
+                            //     if (me[dog.vars.didShoot]) {
                             //         input[key.shoot] = 0
-                            //         krunker.state.quickscopeCanShoot = false
+                            //         dog.state.quickscopeCanShoot = false
                             //         setTimeout(() => {
-                            //             krunker.state.quickscopeCanShoot = true
+                            //             dog.state.quickscopeCanShoot = true
                             //         }, me.weapon.rate)
-                            //     } else if (krunker.state.quickscopeCanShoot && !krunker.state.spinFrame) {
-                            //         krunker.state.spinFrame = input[key.frame]
+                            //     } else if (dog.state.quickscopeCanShoot && !dog.state.spinFrame) {
+                            //         dog.state.spinFrame = input[key.frame]
                             //     } else {
                             //         const fullSpin = Math.PI * 2000
-                            //         const spinFrames = krunker.settings.spinAimFrames
-                            //         const currentSpinFrame = input[key.frame]-krunker.state.spinFrame
+                            //         const spinFrames = dog.settings.spinAimFrames
+                            //         const currentSpinFrame = input[key.frame]-dog.state.spinFrame
                             //         if (currentSpinFrame < 0) {
-                            //             krunker.state.spinFrame = 0
+                            //             dog.state.spinFrame = 0
                             //         }
                             //         if (currentSpinFrame > spinFrames) {
-                            //             if (!krunker.settings.superSilent) {
+                            //             if (!dog.settings.superSilent) {
                             //                 input[key.ydir] = yDire
                             //                 input[key.xdir] = xDire
                             //             }
-                            //             if (!me[krunker.vars.aimVal] || me.weapon.noAim || me.weapon.melee) {
+                            //             if (!me[dog.vars.aimVal] || me.weapon.noAim || me.weapon.melee) {
                             //                 input[key.ydir] = yDire
                             //                 input[key.xdir] = xDire
                             //                 input[key.shoot] = 1
-                            //                 krunker.state.spinFrame = 0
+                            //                 dog.state.spinFrame = 0
                             //             }
                             //         } else {
                             //             input[key.ydir] = currentSpinFrame/spinFrames * fullSpin
@@ -924,7 +931,7 @@ class Dogeware {
                 }
 
                 if (this.settings.tracers) {
-                    line(width / 2, (krunker.settings.tracers === 2 ? height / 2 : height - 1), screenR.x, screenR.y, 2, player.team === null ? "#FF4444" : player.team === this.me.team ? "#44AAFF" : "#FF4444")
+                    line(width / 2, (dog.settings.tracers === 2 ? height / 2 : height - 1), screenR.x, screenR.y, 2, player.team === null ? "#FF4444" : player.team === this.me.team ? "#44AAFF" : "#FF4444")
                 }
 
                 if (player.isTarget) {
@@ -1066,6 +1073,25 @@ class Dogeware {
         }
     }
 
+    customCSS(url) {
+        let css = document.createElement("link");
+        let head = document.head||document.getElementsByTagName('head')[0]||0;
+        if (url.startsWith("http")&&url.endsWith(".css")) {
+            css.href = url;
+            css.rel = "stylesheet"
+        }
+        if (head) {
+            head.appendChild(css);
+            css = this.createElement("style", "#aMerger, #endAMerger { display: none !important }");
+            head.appendChild(css);
+            window['onetrust-consent-sdk'].style.display = "none";
+            window.streamContainer.style.display = "none";
+            window.merchHolder.style.display = "none";
+            window.newsHolder.style.display = "none";
+        }
+    }
+
+
     initGUI() {
         function createButton(name, iconURL, fn) {
             const menu = document.querySelector("#menuItemContainer"), menuItem = document.createElement("div"), menuItemIcon = document.createElement("div"), menuItemTitle = document.createElement("div")
@@ -1082,25 +1108,8 @@ class Dogeware {
 
             menuItem.addEventListener("click", fn)
         }
-        dog.GUI.cssElem = document.createElement("link")
-        dog.GUI.cssElem.rel = "stylesheet"
-        dog.GUI.cssElem.href = this.settings.customCss
-        try {
-            document.head.appendChild(dog.GUI.cssElem)
-        } catch (e) {
-            alert("Error injecting custom CSS:\n"+e)
-            this.settings.customCss = ""
-        }
         dog.GUI.setSetting = function(setting, value) {
-            switch (setting) {
-                case "customCss":
-                    dog.settings.customCss = value
-                    break
-
-                default:
-                    dog.settings[setting] = value
-            }
-
+            dog.settings[setting] = value;
             localStorage.kro_setngss_json = JSON.stringify(dog.settings);
         }
         dog.GUI.windowIndex = windows.length+1
@@ -1310,7 +1319,6 @@ class Dogeware {
         })
 
         tab(5, () => {
-            builder.input("Custom CSS", "customCss", "url", "", "URL to CSS file")
             builder.checkbox("Show GUI button", "showGuiButton", "Disable if you don't want the dog under settings to be visible")
             builder.checkbox("GUI on middle mouse button", "guiOnMMB", "Makes it possible to open this menu by clicking the mouse wheel")
             builder.checkbox("Keybinds", "keybinds", "Turn keybinds on/off, Aimbot - Y, ESP - H")
