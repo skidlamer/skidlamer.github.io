@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name Krunker  Dogeware - by The Gaming Gurus
-// @description   The most advanced krunker krunker
+// @description   The most advanced krunker cheat
 // @version       2.13
 // @author        SkidLamer - From The Gaming Gurus
 // @supportURL    https://discord.gg/upA3nap6Ug
@@ -29,7 +29,7 @@ class Dogeware {
             superSilent: true,
             AImbot: true,
             frustumCheck: false,
-            staticWeaponZoom: false,
+            weaponZoom: 1,
             wallbangs: true,
             alwaysAim: false,
             pitchHack: 0,
@@ -297,6 +297,7 @@ class Dogeware {
                 }
             }
         })
+
         this.customCSS("https://skidlamer.github.io/css/kpal.css");
         await this.waitFor(_=>this.isDefined(window.windows)); this.initGUI();
     }
@@ -323,10 +324,8 @@ class Dogeware {
                     this._value = val;
                     dog.renderer = this._value;
 
-                    Object.defineProperty(this._value, "zoom", {
-                        get() {
-                            return _=> dog.settings.zoom||1;
-                        }
+                    Object.defineProperty(this._value, "adsFovMlt", {
+                        get() {return dog.settings.weaponZoom}
                     })
 
                     dog.fxComposer = this;
@@ -843,15 +842,6 @@ class Dogeware {
     }
 
     render() {
-        if (!this.renderer.frustum) return
-
-        if (this.me && this.me.weapon && !this.me.weapon.zoomHooked) {
-            this.me.weapon.zoomHooked = true
-            this.me.weapon._zoom = this.me.weapon.zoom
-            Object.defineProperty(this.me.weapon, "zoom", {
-                get() {return dog.settings.staticWeaponZoom ? 1 : this._zoom }
-            })
-        }
 
         var scale = this.scale||parseFloat(document.getElementById("uiBase").style.transform.match(/\((.+)\)/)[1]);
         let width = innerWidth / scale, height = innerHeight / scale
@@ -1283,11 +1273,11 @@ class Dogeware {
         })
 
         tab(2, () => {
-            builder.checkbox("Skin hack", "skinHack", "Makes you able to use any skin in game, only shows on your side")
             builder.checkbox("Third person mode", "thirdPerson")
-            builder.checkbox("No weapon zoom", "staticWeaponZoom", "Removes the distracting weapon zoom animation")
-            builder.checkbox("Any weapon trail", "alwaysTrail")
+            builder.checkbox("Skin hack", "skinHack", "Makes you able to use any skin in game, only shows on your side")
             builder.checkbox("Billboard shaders", "animatedBillboards", "Disable if you get fps drops")
+            builder.checkbox("Any weapon trail", "alwaysTrail")
+            builder.slider("Weapon Zoom", "weaponZoom", 0, 20, 1, "Weapon Zoom Multiplier Adjust")
         })
 
         tab(3, () => {
