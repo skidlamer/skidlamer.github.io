@@ -409,6 +409,11 @@ div[style*="background-color:gainsboro;border-radius:6px;padding:5px"] {
    background: #222222;
 }
 
+/* Custom Controls */
+#setToggle {
+	background-color: #222222;
+}
+
 /* Bubble */
 
 .speechBox {
