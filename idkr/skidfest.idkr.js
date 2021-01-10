@@ -1,5 +1,5 @@
 const injector = {
-    name: 'SkidFest',
+    name: 'Krunker SkidFest',
     author: 'SkidLamer',
     locations: ['game'],
     run: () => {
