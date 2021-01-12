@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          Krunker SkidFest
 // @description   A full featured Mod menu for game Krunker.io!
-// @version       2.12
+// @version       2.13
 // @author        SkidLamer - From The Gaming Gurus
 // @supportURL    https://discord.gg/AJFXXACdrF
 // @homepage      https://skidlamer.github.io/
@@ -26,6 +26,7 @@ class Utilities {
         this.downKeys = new Set();
         this.settings = null;
         this.vars = {};
+        this.playerMaps = [];
         this.skinCache = {};
         this.inputFrame = 0;
         this.renderFrame = 0;
@@ -464,6 +465,9 @@ class Utilities {
                     return tmpHTML;
                 };
                 clearInterval(waitForWindows);
+                this.createButton("5k1D", "https://i.imgur.com/1tWAEJx.gif", () => {
+                    this.toggleMenu()
+                })
             }
         }, 100);
 
@@ -530,12 +534,25 @@ class Utilities {
         elm.addEventListener(type, event => callback(event));
     }
 
-    createElement(type, html, id) {
+    createElement(type, html, id, className) {
         let newElement = document.createElement(type)
         if (id) newElement.id = id
-        newElement.innerHTML = html
+        if (className) newElement.className = className;
+        if (html) newElement.innerHTML = html;
         return newElement
     }
+
+    createButton(name, iconURL, fn) {
+        let menu = document.querySelector("#menuItemContainer");
+        let host = this.createElement("div", null, null, "menuItem");
+        let title = this.createElement("div", name, null, "menuItemTitle");
+        let icon = this.createElement("div", null, null, "menuItemIcon");
+        icon.style.backgroundImage = `url("${iconURL}")`
+        host.append(icon, title)
+        menu.append(host)
+        if (fn && this.isType(fn, "function")) host.addEventListener("click", fn)
+    }
+
 
     objectEntries(object, callback) {
         let descriptors = Object.getOwnPropertyDescriptors(object);
@@ -802,6 +819,9 @@ class Utilities {
                     return target.apply(that, [value, 0]);
                 }
             })
+
+            this.rayC = new this.three.Raycaster();
+            this.vec2 = new this.three.Vector2(0, 0);
 
         })
     }
@@ -1199,8 +1219,12 @@ class Utilities {
 
             //Autoaim
             if (this.settings.autoAim.val !== "off") {
+                this.playerMaps.length = 0;
+                this.rayC.setFromCamera(this.vec2, this.renderer.fpsCamera);
                 let target = this.game.players.list.filter(enemy => {
-                    return undefined !== enemy[this.vars.objInstances] && enemy[this.vars.objInstances] && !enemy[this.vars.isYou] && !this.getIsFriendly(enemy) && enemy.health > 0 && this.getInView(enemy)
+                    let hostile = undefined !== enemy[this.vars.objInstances] && enemy[this.vars.objInstances] && !enemy[this.vars.isYou] && !this.getIsFriendly(enemy) && enemy.health > 0 && this.getInView(enemy);
+                    if (hostile) this.playerMaps.push( enemy[this.vars.objInstances] );
+                    return hostile
                 }).sort((p1, p2) => this.getD3D(this.me.x, this.me.z, p1.x, p1.z) - this.getD3D(this.me.x, this.me.z, p2.x, p2.z)).shift();
                 if (target) {
                     //let count = this.spinTick(input);
@@ -1209,6 +1233,7 @@ class Utilities {
                     //} else console.log("spins ", count);
                     //target.jumpBobY * this.config.jumpVel
                     let canSee = this.renderer.frustum.containsPoint(target[this.vars.objInstances].position);
+                    let inCast = this.rayC.intersectObjects(this.playerMaps, true).length;
                     let yDire = (this.getDir(this.me.z, this.me.x, target.z, target.x) || 0)
                     let xDire = ((this.getXDire(this.me.x, this.me.y, this.me.z, target.x, target.y - target[this.vars.crouchVal] * this.consts.crouchDst + this.me[this.vars.crouchVal] * this.consts.crouchDst, target.z) || 0) - this.consts.recoilMlt * this.me[this.vars.recoilAnimY])
                     if (this.me.weapon[this.vars.nAuto] && this.me[this.vars.didShoot]) {
@@ -1219,7 +1244,7 @@ class Utilities {
                     }
                     else if (!canSee && this.settings.frustrumCheck.val) this.resetLookAt();
                     else {
-                        input[this.key.scope] = this.settings.autoAim.val === "assist"||this.settings.autoAim.val === "correction" ? this.controls[this.vars.mouseDownR] : this.settings.autoAim.val === "trigger" ? canSee ? 1 : 0 : 1;
+                        input[this.key.scope] = this.settings.autoAim.val === "assist"||this.settings.autoAim.val === "correction"||this.settings.autoAim.val === "trigger" ? this.controls[this.vars.mouseDownR] : 0;
                         switch (this.settings.autoAim.val) {
                             case "quickScope":
                                 input[this.key.scope] = 1;
@@ -1247,12 +1272,10 @@ class Utilities {
                                 input[this.key.xdir] = xDire * 1e3
                                 break;
                             case "trigger":
-                                if (!this.me.aimDir) {
-                                    if (!this.me[this.vars.aimVal] && this.me.aimTime > 180) {
-                                        if (!this.me.canThrow) input[this.key.shoot] = 1;
-                                        input[this.key.ydir] = yDire * 1e3
-                                        input[this.key.xdir] = xDire * 1e3
-                                    }
+                                if (input[this.key.scope] && canSee && inCast) {
+                                    input[this.key.shoot] = 1;
+                                    input[this.key.ydir] = yDire * 1e3
+                                    input[this.key.xdir] = xDire * 1e3
                                 }
                                 break;
                             case "correction":
