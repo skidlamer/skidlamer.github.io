@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          Krunker SkidFest
 // @description   A full featured Mod menu for game Krunker.io!
-// @version       2.14
+// @version       2.15
 // @author        SkidLamer - From The Gaming Gurus
 // @supportURL    https://discord.gg/AJFXXACdrF
 // @homepage      https://skidlamer.github.io/
@@ -1234,7 +1234,7 @@ class Utilities {
                     //target.jumpBobY * this.config.jumpVel
                     let canSee = this.renderer.frustum.containsPoint(target[this.vars.objInstances].position);
                     let inCast = this.rayC.intersectObjects(this.playerMaps, true).length;
-                    let yDire = (this.getDir(this.me.z, this.me.x, target.z, target.x) || 0)
+                    let yDire = (this.getDir(this.me.z, this.me.x, target.z, target.x) || 0);
                     let xDire = ((this.getXDire(this.me.x, this.me.y, this.me.z, target.x, target.y - target[this.vars.crouchVal] * this.consts.crouchDst + this.me[this.vars.crouchVal] * this.consts.crouchDst, target.z) || 0) - this.consts.recoilMlt * this.me[this.vars.recoilAnimY])
                     if (this.me.weapon[this.vars.nAuto] && this.me[this.vars.didShoot]) {
                         input[this.key.shoot] = 0;
@@ -1245,6 +1245,7 @@ class Utilities {
                     else if (!canSee && this.settings.frustrumCheck.val) this.resetLookAt();
                     else {
                         input[this.key.scope] = this.settings.autoAim.val === "assist"||this.settings.autoAim.val === "correction"||this.settings.autoAim.val === "trigger" ? this.controls[this.vars.mouseDownR] : 0;
+                        if (this.me.weapon.name == 'Akimbo Uzi') this.me[this.vars.aimVal] = input[this.key.scope];
                         switch (this.settings.autoAim.val) {
                             case "quickScope":
                                 input[this.key.scope] = 1;
