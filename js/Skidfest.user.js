@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          Krunker SkidFest
 // @description   A full featured Mod menu for game Krunker.io!
-// @version       2.15
+// @version       2.16
 // @author        SkidLamer - From The Gaming Gurus
 // @supportURL    https://discord.gg/AJFXXACdrF
 // @homepage      https://skidlamer.github.io/
@@ -129,7 +129,7 @@ class Utilities {
             if (this.head) {
                 clearInterval(wait);
                 Object.entries(this.css).forEach(entry => {
-                    this.css[entry[0]] = this.createElement("style", entry[1])
+                    this.css[entry[0]] = this.createElement("style", entry[1]);
                 })
                 this.onLoad();
             }
@@ -196,8 +196,19 @@ class Utilities {
     createSettings() {
         this.settings = {
             //Rendering
-            hideAdverts: {
+            showSkidBtn: {
                 pre: "<div class='setHed'>Rendering</div>",
+                name: "Show Skid Button",
+                val: true,
+                html: () => this.generateSetting("checkbox", "showSkidBtn", this),
+                set: (value, init) => {
+                    let button = document.getElementById("mainButton");
+                    if (!button) {
+                        button = this.createButton("5k1D", "https://i.imgur.com/1tWAEJx.gif", this.toggleMenu, value)
+                    } else button.style.display = value ? "inherit" : "none";
+                }
+            },
+            hideAdverts: {
                 name: "Hide Advertisments",
                 val: true,
                 html: () => this.generateSetting("checkbox", "hideAdverts", this),
@@ -465,9 +476,7 @@ class Utilities {
                     return tmpHTML;
                 };
                 clearInterval(waitForWindows);
-                this.createButton("5k1D", "https://i.imgur.com/1tWAEJx.gif", () => {
-                    this.toggleMenu()
-                })
+                //this.createButton("5k1D", "https://i.imgur.com/1tWAEJx.gif", this.toggleMenu)
             }
         }, 100);
 
@@ -534,25 +543,40 @@ class Utilities {
         elm.addEventListener(type, event => callback(event));
     }
 
-    createElement(type, html, id, className) {
-        let newElement = document.createElement(type)
-        if (id) newElement.id = id
-        if (className) newElement.className = className;
-        if (html) newElement.innerHTML = html;
-        return newElement
+    createElement(element, attribute, inner) {
+        if (!this.isDefined(element)) {
+            return null;
+        }
+        if (!this.isDefined(inner)) {
+            inner = "";
+        }
+        let el = document.createElement(element);
+        if (this.isType(attribute, 'object')) {
+            for (let key in attribute) {
+                el.setAttribute(key, attribute[key]);
+            }
+        }
+        if (!Array.isArray(inner)) {
+            inner = [inner];
+        }
+        for (let i = 0; i < inner.length; i++) {
+            if (inner[i].tagName) {
+                el.appendChild(inner[i]);
+            } else {
+                el.appendChild(document.createTextNode(inner[i]));
+            }
+        }
+        return el;
     }
 
-    createButton(name, iconURL, fn) {
+    createButton(name, iconURL, fn, visible) {
+        visible = visible ? "inherit":"none";
         let menu = document.querySelector("#menuItemContainer");
-        let host = this.createElement("div", null, null, "menuItem");
-        let title = this.createElement("div", name, null, "menuItemTitle");
-        let icon = this.createElement("div", null, null, "menuItemIcon");
-        icon.style.backgroundImage = `url("${iconURL}")`
-        host.append(icon, title)
-        menu.append(host)
-        if (fn && this.isType(fn, "function")) host.addEventListener("click", fn)
+        let icon = this.createElement("div",{"class":"menuItemIcon", "style":`background-image:url("${iconURL}");display:inherit;`});
+        let title= this.createElement("div",{"class":"menuItemTitle", "style":`display:inherit;`}, name);
+        let host = this.createElement("div",{"id":"mainButton", "class":"menuItem", "onmouseenter":"playTick()", "onclick":"showWindow(12)", "style":`display:${visible};`},[icon, title]);
+        if (menu) menu.append(host)
     }
-
 
     objectEntries(object, callback) {
         let descriptors = Object.getOwnPropertyDescriptors(object);
@@ -1106,7 +1130,7 @@ class Utilities {
                     let chamsEnabled = chamColor !== "off";
                     if (child && child.type == "Mesh" && child.material) {
                         child.material.depthTest = chamsEnabled ? false : true;
-                        if (this.isDefined(child.material.fog)) child.material.fog = chamsEnabled ? false : true;
+                        //if (this.isDefined(child.material.fog)) child.material.fog = chamsEnabled ? false : true;
                         if (child.material.emissive) {
                             child.material.emissive.r = chamColor == 'off' || chamColor == 'teal' || chamColor == 'green' || chamColor == 'blue' ? 0 : 0.55;
                             child.material.emissive.g = chamColor == 'off' || chamColor == 'purple' || chamColor == 'blue' || chamColor == 'red' ? 0 : 0.55;
@@ -1143,7 +1167,7 @@ class Utilities {
             else {
                 if (!this.me.aimDir && canSee) {
                     input[this.key.scope] = 1;
-                    if (!this.me[this.vars.aimVal]) {
+                    if (!this.me[this.vars.aimVal]||this.me.weapon.noAim) {
                         input[this.key.shoot] = 1;
                         input[this.key.ydir] = yDire * 1e3
                         input[this.key.xdir] = xDire * 1e3
@@ -1179,11 +1203,11 @@ class Utilities {
             }
 
             let isMelee = this.isDefined(this.me.weapon.melee)&&this.me.weapon.melee||this.isDefined(this.me.weapon.canThrow)&&this.me.weapon.canThrow;
+            let ammoLeft = this.me[this.vars.ammos][this.me[this.vars.weaponIndex]];
 
             // autoReload
             if (this.settings.autoReload.val) {
-                let ammoLeft = this.me[this.vars.ammos][this.me[this.vars.weaponIndex]];
-                let capacity = this.me.weapon.ammo;
+                //let capacity = this.me.weapon.ammo;
                 //if (ammoLeft < capacity)
                 if (isMelee) {
                     if (!this.me.canThrow) {
@@ -1243,13 +1267,12 @@ class Utilities {
                         this.me.inspectX = 0;
                     }
                     else if (!canSee && this.settings.frustrumCheck.val) this.resetLookAt();
-                    else {
+                    else if (ammoLeft||isMelee) {
                         input[this.key.scope] = this.settings.autoAim.val === "assist"||this.settings.autoAim.val === "correction"||this.settings.autoAim.val === "trigger" ? this.controls[this.vars.mouseDownR] : 0;
-                        if (this.me.weapon.name == 'Akimbo Uzi') this.me[this.vars.aimVal] = input[this.key.scope];
                         switch (this.settings.autoAim.val) {
                             case "quickScope":
                                 input[this.key.scope] = 1;
-                                if (!this.me[this.vars.aimVal]) {
+                                if (!this.me[this.vars.aimVal]||this.me.weapon.noAim) {
                                     if (!this.me.canThrow||!isMelee) input[this.key.shoot] = 1;
                                     input[this.key.ydir] = yDire * 1e3
                                     input[this.key.xdir] = xDire * 1e3
@@ -1266,7 +1289,7 @@ class Utilities {
                                 }
                                 break;
                             case "silent":
-                                if (!this.me[this.vars.aimVal]) {
+                                if (!this.me[this.vars.aimVal]||this.me.weapon.noAim) {
                                     if (!this.me.canThrow||!isMelee) input[this.key.shoot] = 1;
                                 } else input[this.key.scope] = 1;
                                 input[this.key.ydir] = yDire * 1e3
