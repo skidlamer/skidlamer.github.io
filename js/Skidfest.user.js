@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          Krunker SkidFest
 // @description   A full featured Mod menu for game Krunker.io!
-// @version       2.13
+// @version       2.14
 // @author        SkidLamer - From The Gaming Gurus
 // @supportURL    https://discord.gg/AJFXXACdrF
 // @homepage      https://skidlamer.github.io/
@@ -778,8 +778,8 @@ class Utilities {
                 this.ws._dispatchEvent = new Proxy(this.ws._dispatchEvent, {
                     apply: function(target, that, [type, event]) {
                         if (type =="init") {
-                            if(event[9].bill && window.utilities.settings.customBillboard.val.length > 1) {
-                                event[9].bill.txt = window.utilities.settings.customBillboard.val;
+                            if(event[10] && event[10].length && event[10].bill && window.utilities.settings.customBillboard.val.length > 1) {
+                                event[10].bill.txt = window.utilities.settings.customBillboard.val;
                             }
                         }
 
