@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name          Krunker SkidFest
 // @description   A full featured Mod menu for game Krunker.io!
-// @version       2.16
+// @version       2.17
 // @author        SkidLamer - From The Gaming Gurus
 // @supportURL    https://discord.gg/AJFXXACdrF
 // @homepage      https://skidlamer.github.io/
-// @icon64        https://i.imgur.com/PPGAhg0.png
+// @iconURL       https://i.imgur.com/MqW6Ufx.png
 // @match         *://krunker.io/*
 // @exclude       *://krunker.io/editor*
 // @exclude       *://krunker.io/social*
@@ -644,51 +644,10 @@ class Utilities {
     }
 
     onLoad() {
+
         this.deObfuscate();
-
         this.createSettings();
-
-        this.createObserver(window.instructionsUpdate, 'style', (target) => {
-            if (this.settings.autoFindNew.val) {
-                console.log(target)
-                if (['Kicked', 'Banned', 'Disconnected', 'Error', 'Game is full'].some(text => target && target.innerHTML.includes(text))) {
-                    location = document.location.origin;
-                }
-            }
-        });
-
-        this.createListener(document, "keyup", event => {
-            if (this.downKeys.has(event.code)) this.downKeys.delete(event.code)
-        })
-
-        this.createListener(document, "keydown", event => {
-            if (event.code == "F1") {
-                event.preventDefault();
-                this.toggleMenu();
-            }
-            if ('INPUT' == document.activeElement.tagName || !window.endUI && window.endUI.style.display) return;
-            switch (event.code) {
-                case 'NumpadSubtract':
-                    document.exitPointerLock();
-                    //console.log(document.exitPointerLock)
-                    console.dirxml(this)
-                    break;
-                default:
-                    if (!this.downKeys.has(event.code)) this.downKeys.add(event.code);
-                    break;
-            }
-        })
-
-        this.createListener(document, "mouseup", event => {
-            switch (event.button) {
-                case 1:
-                    event.preventDefault();
-                    this.toggleMenu();
-                    break;
-                default:
-                    break;
-            }
-        })
+        this.createObservers();
 
         this.waitFor(_=>this.exports).then(exports => {
             if (!exports) return alert("Exports not Found");
@@ -870,7 +829,7 @@ class Utilities {
         .set("respawnT", [/'\w+':0x3e8\*/g, `'respawnT':0x0*`])
 
         .set("videoAds", [/!function\(\){var \w+=document\['createElement']\('script'\);.*?}\(\);/, ""])
-        .set("frustum", [/(;const (\w+)=this\['frustum']\['containsPoint'];.*?return)!0x1/, "$1 $2"])
+        //.set("frustum", [/(;const (\w+)=this\['frustum']\['containsPoint'];.*?return)!0x1/, "$1 $2"])
 
         //.set("anticheat#0", [/Object\['defineProperty']\(window,'setTimeout'.*?(var \w+='undefined')/, "$1"])
         //.set("anticheat#1", [/Object\['defineProperty']\(navigator.*?;(var \w+=)/, "$1"])
@@ -968,6 +927,50 @@ class Utilities {
         console.groupEnd();
     }
 
+    createObservers() {
+        this.createObserver(window.instructionsUpdate, 'style', (target) => {
+            if (this.settings.autoFindNew.val) {
+                console.log(target)
+                if (['Kicked', 'Banned', 'Disconnected', 'Error', 'Game is full'].some(text => target && target.innerHTML.includes(text))) {
+                    location = document.location.origin;
+                }
+            }
+        });
+
+        this.createListener(document, "keyup", event => {
+            if (this.downKeys.has(event.code)) this.downKeys.delete(event.code)
+        })
+
+        this.createListener(document, "keydown", event => {
+            if (event.code == "F1") {
+                event.preventDefault();
+                this.toggleMenu();
+            }
+            if ('INPUT' == document.activeElement.tagName || !window.endUI && window.endUI.style.display) return;
+            switch (event.code) {
+                case 'NumpadSubtract':
+                    document.exitPointerLock();
+                    //console.log(document.exitPointerLock)
+                    console.dirxml(this)
+                    break;
+                default:
+                    if (!this.downKeys.has(event.code)) this.downKeys.add(event.code);
+                    break;
+            }
+        })
+
+        this.createListener(document, "mouseup", event => {
+            switch (event.button) {
+                case 1:
+                    event.preventDefault();
+                    this.toggleMenu();
+                    break;
+                default:
+                    break;
+            }
+        })
+    }
+
     onRender() { /* hrt / ttap - https://github.com/hrt */
         this.renderFrame ++;
         if (this.renderFrame >= 100000) this.renderFrame = 0;
@@ -977,18 +980,6 @@ class Utilities {
         let worldPosition = this.renderer.camera[this.vars.getWorldPosition]();
         let espVal = this.settings.renderESP.val;
         if (espVal ==="walls"||espVal ==="twoD") this.nameTags = undefined; else this.nameTags = true;
-
-        if (this.isNative(this.renderer.frustum.containsPoint)) {
-            this.renderer.frustum.containsPoint = function (point) {
-                let planes = this.planes;
-                for (let i = 0; i < 6; i ++) {
-                    if (planes[i].distanceToPoint(point) < 0) {
-                        return false;
-                    }
-                }
-                return true;
-            }
-        }
 
         if (this.settings.autoActivateNuke.val && this.me && Object.keys(this.me.streaks).length) { /*chonker*/
             this.ws.__send("k", 0);
@@ -1018,7 +1009,7 @@ class Utilities {
                             position.x += j * playerScale;
                             position.z += k * playerScale;
                             position.y += l * (player.height - player[this.vars.crouchVal] * this.consts.crouchDst);
-                            if (!this.renderer.frustum.containsPoint(position)) {
+                            if (!this.containsPoint(position)) {
                                 br = true;
                                 break;
                             }
@@ -1160,7 +1151,7 @@ class Utilities {
             return undefined !== enemy.mesh && enemy.mesh && enemy.mesh.children[0] && enemy.canBSeen && enemy.health > 0
         }).sort((p1, p2) => this.getD3D(this.me.x, this.me.z, p1.x, p1.z) - this.getD3D(this.me.x, this.me.z, p2.x, p2.z)).shift();
         if (target) {
-            let canSee = this.renderer.frustum.containsPoint(target.mesh.position)
+            let canSee = this.containsPoint(target.mesh.position)
             let yDire = (this.getDir(this.me.z, this.me.x, target.z, target.x) || 0)
             let xDire = ((this.getXDire(this.me.x, this.me.y, this.me.z, target.x, target.y + target.mesh.children[0].scale.y * 0.85, target.z) || 0) - this.consts.recoilMlt * this.me[this.vars.recoilAnimY])
             if (this.me.weapon[this.vars.nAuto] && this.me[this.vars.didShoot]) { input[this.key.shoot] = 0; input[this.key.scope] = 0; this.me.inspecting = false; this.me.inspectX = 0; }
@@ -1256,7 +1247,7 @@ class Utilities {
                     //    input[2] = this.me[this.vars.xDire] + Math.PI;
                     //} else console.log("spins ", count);
                     //target.jumpBobY * this.config.jumpVel
-                    let canSee = this.renderer.frustum.containsPoint(target[this.vars.objInstances].position);
+                    let canSee = this.containsPoint(target[this.vars.objInstances].position);
                     let inCast = this.rayC.intersectObjects(this.playerMaps, true).length;
                     let yDire = (this.getDir(this.me.z, this.me.x, target.z, target.x) || 0);
                     let xDire = ((this.getXDire(this.me.x, this.me.y, this.me.z, target.x, target.y - target[this.vars.crouchVal] * this.consts.crouchDst + this.me[this.vars.crouchVal] * this.consts.crouchDst, target.z) || 0) - this.consts.recoilMlt * this.me[this.vars.recoilAnimY])
@@ -1354,6 +1345,16 @@ class Utilities {
         return Math.sqrt((x2 -= x1) * x2 + (y2 -= y1) * y2);
     }
 
+    containsPoint(point) {
+        let planes = this.renderer.frustum.planes;
+        for (let i = 0; i < 6; i ++) {
+            if (planes[i].distanceToPoint(point) < 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     getCanSee(from, toX, toY, toZ, boxSize) {
         if (!from) return 0;
         boxSize = boxSize||0;
@@ -1431,6 +1432,8 @@ window.Function = new Proxy(Function, {
         if (args.length) {
             let body = args[args.length - 1];
             if (body.length > 38e5) {
+                window.utilities = new Utilities(body);
+                body = window.utilities.patchScript();
                 // game.js at game loader
                 //console.log(body)
             }
@@ -1448,10 +1451,8 @@ window.Function = new Proxy(Function, {
                         for(let name in fnArgs[1]) {
                             window.WASM[name] = fnArgs[1][name];
                             switch (name) {
-                                case "fetchCallback": //game.js after fetch and decode
+                                case "fetchCallback": //game.js after fetch and not decoded
                                     fnArgs[1][name] = function(body) {
-                                        window.utilities = new Utilities(body);
-                                        body = window.utilities.patchScript();
                                         return window.WASM[name].apply(this, [body]);
                                     };
                                     break;
