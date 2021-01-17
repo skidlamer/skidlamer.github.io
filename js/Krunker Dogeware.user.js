@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Krunker  Dogeware - by The Gaming Gurus
 // @description   The most advanced krunker cheat
-// @version       2.14
+// @version       2.15
 // @author        SkidLamer - From The Gaming Gurus
 // @supportURL    https://discord.gg/upA3nap6Ug
 // @homepage      https://skidlamer.github.io/
@@ -185,7 +185,8 @@ class Dogeware {
             if (object.hasOwnProperty('index')) {
                 if (!found) {
                     object.val = null;
-                    alert("Failed to Find " + name);
+                    //alert("Failed to Find " + name);
+                    console.error("Failed to Find " + name);
                 } else {
                     object.val = found[object.index];
                     console.log ("Found ", name, ":", object.val);
@@ -197,7 +198,7 @@ class Dogeware {
             } else if (found) {
                 script = script.replace(object.regex, object.patch);
                 console.log ("Patched ", name);
-            } else alert("Failed to Patch " + name);
+            } else console.error("Failed to Patch " + name);//alert("Failed to Patch " + name);
         }
         return script;
     }
@@ -1384,7 +1385,8 @@ window.Function = new Proxy(Function, {
             let body = args[args.length - 1];
             if (body.length > 38e5) {
                 // game.js at game loader
-                //console.log(body)
+                body = dog.gameJS(body)||body;
+                 //  console.log(body)
             }
             else if (args[0] == "requireRegisteredType") {
                 return (function(...fnArgs){
@@ -1400,9 +1402,8 @@ window.Function = new Proxy(Function, {
                         for(let name in fnArgs[1]) {
                             window.WASM[name] = fnArgs[1][name];
                             switch (name) {
-                                case "fetchCallback": //game.js after fetch and decode
+                                case "fetchCallback": //game.js after fetch and not decoded
                                     fnArgs[1][name] = function(body) {
-                                        body = dog.gameJS(body)||body;
                                         return window.WASM[name].apply(this, [body]);
                                     };
                                     break;
