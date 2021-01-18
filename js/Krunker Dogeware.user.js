@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Krunker  Dogeware - by The Gaming Gurus
 // @description   The most advanced krunker cheat
-// @version       2.15
+// @version       2.16
 // @author        SkidLamer - From The Gaming Gurus
 // @supportURL    https://discord.gg/upA3nap6Ug
 // @homepage      https://skidlamer.github.io/
@@ -67,7 +67,7 @@ class Dogeware {
             chams: false,
             wireframe: false,
             chamsc: 0,
-            //customCss: "",
+            customCSS: "",
             selfChams: false,
             autoNuke: false,
             chamsInterval: 500,
@@ -299,7 +299,8 @@ class Dogeware {
             }
         })
 
-        this.customCSS("https://skidlamer.github.io/css/kpal.css");
+        this.cleanGUI();
+        this.customCSS();
         await this.waitFor(_=>this.isDefined(window.windows)); this.initGUI();
     }
 
@@ -1064,24 +1065,32 @@ class Dogeware {
         }
     }
 
-    customCSS(url) {
-        let css = document.createElement("link");
-        let head = document.head||document.getElementsByTagName('head')[0]||0;
-        if (url.startsWith("http")&&url.endsWith(".css")) {
-            css.href = url;
-            css.rel = "stylesheet"
-        }
-        if (head) {
-            head.appendChild(css);
+    cleanGUI() {
+        let head = document.head||document.getElementsByTagName('head')[0]||0,
             css = this.createElement("style", "#aMerger, #endAMerger { display: none !important }");
             head.appendChild(css);
             window['onetrust-consent-sdk'].style.display = "none";
             window.streamContainer.style.display = "none";
             window.merchHolder.style.display = "none";
             window.newsHolder.style.display = "none";
-        }
     }
 
+    customCSS() {
+        if (!this.isDefined(this.CSSres)) {
+            let head = document.head||document.getElementsByTagName('head')[0]||0
+            this.CSSres = document.createElement("link");
+            this.CSSres.rel = "stylesheet";
+            this.CSSres.href = "https://skidlamer.github.io/css/kpal.css"
+            this.CSSres.disabled = false;
+            head.appendChild(this.CSSres);
+        }
+        if (this.settings.customCSS.startsWith("http") && this.settings.customCSS.endsWith(".css")) {
+            //let head = document.head||document.getElementsByTagName('head')[0]||0
+            this.CSSres.href = this.settings.customCSS;
+            //head.appendChild(this.CSSres);
+        }
+        else this.CSSres = undefined;
+    }
 
     initGUI() {
         function createButton(name, iconURL, fn) {
@@ -1099,8 +1108,17 @@ class Dogeware {
 
             menuItem.addEventListener("click", fn)
         }
+
         dog.GUI.setSetting = function(setting, value) {
-            dog.settings[setting] = value;
+            switch (setting) {
+                case "customCSS":
+                    dog.settings.customCSS = value
+                    dog.customCSS();
+                    break
+
+                default:
+                    dog.settings[setting] = value
+            }
             localStorage.kro_setngss_json = JSON.stringify(dog.settings);
         }
         dog.GUI.windowIndex = windows.length+1
@@ -1316,6 +1334,7 @@ class Dogeware {
             builder.checkbox("No inactivity kick", "antikick", "Disables the 'Kicked for inactivity' message (client side, but works)")
             builder.checkbox("Auto nuke", "autoNuke", "Automatically nukes when you are able to")
             builder.checkbox("Force nametags on", "fgno", "Use in custom games with disabled nametags")
+            builder.input("Custom CSS", "customCSS", "url", "", "URL to CSS file")
         })
 
         if (dog.isClient) {
