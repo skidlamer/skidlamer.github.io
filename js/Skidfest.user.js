@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          Krunker SkidFest
 // @description   A full featured Mod menu for game Krunker.io!
-// @version       2.17
+// @version       2.18
 // @author        SkidLamer - From The Gaming Gurus
 // @supportURL    https://discord.gg/AJFXXACdrF
 // @homepage      https://skidlamer.github.io/
@@ -18,10 +18,12 @@
 /* eslint-env es6 */
 /* eslint-disable no-caller, no-undef */
 
-const CRC2d = CanvasRenderingContext2D.prototype;
+var CRC2d = CanvasRenderingContext2D.prototype;
+var skid, skidStr = [...Array(8)].map(_ => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'[~~(Math.random()*52)]).join('');
 
-class Utilities {
+class Skid {
     constructor(script) {
+        skid = this;
         this.script = script;
         this.downKeys = new Set();
         this.settings = null;
@@ -472,7 +474,7 @@ class Utilities {
                         tmpHTML += "<div class='settName' id='" + key + "_div' style='display:" + (this.settings[key].hide ? 'none' : 'block') + "'>" + this.settings[key].name +
                             " " + this.settings[key].html() + "</div>";
                     }
-                    tmpHTML += `<br><hr><a onclick='window.utilities.resetSettings()' class='menuLink'>Reset Settings</a> | <a onclick='window.utilities.saveScript()' class='menuLink'>Save GameScript</a>`
+                    tmpHTML += `<br><hr><a onclick='${skidStr}.resetSettings()' class='menuLink'>Reset Settings</a> | <a onclick='${skidStr}.saveScript()' class='menuLink'>Save GameScript</a>`
                     return tmpHTML;
                 };
                 clearInterval(waitForWindows);
@@ -497,11 +499,11 @@ class Utilities {
     generateSetting(type, name, extra) {
         switch (type) {
             case 'checkbox':
-                return `<label class="switch"><input type="checkbox" onclick="window.utilities.setSetting('${name}', this.checked)" ${this.settings[name].val ? 'checked' : ''}><span class="slider"></span></label>`;
+                return `<label class="switch"><input type="checkbox" onclick="${skidStr}.setSetting('${name}', this.checked)" ${this.settings[name].val ? 'checked' : ''}><span class="slider"></span></label>`;
             case 'slider':
-                return `<span class='sliderVal' id='slid_utilities_${name}'>${this.settings[name].val}</span><div class='slidecontainer'><input type='range' min='${this.settings[name].min}' max='${this.settings[name].max}' step='${this.settings[name].step}' value='${this.settings[name].val}' class='sliderM' oninput="window.utilities.setSetting('${name}', this.value)"></div>`
+                return `<span class='sliderVal' id='slid_utilities_${name}'>${this.settings[name].val}</span><div class='slidecontainer'><input type='range' min='${this.settings[name].min}' max='${this.settings[name].max}' step='${this.settings[name].step}' value='${this.settings[name].val}' class='sliderM' oninput="${skidStr}.setSetting('${name}', this.value)"></div>`
                 case 'select': {
-                    let temp = `<select onchange="window.utilities.setSetting(\x27${name}\x27, this.value)" class="inputGrey2">`;
+                    let temp = `<select onchange="${skidStr}.setSetting(\x27${name}\x27, this.value)" class="inputGrey2">`;
                     for (let option in extra) {
                         temp += '<option value="' + option + '" ' + (option == this.settings[name].val ? 'selected' : '') + '>' + extra[option] + '</option>';
                     }
@@ -509,7 +511,7 @@ class Utilities {
                     return temp;
                 }
             default:
-                return `<input type="${type}" name="${type}" id="slid_utilities_${name}"\n${'color' == type ? 'style="float:right;margin-top:5px"' : `class="inputGrey2" placeholder="${extra}"`}\nvalue="${this.settings[name].val}" oninput="window.utilities.setSetting(\x27${name}\x27, this.value)"/>`;
+                return `<input type="${type}" name="${type}" id="slid_utilities_${name}"\n${'color' == type ? 'style="float:right;margin-top:5px"' : `class="inputGrey2" placeholder="${extra}"`}\nvalue="${this.settings[name].val}" oninput="${skidStr}.setSetting(\x27${name}\x27, this.value)"/>`;
         }
     }
 
@@ -688,22 +690,22 @@ class Utilities {
                 }
             })
             function render(scale, game, controls, renderer, me) {
-                let width = window.utilities.overlay.canvas.width / scale;
-                let height = window.utilities.overlay.canvas.height / scale;
+                let width = skid.overlay.canvas.width / scale;
+                let height = skid.overlay.canvas.height / scale;
                 const renderArgs = [scale, game, controls, renderer, me];
-                if (renderArgs && void 0 !== window.utilities && window.utilities) {
+                if (renderArgs && void 0 !== skid) {
                     ["scale", "game", "controls", "renderer", "me"].forEach((item, index)=>{
-                        window.utilities[item] = renderArgs[index];
+                        skid[item] = renderArgs[index];
                     });
                     if (me) {
-                        window.utilities.ctx.save();
-                        window.utilities.ctx.scale(scale, scale);
+                        skid.ctx.save();
+                        skid.ctx.scale(scale, scale);
                         //this.ctx.clearRect(0, 0, width, height);
-                        window.utilities.onRender();
+                        skid.onRender();
                         //window.requestAnimationFrame.call(window, renderArgs.callee.caller.bind(this));
-                        window.utilities.ctx.restore();
+                        skid.ctx.restore();
                     }
-                    if(window.utilities.settings && window.utilities.settings.autoClick.val && window.endUI.style.display == "none" && window.windowHolder.style.display == "none") {
+                    if(skid.settings && skid.settings.autoClick.val && window.endUI.style.display == "none" && window.windowHolder.style.display == "none") {
                         controls.toggle(true);
                     }
                 }
@@ -725,7 +727,7 @@ class Utilities {
                     return fn;
                 },
                 get: function() {
-                    return window.utilities.settings.skinUnlock.val && this.stats ? this.localSkins : this[$skins];
+                    return skid.settings.skinUnlock.val && this.stats ? this.localSkins : this[$skins];
                 }
             })
 
@@ -743,7 +745,7 @@ class Utilities {
                         }
 
                         if (args[0] === "en") {
-                            window.utilities.skinCache = {
+                            skid.skinCache = {
                                 main: args[1][2][0],
                                 secondary: args[1][2][1],
                                 hat: args[1][3],
@@ -761,18 +763,18 @@ class Utilities {
                 this.ws._dispatchEvent = new Proxy(this.ws._dispatchEvent, {
                     apply: function(target, that, [type, event]) {
                         if (type =="init") {
-                            if(event[10] && event[10].length && event[10].bill && window.utilities.settings.customBillboard.val.length > 1) {
-                                event[10].bill.txt = window.utilities.settings.customBillboard.val;
+                            if(event[10] && event[10].length && event[10].bill && skid.settings.customBillboard.val.length > 1) {
+                                event[10].bill.txt = skid.settings.customBillboard.val;
                             }
                         }
 
-                        if (window.utilities.settings.skinUnlock.val && window.utilities.skinCache && type === "0") {
-                            let skins = window.utilities.skinCache;
+                        if (skid.settings.skinUnlock.val && skid.skinCache && type === "0") {
+                            let skins = skid.skinCache;
                             let pInfo = event[0];
                             let pSize = 38;
                             while (pInfo.length % pSize !== 0) pSize++;
                             for(let i = 0; i < pInfo.length; i += pSize) {
-                                if (pInfo[i] === window.utilities.ws.socketId||0) {
+                                if (pInfo[i] === skid.ws.socketId||0) {
                                     pInfo[i + 12] = [skins.main, skins.secondary];
                                     pInfo[i + 13] = skins.hat;
                                     pInfo[i + 14] = skins.body;
@@ -791,7 +793,7 @@ class Utilities {
             if (this.isDefined(window.SOUND)) {
                 window.SOUND.play = new Proxy(window.SOUND.play, {
                     apply: function(target, that, [src, vol, loop, rate]) {
-                        if ( src.startsWith("fart_") && window.utilities.settings.disableHckSnd.val ) return;
+                        if ( src.startsWith("fart_") && skid.settings.disableHckSnd.val ) return;
                         return target.apply(that, [src, vol, loop, rate]);
                     }
                 })
@@ -811,27 +813,28 @@ class Utilities {
 
     patchScript() {
         const patches = new Map()
-        .set("exports", [/(this\['\w+']\['\w+']\(this\);};},function\(\w+,\w+,(\w+)\){)/, `$1 window.utilities.exports=$2.c; window.utilities.modules=$2.m;`])
+        .set("exports", [/(this\['\w+']\['\w+']\(this\);};},function\(\w+,\w+,(\w+)\){)/, `$1 ${skidStr}.exports=$2.c; ${skidStr}.modules=$2.m;`])
         //.set("exports", [/(function\(\w+,\w+,(\w+)\){\(function\(\w+\){)(\w+\['exports'])/,`$1window[${utlStr}].exports=$2.c; window[${utlStr}].modules=$2.m;$3`])
-        //.set("inView", [/if\((!\w+\['\w+'])\)continue;/, "if($1&&void 0 !== window.utilities.nameTags)continue;"])
+        //.set("inView", [/if\((!\w+\['\w+'])\)continue;/, "if($1&&void 0 !== ${skidStr}.nameTags)continue;"])
         //.set("inView", [/(\w+\['\w+']\){if\(\(\w+=\w+\['\w+']\['position']\['clone']\(\))/, "(void 0 == window[${utlStr}].nameTags)||$1"])
-        .set("inView", [/&&(\w+\['\w+'])\){(if\(\(\w+=\w+\['\w+']\['\w+']\['\w+'])/, "){if(!$1&&void 0 !== window.utilities.nameTags)continue;$2"])
-        .set("inputs", [/(\w+\['\w+']\[\w+\['\w+']\['\w+']\?'\w+':'push']\()(\w+)\),/, `$1window.utilities.onInput($2)),`])
+        .set("inView", [/&&(\w+\['\w+'])\){(if\(\(\w+=\w+\['\w+']\['\w+']\['\w+'])/, `){if(!$1&&void 0 !== ${skidStr}.nameTags)continue;$2`])
+        .set("inputs", [/(\w+\['\w+']\[\w+\['\w+']\['\w+']\?'\w+':'push']\()(\w+)\),/, `$1${skidStr}.onInput($2)),`])
         //.set("procInputs", [/(this\['\w+']\()(this\['inputs']\[\w+])(,\w+,!0x1,!\w+|\|\w+\['moveLock']\))/, `$1window[${utlStr}].onInput($2)$3`])
 
         //.set("procInputs", [/this\['meleeAnim']\['armS']=0x0;},this\['\w+']=function\((\w+),\w+,\w+,\w+\){/, `$&window.cheat.onInput($1);`])
         //.set("wallBangs", [/!(\w+)\['transparent']/, "$&& (!cheat.settings.wallbangs || !$1.penetrable )"])
-        .set("thirdPerson", [/(\w+)\[\'config\'\]\[\'thirdPerson\'\]/g, `void 0 !== window.utilities.thirdPerson`])
+        .set("thirdPerson", [/(\w+)\[\'config\'\]\[\'thirdPerson\'\]/g, `void 0 !== ${skidStr}.thirdPerson`])
         //.set("onRender", [/\w+\['render']=function\((\w+,\w+,\w+,\w+,\w+,\w+,\w+,\w+)\){/, `$&window.cheat.onRender($1);`])
         .set("isHacker", [/(window\['\w+']=)!0x0\)/, `$1!0x1)`])
         //.set("Damage", [/\['send']\('vtw',(\w+)\)/, `['send']('kpd',$1)`])
         .set("fixHowler", [/(Howler\['orientation'](.+?)\)\),)/, ``])
         .set("respawnT", [/'\w+':0x3e8\*/g, `'respawnT':0x0*`])
 
-        .set("videoAds", [/!function\(\){var \w+=document\['createElement']\('script'\);.*?}\(\);/, ""])
+        .set("anticheat#0", [/&&\w+\(\),window\['utilities']&&\(\w+\(null,null,null,!0x0\),\w+\(\)\)/,""])
+        //.set("videoAds", [/!function\(\){var \w+=document\['createElement']\('script'\);.*?}\(\);/, ""])
         //.set("frustum", [/(;const (\w+)=this\['frustum']\['containsPoint'];.*?return)!0x1/, "$1 $2"])
 
-        //.set("anticheat#0", [/Object\['defineProperty']\(window,'setTimeout'.*?(var \w+='undefined')/, "$1"])
+        //.set("anticheat#0", [/Object\['defineProperty']\(window,'setTimeou,t'.*?(var \w+='undefined')/, "$1"])
         //.set("anticheat#1", [/Object\['defineProperty']\(navigator.*?;(var \w+=)/, "$1"])
         .set("anticheat#2", [/(\[]instanceof Array;).*?(var)/, "$1 $2"])
         .set("anticheat#3", [/windows\['length'\]>\d+.*?0x25/, `0x25`])
@@ -840,7 +843,7 @@ class Utilities {
 
         //.set("FPS", [/(window\['mozRequestAnimationFrame']\|\|function\(\w+\){window\['setTimeout'])\(\w+,0x3e8\/0x3c\);/, "$1()"])
         //.set("Update", [/(\w+=window\['setTimeout']\(function\(\){\w+)\((\w+)\+(\w+)\)/, "$1($2=$3=0)"])
-        // .set("weaponZoom", [/(,'zoom':)(\d.+?),/g, "$1window.utilities.settings.weaponZoom.val||$2"])
+        // .set("weaponZoom", [/(,'zoom':)(\d.+?),/g, "$1${skidStr}.settings.weaponZoom.val||$2"])
 
         .set("configurable", [/'writeable':!0x1/g, "writeable:true"])
         .set("configurable", [/'configurable':!0x1/g, "configurable:true"])
@@ -915,13 +918,13 @@ class Utilities {
         for (let key in obfu) {
             let result = obfu[key].regex.exec(this.script);
             if (result) {
-                window.utilities.vars[key] = result[obfu[key].pos];
-                console.log("found: ", key, " at ", result.index, " value: ", window.utilities.vars[key]);
+                skid.vars[key] = result[obfu[key].pos];
+                console.log("found: ", key, " at ", result.index, " value: ", skid.vars[key]);
             } else {
                 const str = "Failed to find " + key;
                 console.error(str);
                 alert(str);
-                window.utilities.vars[key] = null;
+                skid.vars[key] = null;
             }
         }
         console.groupEnd();
@@ -1184,11 +1187,11 @@ class Utilities {
             if (!this.game.playerSound[this.isProxy]) {
                 this.game.playerSound = new Proxy(this.game.playerSound, {
                     apply: function(target, that, args) {
-                        if (window.utilities.settings.disableWpnSnd.val && args[0] && typeof args[0] == "string" && args[0].startsWith("weapon_")) return;
+                        if (skid.settings.disableWpnSnd.val && args[0] && typeof args[0] == "string" && args[0].startsWith("weapon_")) return;
                         return target.apply(that, args);
                     },
                     get: function(target, key) {
-                        return key === window.utilities.isProxy ? true : Reflect.get(target, key);
+                        return key === skid.isProxy ? true : Reflect.get(target, key);
                     },
                 })
             }
@@ -1426,120 +1429,7 @@ class Utilities {
     }
 }
 
-window.Function = new Proxy(Function, {
-    construct(target, args) {
-        const original = new target(...args);
-        if (args.length) {
-            let body = args[args.length - 1];
-            if (body.length > 38e5) {
-                window.utilities = new Utilities(body);
-                body = window.utilities.patchScript();
-                // game.js at game loader
-                //console.log(body)
-            }
-            else if (args[0] == "requireRegisteredType") {
-                return (function(...fnArgs){
-                    // Expose WASM functions
-                    if (!window.hasOwnProperty("WASM")) {
-                        Object.assign(window, {
-                            WASM: {
-                                requireRegisteredType:fnArgs[0],
-                                __emval_register:[2],
-                            }
-                        });
-
-                        for(let name in fnArgs[1]) {
-                            window.WASM[name] = fnArgs[1][name];
-                            switch (name) {
-                                case "fetchCallback": //game.js after fetch and not decoded
-                                    fnArgs[1][name] = function(body) {
-                                        return window.WASM[name].apply(this, [body]);
-                                    };
-                                    break;
-
-                                case "fetchMMToken__cb1": //generate token promise
-                                    fnArgs[1][name] = function(response) {
-                                        if (!response.ok) {
-                                            throw new Error("Network response from " + response.url + " was not ok")
-                                        }
-                                        let promise = window.WASM[name].apply(this, [response]);
-                                        return promise;
-                                    };
-                                    break;
-                                case "fetchMMToken__cb2": //hmac token function
-                                    fnArgs[1][name] = function() {
-                                        console.log(arguments[0]);
-                                        return window.WASM[name].apply(this, arguments);
-                                    };
-                                    break;
-
-                            }
-                        }
-                    }
-                    return new target(...args).apply(this, fnArgs);
-                })
-            }
-            // If changed return with spoofed toString();
-            if (args[args.length - 1] !== body) {
-                args[args.length - 1] = body;
-                let patched = new target(...args);
-                patched.toString = () => original.toString();
-                return patched;
-            }
-        }
-        return original;
-    }
-})
-
-function onPageLoad() {
-    window.instructionHolder.style.display = "block";
-    window.instructions.innerHTML = `<div id="settHolder"><img src="https://i.imgur.com/yzb2ZmS.gif" width="25%"></div><a href='https://skidlamer.github.io/wp/' target='_blank.'><div class="imageButton discordSocial"></div></a>`
-    window.request = (url, type, opt = {}) => fetch(url, opt).then(response => response.ok ? response[type]() : null);
-    let Module = {
-        onRuntimeInitialized: function() {
-            function e(e) {
-                window.instructionHolder.style.display = "block";
-                window.instructions.innerHTML = "<div style='color: rgba(255, 255, 255, 0.6)'>" + e + "</div><div style='margin-top:10px;font-size:20px;color:rgba(255,255,255,0.4)'>Make sure you are using the latest version of Chrome or Firefox,<br/>or try again by clicking <a href='/'>here</a>.</div>";
-                window.instructionHolder.style.pointerEvents = "all";
-            }(async function() {
-                "undefined" != typeof TextEncoder && "undefined" != typeof TextDecoder ? await Module.initialize(Module) : e("Your browser is not supported.")
-            })().catch(err => {
-                e("Failed to load game.");
-                throw new Error(err);
-            })
-        }
-    };
-    window._debugTimeStart = Date.now();
-    window.request("/pkg/maindemo.wasm","arrayBuffer",{cache: "no-store"}).then(body => {
-        Module.wasmBinary = body;
-        window.request("/pkg/maindemo.js","text",{cache: "no-store"}).then(body => {
-            body = body.replace(/(function UTF8ToString\((\w+),\w+\)){return \w+\?(.+?)\}/, `$1{let str=$2?$3;if (str.includes("CLEAN_WINDOW") || str.includes("Array.prototype.filter = undefined")) return "";return str;}`);
-            body = body.replace(/(_emscripten_run_script\(\w+\){)eval\((\w+\(\w+\))\)}/, `$1 let str=$2; console.log(str);}`);
-            new Function(body)();
-            window.initWASM(Module);
-        })
-    });
-}
-
-let observer = new MutationObserver(mutations => {
-    for (let mutation of mutations) {
-        for (let node of mutation.addedNodes) {
-            if (node.tagName === 'SCRIPT' && node.type === "text/javascript" && node.innerHTML.startsWith("*!", 1)) {
-                node.innerHTML = onPageLoad.toString() + "\nonPageLoad();";
-                observer.disconnect();
-                //console.log(node.innerHTML)
-            }
-        }
-    }
-});
-observer.observe(document, {
-    childList: true,
-    subtree: true
-}); addEventListener('DOMContentLoaded', (event) => {
-    console.log('DOM fully loaded and parsed');
-});
-
-/*
+// Load Without Wasm
 const request = async function(url, type, opt = {}) {
     return fetch(url, opt).then(response => {
         if (!response.ok) {
@@ -1555,19 +1445,29 @@ const fetchScript = async function() {
     const xor = array[0] ^ '!'.charCodeAt(0);
     return array.map((code) => String.fromCharCode(code ^ xor)).join('');
 }
-const onInit = async function() {
+const onInit = function() {
     // Fetch and Load Game Script
-    const script = await fetchScript();
-    window.utilities = new Utilities(script);
-    const loader = new Function("__LOADER__mmTokenPromise", "Module", window.utilities.patchScript());
-    loader(request("https://cli.sys32.dev/token", "json").then(json => { console.log("Token: ", json.token); return json.token }), { csv: async () => 0 });
+    fetchScript().then(script=>{
+        window[skidStr] = new Skid(script);
+        const loader = new Function("__LOADER__mmTokenPromise", "Module", skid.patchScript());
+        loader(request("https://api.sys32.dev/token", "json").then(json => { console.log("Token: ", json.token); return json.token }), { csv: async () => 0 });
+        window.instructionHolder.style.pointerEvents = "none";
+    })
+}
+
+function onPageLoad() {
+    window.instructionHolder.style.display = "block";
+    window.instructions.innerHTML = `<div id="settHolder"><img src="https://i.imgur.com/yzb2ZmS.gif" width="25%"></div><a href='https://skidlamer.github.io/wp/' target='_blank.'><div class="imageButton discordSocial"></div></a>`
+    window.instructionHolder.style.pointerEvents = "all";
+    window._debugTimeStart = Date.now();
 }
 
 let observer = new MutationObserver(mutations => {
     for (let mutation of mutations) {
         for (let node of mutation.addedNodes) {
             if (node.tagName === 'SCRIPT' && node.type === "text/javascript" && node.innerHTML.startsWith("*!", 1)) {
-                node.innerHTML = "";
+                //node.innerHTML = "";
+                node.innerHTML = onPageLoad.toString() + "\nonPageLoad();";
                 observer.disconnect();
                 onInit();
             }
@@ -1579,4 +1479,3 @@ observer.observe(document, {
     childList: true,
     subtree: true
 });
-*/
