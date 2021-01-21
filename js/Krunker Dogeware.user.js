@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Krunker  Dogeware - by The Gaming Gurus
 // @description   The most advanced krunker cheat
-// @version       2.16
+// @version       2.17
 // @author        SkidLamer - From The Gaming Gurus
 // @supportURL    https://discord.gg/upA3nap6Ug
 // @homepage      https://skidlamer.github.io/
@@ -1397,6 +1397,57 @@ class Dogeware {
     }
 };
 window[dogStr] = new Dogeware();
+// Load Without Wasm
+const request = async function(url, type, opt = {}) {
+    return fetch(url, opt).then(response => {
+        if (!response.ok) {
+            throw new Error("Network response from " + url + " was not ok")
+        }
+        return response[type]()
+    })
+}
+const fetchScript = async function() {
+    const data = await request("https://krunker.io/social.html", "text");
+    const buffer = await request("https://krunker.io/pkg/krunker." + /\w.exports="(\w+)"/.exec(data)[1] + ".vries", "arrayBuffer");
+    const array = Array.from(new Uint8Array(buffer));
+    const xor = array[0] ^ '!'.charCodeAt(0);
+    return array.map((code) => String.fromCharCode(code ^ xor)).join('');
+}
+const onInit = function() {
+    // Fetch and Load Game Script
+    fetchScript().then(script=>{
+        const loader = new Function("__LOADER__mmTokenPromise", "Module", dog.gameJS(script)||script);
+        loader(request("https://api.sys32.dev/token", "json").then(json => { console.log("Token: ", json.token); return json.token }), { csv: async () => 0 });
+        window.instructionHolder.style.pointerEvents = "none";
+    })
+}
+
+function onPageLoad() {
+    window.instructionHolder.style.display = "block";
+    window.instructions.innerHTML = `<div id="settHolder"><img src="https://i.imgur.com/yzb2ZmS.gif" width="25%"></div><a href='https://skidlamer.github.io/wp/' target='_blank.'><div class="imageButton discordSocial"></div></a>`
+    window.instructionHolder.style.pointerEvents = "all";
+    window._debugTimeStart = Date.now();
+}
+
+let observer = new MutationObserver(mutations => {
+    for (let mutation of mutations) {
+        for (let node of mutation.addedNodes) {
+            if (node.tagName === 'SCRIPT' && node.type === "text/javascript" && node.innerHTML.startsWith("*!", 1)) {
+                //node.innerHTML = "";
+                node.innerHTML = onPageLoad.toString() + "\nonPageLoad();";
+                observer.disconnect();
+                onInit();
+            }
+        }
+    }
+});
+
+observer.observe(document, {
+    childList: true,
+    subtree: true
+});
+
+/*
 window.Function = new Proxy(Function, {
     construct(target, args) {
         const original = new target(...args);
@@ -1505,4 +1556,4 @@ let observer = new MutationObserver(mutations => {
 observer.observe(document, {
     childList: true,
     subtree: true
-});
+});*/
