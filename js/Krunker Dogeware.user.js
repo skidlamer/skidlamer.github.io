@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Krunker  Dogeware - by The Gaming Gurus
 // @description   The most advanced krunker cheat
-// @version       2.17
+// @version       2.18
 // @author        SkidLamer - From The Gaming Gurus
 // @supportURL    https://discord.gg/upA3nap6Ug
 // @homepage      https://skidlamer.github.io/
@@ -1397,163 +1397,193 @@ class Dogeware {
     }
 };
 window[dogStr] = new Dogeware();
-// Load Without Wasm
-const request = async function(url, type, opt = {}) {
-    return fetch(url, opt).then(response => {
-        if (!response.ok) {
-            throw new Error("Network response from " + url + " was not ok")
-        }
-        return response[type]()
-    })
-}
-const fetchScript = async function() {
-    const data = await request("https://krunker.io/social.html", "text");
-    const buffer = await request("https://krunker.io/pkg/krunker." + /\w.exports="(\w+)"/.exec(data)[1] + ".vries", "arrayBuffer");
-    const array = Array.from(new Uint8Array(buffer));
-    const xor = array[0] ^ '!'.charCodeAt(0);
-    return array.map((code) => String.fromCharCode(code ^ xor)).join('');
-}
-const onInit = function() {
-    // Fetch and Load Game Script
-    fetchScript().then(script=>{
-        const loader = new Function("__LOADER__mmTokenPromise", "Module", dog.gameJS(script)||script);
-        loader(request("https://api.sys32.dev/token", "json").then(json => { console.log("Token: ", json.token); return json.token }), { csv: async () => 0 });
-        window.instructionHolder.style.pointerEvents = "none";
-    })
-}
+function loadWASM() {
+    window.Function = new Proxy(window.Function, {
+        construct(target, args) {
+            const original = new target(...args);
+            if (args.length) {
+                let body = args[args.length - 1];
+                if (body.length > 38e5) {
+                    // game.js at game loader Easy Method
+                    //console.log(body)
+                }
+                else if (args[0] == "requireRegisteredType") {
+                    return (function(...fnArgs){
+                        // Expose WASM functions
+                        if (!window.hasOwnProperty("WASM")) {
+                            window.Object.assign(window, {
+                                WASM: {
+                                    requireRegisteredType:fnArgs[0],
+                                    __emval_register:[2],
+                                }
+                            });
 
-function onPageLoad() {
-    window.instructionHolder.style.display = "block";
-    window.instructions.innerHTML = `<div id="settHolder"><img src="https://i.imgur.com/yzb2ZmS.gif" width="25%"></div><a href='https://skidlamer.github.io/wp/' target='_blank.'><div class="imageButton discordSocial"></div></a>`
-    window.instructionHolder.style.pointerEvents = "all";
-    window._debugTimeStart = Date.now();
-}
+                            for(let name in fnArgs[1]) {
+                                window.WASM[name] = fnArgs[1][name];
+                                switch (name) {
+                                    case "__Z01dynCall_fijfiv": //game.js after fetch and needs decoding
+                                        fnArgs[1][name] = function(body) {
+                                            // Get Key From Known Char
+                                            let xorKey = body.charCodeAt() ^ '!'.charCodeAt(), str = "", ret ="";
 
-let observer = new MutationObserver(mutations => {
-    for (let mutation of mutations) {
-        for (let node of mutation.addedNodes) {
-            if (node.tagName === 'SCRIPT' && node.type === "text/javascript" && node.innerHTML.startsWith("*!", 1)) {
-                //node.innerHTML = "";
-                node.innerHTML = onPageLoad.toString() + "\nonPageLoad();";
-                observer.disconnect();
-                onInit();
-            }
-        }
-    }
-});
+                                            // Decode Mangled String
+                                            for (let i = 0, strLen = body.length; i < strLen; i++) {
+                                                str += String.fromCharCode(body.charCodeAt(i) ^ xorKey);
+                                            }
 
-observer.observe(document, {
-    childList: true,
-    subtree: true
-});
+                                            // Manipulate String
+                                            //console.log(str)
+                                            str = dog.gameJS(str);
 
-/*
-window.Function = new Proxy(Function, {
-    construct(target, args) {
-        const original = new target(...args);
-        if (args.length) {
-            let body = args[args.length - 1];
-            if (body.length > 38e5) {
-                // game.js at game loader
-                body = dog.gameJS(body)||body;
-                 //  console.log(body)
-            }
-            else if (args[0] == "requireRegisteredType") {
-                return (function(...fnArgs){
-                    // Expose WASM functions
-                    if (!window.hasOwnProperty("WASM")) {
-                        Object.assign(window, {
-                            WASM: {
-                                requireRegisteredType:fnArgs[0],
-                                __emval_register:[2],
-                            }
-                        });
+                                            //ReEncode Mangled String
+                                            for (let i = 0, strLen = str.length; i < strLen; i++) {
+                                                ret += String.fromCharCode(str[i].charCodeAt() ^ xorKey);
+                                            }
 
-                        for(let name in fnArgs[1]) {
-                            window.WASM[name] = fnArgs[1][name];
-                            switch (name) {
-                                case "fetchCallback": //game.js after fetch and not decoded
-                                    fnArgs[1][name] = function(body) {
-                                        return window.WASM[name].apply(this, [body]);
-                                    };
-                                    break;
+                                            // Return With Our Manipulated Code
+                                            return window.WASM[name].apply(this, [ret]);
+                                        };
+                                        break;
 
-                                case "fetchMMToken__cb1": //generate token promise
-                                    fnArgs[1][name] = function(response) {
-                                        if (!response.ok) {
-                                            throw new Error("Network response from " + response.url + " was not ok")
-                                        }
-                                        let promise = window.WASM[name].apply(this, [response]);
-                                        return promise;
-                                    };
-                                    break;
-                                case "fetchMMToken__cb2": //hmac token function
-                                    fnArgs[1][name] = function() {
-                                        console.log(arguments[0]);
-                                        return window.WASM[name].apply(this, arguments);
-                                    };
-                                    break;
+                                    case "__Z01dynCall_fijifv": //generate token promise
+                                        fnArgs[1][name] = function(response) {
+                                            if (!response.ok) {
+                                                throw new window.Error("Network response from " + response.url + " was not ok")
+                                            }
+                                            let promise = window.WASM[name].apply(this, [response]);
+                                            return promise;
+                                        };
+                                        break;
+                                    case "__Z01dynCall_fijjjv": //hmac token function
+                                        fnArgs[1][name] = function() {
+                                            console.log(arguments[0]);
+                                            return window.WASM[name].apply(this, arguments);
+                                        };
+                                        break;
 
+                                }
                             }
                         }
-                    }
-                    return new target(...args).apply(this, fnArgs);
+                        return new target(...args).apply(this, fnArgs);
+                    })
+                }
+                // If changed return with spoofed toString();
+                if (args[args.length - 1] !== body) {
+                    args[args.length - 1] = body;
+                    let patched = new target(...args);
+                    patched.toString = () => original.toString();
+                    return patched;
+                }
+            }
+            return original;
+        }
+    })
+
+    function onPageLoad() {
+        window.instructionHolder.style.display = "block";
+        window.instructions.innerHTML = `<div id="settHolder"><img src="https://i.imgur.com/yzb2ZmS.gif" width="25%"></div><a href='https://skidlamer.github.io/wp/' target='_blank.'><div class="imageButton discordSocial"></div></a>`
+        window.request = (url, type, opt = {}) => fetch(url, opt).then(response => response.ok ? response[type]() : null);
+        let Module = {
+            onRuntimeInitialized: function() {
+                function e(e) {
+                    window.instructionHolder.style.display = "block";
+                    window.instructions.innerHTML = "<div style='color: rgba(255, 255, 255, 0.6)'>" + e + "</div><div style='margin-top:10px;font-size:20px;color:rgba(255,255,255,0.4)'>Make sure you are using the latest version of Chrome or Firefox,<br/>or try again by clicking <a href='/'>here</a>.</div>";
+                    window.instructionHolder.style.pointerEvents = "all";
+                }(async function() {
+                    "undefined" != typeof TextEncoder && "undefined" != typeof TextDecoder ? await Module.initialize(Module) : e("Your browser is not supported.")
+                })().catch(err => {
+                    e("Failed to load game.");
+                    throw new Error(err);
                 })
             }
-            // If changed return with spoofed toString();
-            if (args[args.length - 1] !== body) {
-                args[args.length - 1] = body;
-                let patched = new target(...args);
-                patched.toString = () => original.toString();
-                return patched;
+        };
+        window._debugTimeStart = Date.now();
+        window.request("/pkg/maindemo.wasm","arrayBuffer",{cache: "no-store"}).then(body => {
+            Module.wasmBinary = body;
+            window.request("/pkg/maindemo.js","text",{cache: "no-store"}).then(body => {
+                body = body.replace(/(function UTF8ToString\((\w+),\w+\)){return \w+\?(.+?)\}/, `$1{let str=$2?$3;if (str.includes("CLEAN_WINDOW") || str.includes("Array.prototype.filter = undefined")) return "";return str;}`);
+                body = body.replace(/(_emscripten_run_script\(\w+\){)eval\((\w+\(\w+\))\)}/, `$1 let str=$2; console.log(str);}`);
+                new Function(body)();
+                window.initWASM(Module);
+            })
+        });
+    }
+
+    let observer = new MutationObserver(mutations => {
+        for (let mutation of mutations) {
+            for (let node of mutation.addedNodes) {
+                if (node.tagName === 'SCRIPT' && node.type === "text/javascript" && node.innerHTML.startsWith("*!", 1)) {
+                    observer.disconnect();
+                    node.innerHTML = onPageLoad.toString() + "\nonPageLoad();";
+                }
             }
         }
-        return original;
-    }
-})
+    });
 
-function onPageLoad() {
-    window.instructionHolder.style.display = "block";
-    window.instructions.innerHTML = `<div id="settHolder"><img src="https://i.imgur.com/yzb2ZmS.gif" width="25%"></div><a href='https://skidlamer.github.io/wp/' target='_blank.'><div class="imageButton discordSocial"></div></a>`
-    window.request = (url, type, opt = {}) => fetch(url, opt).then(response => response.ok ? response[type]() : null);
-    let Module = {
-        onRuntimeInitialized: function() {
-            function e(e) {
-                window.instructionHolder.style.display = "block";
-                window.instructions.innerHTML = "<div style='color: rgba(255, 255, 255, 0.6)'>" + e + "</div><div style='margin-top:10px;font-size:20px;color:rgba(255,255,255,0.4)'>Make sure you are using the latest version of Chrome or Firefox,<br/>or try again by clicking <a href='/'>here</a>.</div>";
-                window.instructionHolder.style.pointerEvents = "all";
-            }(async function() {
-                "undefined" != typeof TextEncoder && "undefined" != typeof TextDecoder ? await Module.initialize(Module) : e("Your browser is not supported.")
-            })().catch(err => {
-                e("Failed to load game.");
-                throw new Error(err);
-            })
-        }
-    };
-    window._debugTimeStart = Date.now();
-    window.request("/pkg/maindemo.wasm","arrayBuffer",{cache: "no-store"}).then(body => {
-        Module.wasmBinary = body;
-        window.request("/pkg/maindemo.js","text",{cache: "no-store"}).then(body => {
-            body = body.replace(/(function UTF8ToString\((\w+),\w+\)){return \w+\?(.+?)\}/, `$1{let str=$2?$3;if (str.includes("CLEAN_WINDOW") || str.includes("Array.prototype.filter = undefined")) return "";return str;}`);
-            body = body.replace(/(_emscripten_run_script\(\w+\){)eval\((\w+\(\w+\))\)}/, `$1 let str=$2; console.log(str);}`);
-            new Function(body)();
-            window.initWASM(Module);
-        })
+    observer.observe(document, {
+        childList: true,
+        subtree: true
     });
 }
 
-let observer = new MutationObserver(mutations => {
-    for (let mutation of mutations) {
-        for (let node of mutation.addedNodes) {
-            if (node.tagName === 'SCRIPT' && node.type === "text/javascript" && node.innerHTML.startsWith("*!", 1)) {
-                node.innerHTML = onPageLoad.toString() + "\nonPageLoad();";
-                observer.disconnect();
-                //console.log(node.innerHTML)
+function loadBasic() {
+    let request = async function(url, type, opt = {}) {
+        return fetch(url, opt).then(response => {
+            if (!response.ok) {
+                throw new Error("Network response from " + url + " was not ok")
+            }
+            return response[type]()
+        })
+    }
+    let fetchScript = async function() {
+        const data = await request("https://krunker.io/social.html", "text");
+        const buffer = await request("https://krunker.io/pkg/krunker." + /\w.exports="(\w+)"/.exec(data)[1] + ".vries", "arrayBuffer");
+        const array = Array.from(new Uint8Array(buffer));
+        const xor = array[0] ^ '!'.charCodeAt(0);
+        return array.map((code) => String.fromCharCode(code ^ xor)).join('');
+    }
+
+    function onPageLoad() {
+        window.instructionHolder.style.display = "block";
+        window.instructions.innerHTML = `<div id="settHolder"><img src="https://i.imgur.com/yzb2ZmS.gif" width="25%"></div><a href='https://skidlamer.github.io/wp/' target='_blank.'><div class="imageButton discordSocial"></div></a>`
+        window.instructionHolder.style.pointerEvents = "all";
+        window._debugTimeStart = Date.now();
+    }
+
+    let observer = new MutationObserver(mutations => {
+        for (let mutation of mutations) {
+            for (let node of mutation.addedNodes) {
+                if (node.tagName === 'SCRIPT' && node.type === "text/javascript" && node.innerHTML.startsWith("*!", 1)) {
+                    observer.disconnect();
+                    node.innerHTML = onPageLoad.toString() + "\nonPageLoad();";
+                    fetchScript().then(script=>{
+                        const loader = new Function("__LOADER__mmTokenPromise", "Module", dog.gameJS(script));
+                        loader(new Promise(res=>res(JSON.parse(xhr.responseText).token)), { csv: async () => 0 });
+                        window.instructionHolder.style.pointerEvents = "none";
+                    })
+                }
             }
         }
-    }
-});
-observer.observe(document, {
-    childList: true,
-    subtree: true
-});*/
+    });
+
+    observer.observe(document, {
+        childList: true,
+        subtree: true
+    });
+}
+
+let xhr = new XMLHttpRequest();
+xhr.open('GET', 'https://api.sys32.dev/token', false);
+
+try {
+  xhr.send();
+  if (xhr.status != 200) {
+      loadWASM();
+  } else {
+      if (xhr.responseText.includes('success')) {
+          loadBasic();
+      } else loadWASM();
+  }
+} catch(err) {
+    loadWASM();
+}
