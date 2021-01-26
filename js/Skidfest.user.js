@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          Krunker SkidFest
 // @description   A full featured Mod menu for game Krunker.io!
-// @version       2.18
+// @version       2.19
 // @author        SkidLamer - From The Gaming Gurus
 // @supportURL    https://discord.gg/AJFXXACdrF
 // @homepage      https://skidlamer.github.io/
@@ -16,15 +16,14 @@
 // ==/UserScript==
 
 /* eslint-env es6 */
-/* eslint-disable no-caller, no-undef */
+/* eslint-disable no-caller, no-undef, no-loop-func */
 
 var CRC2d = CanvasRenderingContext2D.prototype;
 var skid, skidStr = [...Array(8)].map(_ => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'[~~(Math.random()*52)]).join('');
 
 class Skid {
-    constructor(script) {
+    constructor() {
         skid = this;
-        this.script = script;
         this.downKeys = new Set();
         this.settings = null;
         this.vars = {};
@@ -580,9 +579,8 @@ class Skid {
         if (menu) menu.append(host)
     }
 
-    objectEntries(object, callback) {
-        let descriptors = Object.getOwnPropertyDescriptors(object);
-        Object.entries(descriptors).forEach(([key, { value, get, set, configurable, enumerable, writable }]) => callback([object, key, value, get, set, configurable, enumerable, writable]));
+    objectHas(obj, arr) {
+        return arr.some(prop => obj.hasOwnProperty(prop));
     }
 
     getVersion() {
@@ -602,7 +600,9 @@ class Skid {
     }
 
     saveScript() {
-        this.saveAs("game_" + this.getVersion() + ".js", this.script)
+        this.fetchScript().then(script => {
+            this.saveAs("game_" + this.getVersion() + ".js", script)
+        })
     }
 
     isKeyDown(key) {
@@ -647,287 +647,241 @@ class Skid {
 
     onLoad() {
 
-        this.deObfuscate();
         this.createSettings();
         this.createObservers();
 
-        this.waitFor(_=>this.exports).then(exports => {
-            if (!exports) return alert("Exports not Found");
-            const found = new Set();
-            const array = new Map([
-                ["utility", ["VectorAdd", "VectorAngleSign"]],
-                ["config", ["accAnnounce", "availableRegions", "assetCat"]],
-                ["overlay", ["render", "canvas"]],
-                ["three", ["ACESFilmicToneMapping", "TextureLoader", "ObjectLoader"]],
-                //["colors", ["challLvl", "getChallCol"]],
-                //["ui", ["showEndScreen", "toggleControlUI", "toggleEndScreen", "updatePlayInstructions"]],
-                ["ws", ["socketReady", "ingressPacketCount", "ingressPacketCount", "egressDataSize"]],
-                //["events", ["actions", "events"]],
-            ])
-            return this.waitFor(_ => found.size === array.size, 20000, () => {
-                array.forEach((arr, name, map) => {
-                    this.objectEntries(exports, ([rootObject, rootKey, rootValue, rootGet, rootSet, rootConfigurable, rootEnumerable, rootWritable]) => {
-                        this.objectEntries(rootValue.exports, ([object, key, value, get, set, configurable, enumerable, writable]) => {
-                            if (!found.has(name) && arr.includes(key)) {
-                                found.add(name);
-                                console.log("Found Export ", name);
-                                this[name] = rootValue.exports;
-                            }
-                        })
-                    })
-                })
-            })
-        }).then(_=>{
-            Object.defineProperty(this.config, "nameVisRate", {
-                value: 0,
-                writable: false,
-                configurable: true,
-            })
-            this.ctx = this.overlay.canvas.getContext('2d');
-            this.overlay.render = new Proxy(this.overlay.render, {
-                apply: function(target, that, args) {
-                    return [target.apply(that, args), render.apply(that, args)]
-                }
-            })
-            function render(scale, game, controls, renderer, me) {
-                let width = skid.overlay.canvas.width / scale;
-                let height = skid.overlay.canvas.height / scale;
-                const renderArgs = [scale, game, controls, renderer, me];
-                if (renderArgs && void 0 !== skid) {
-                    ["scale", "game", "controls", "renderer", "me"].forEach((item, index)=>{
-                        skid[item] = renderArgs[index];
-                    });
-                    if (me) {
-                        skid.ctx.save();
-                        skid.ctx.scale(scale, scale);
-                        //this.ctx.clearRect(0, 0, width, height);
-                        skid.onRender();
-                        //window.requestAnimationFrame.call(window, renderArgs.callee.caller.bind(this));
-                        skid.ctx.restore();
-                    }
-                    if(skid.settings && skid.settings.autoClick.val && window.endUI.style.display == "none" && window.windowHolder.style.display == "none") {
-                        controls.toggle(true);
+        this.waitFor(_=>this.isDefined(this.exports)).then(_=> {
+            if (!this.isDefined(this.exports)) {
+                alert("This Mod Needs To Be Updated Please Try Agian Later");
+                return;
+            }
+            //console.dir(this.exports);
+            let toFind = {
+                overlay: ["render", "canvas"],
+                config: ["accAnnounce", "availableRegions", "assetCat"],
+                three: ["ACESFilmicToneMapping", "TextureLoader", "ObjectLoader"],
+                ws: ["socketReady", "ingressPacketCount", "ingressPacketCount", "egressDataSize"],
+                utility: ["VectorAdd", "VectorAngleSign"],
+                //colors: ["challLvl", "getChallCol"],
+                //ui: ["showEndScreen", "toggleControlUI", "toggleEndScreen", "updatePlayInstructions"],
+                //events: ["actions", "events"],
+            }
+            for (let rootKey in this.exports) {
+                let exp = this.exports[rootKey].exports;
+                for (let name in toFind) {
+                    if (this.objectHas(exp, toFind[name])) {
+                        console.log("Found Export ", name);
+                        delete toFind[name];
+                        this[name] = exp;
                     }
                 }
             }
-
-            // Skins
-            const $skins = Symbol("skins");
-            Object.defineProperty(Object.prototype, "skins", {
-                set: function(fn) {
-                    this[$skins] = fn;
-                    if (void 0 == this.localSkins || !this.localSkins.length) {
-                        this.localSkins = Array.apply(null, Array(5e3)).map((x, i) => {
-                            return {
-                                ind: i,
-                                cnt: 0x1,
-                            }
-                        })
-                    }
-                    return fn;
-                },
-                get: function() {
-                    return skid.settings.skinUnlock.val && this.stats ? this.localSkins : this[$skins];
+            if (!(Object.keys(toFind).length === 0 && toFind.constructor === Object)) {
+                for (let name in toFind) {
+                    alert("Failed To Find Export " + name);
                 }
-            })
-
-            this.waitFor(_=>this.ws.connected === true, 40000).then(_=> {
-                this.ws.__event = this.ws._dispatchEvent.bind(this.ws);
-                this.ws.__send = this.ws.send.bind(this.ws);
-                this.ws.send = new Proxy(this.ws.send, {
+            } else {
+                Object.defineProperty(this.config, "nameVisRate", {
+                    value: 0,
+                    writable: false,
+                    configurable: true,
+                })
+                this.ctx = this.overlay.canvas.getContext('2d');
+                this.overlay.render = new Proxy(this.overlay.render, {
                     apply: function(target, that, args) {
-                        if (args[0] == "ah2") return;
-                        try {
-                            var original_fn = Function.prototype.apply.apply(target, [that, args]);
-                        } catch (e) {
-                            e.stack = e.stack = e.stack.replace(/\n.*Object\.apply.*/, '');
-                            throw e;
+                        return [target.apply(that, args), render.apply(that, args)]
+                    }
+                })
+                function render(scale, game, controls, renderer, me) {
+                    let width = skid.overlay.canvas.width / scale;
+                    let height = skid.overlay.canvas.height / scale;
+                    const renderArgs = [scale, game, controls, renderer, me];
+                    if (renderArgs && void 0 !== skid) {
+                        ["scale", "game", "controls", "renderer", "me"].forEach((item, index)=>{
+                            skid[item] = renderArgs[index];
+                        });
+                        if (me) {
+                            skid.ctx.save();
+                            skid.ctx.scale(scale, scale);
+                            //this.ctx.clearRect(0, 0, width, height);
+                            skid.onRender();
+                            //window.requestAnimationFrame.call(window, renderArgs.callee.caller.bind(this));
+                            skid.ctx.restore();
                         }
-
-                        if (args[0] === "en") {
-                            skid.skinCache = {
-                                main: args[1][2][0],
-                                secondary: args[1][2][1],
-                                hat: args[1][3],
-                                body: args[1][4],
-                                knife: args[1][9],
-                                dye: args[1][14],
-                                waist: args[1][17],
-                            }
+                        if(skid.settings && skid.settings.autoClick.val && window.endUI.style.display == "none" && window.windowHolder.style.display == "none") {
+                            controls.toggle(true);
                         }
+                    }
+                }
 
-                        return original_fn;
+                // Skins
+                const $skins = Symbol("skins");
+                Object.defineProperty(Object.prototype, "skins", {
+                    set: function(fn) {
+                        this[$skins] = fn;
+                        if (void 0 == this.localSkins || !this.localSkins.length) {
+                            this.localSkins = Array.apply(null, Array(5e3)).map((x, i) => {
+                                return {
+                                    ind: i,
+                                    cnt: 0x1,
+                                }
+                            })
+                        }
+                        return fn;
+                    },
+                    get: function() {
+                        return skid.settings.skinUnlock.val && this.stats ? this.localSkins : this[$skins];
                     }
                 })
 
-                this.ws._dispatchEvent = new Proxy(this.ws._dispatchEvent, {
-                    apply: function(target, that, [type, event]) {
-                        if (type =="init") {
-                            if(event[10] && event[10].length && event[10].bill && skid.settings.customBillboard.val.length > 1) {
-                                event[10].bill.txt = skid.settings.customBillboard.val;
+                this.waitFor(_=>this.ws.connected === true, 40000).then(_=> {
+                    this.ws.__event = this.ws._dispatchEvent.bind(this.ws);
+                    this.ws.__send = this.ws.send.bind(this.ws);
+                    this.ws.send = new Proxy(this.ws.send, {
+                        apply: function(target, that, args) {
+                            if (args[0] == "ah2") return;
+                            try {
+                                var original_fn = Function.prototype.apply.apply(target, [that, args]);
+                            } catch (e) {
+                                e.stack = e.stack = e.stack.replace(/\n.*Object\.apply.*/, '');
+                                throw e;
                             }
-                        }
 
-                        if (skid.settings.skinUnlock.val && skid.skinCache && type === "0") {
-                            let skins = skid.skinCache;
-                            let pInfo = event[0];
-                            let pSize = 38;
-                            while (pInfo.length % pSize !== 0) pSize++;
-                            for(let i = 0; i < pInfo.length; i += pSize) {
-                                if (pInfo[i] === skid.ws.socketId||0) {
-                                    pInfo[i + 12] = [skins.main, skins.secondary];
-                                    pInfo[i + 13] = skins.hat;
-                                    pInfo[i + 14] = skins.body;
-                                    pInfo[i + 19] = skins.knife;
-                                    pInfo[i + 24] = skins.dye;
-                                    pInfo[i + 33] = skins.waist;
+                            if (args[0] === "en") {
+                                skid.skinCache = {
+                                    main: args[1][2][0],
+                                    secondary: args[1][2][1],
+                                    hat: args[1][3],
+                                    body: args[1][4],
+                                    knife: args[1][9],
+                                    dye: args[1][14],
+                                    waist: args[1][17],
                                 }
                             }
+
+                            return original_fn;
                         }
+                    })
 
-                        return target.apply(that, arguments[2]);
-                    }
+                    this.ws._dispatchEvent = new Proxy(this.ws._dispatchEvent, {
+                        apply: function(target, that, [type, event]) {
+                            if (type =="init") {
+                                if(event[10] && event[10].length && event[10].bill && skid.settings.customBillboard.val.length > 1) {
+                                    event[10].bill.txt = skid.settings.customBillboard.val;
+                                }
+                            }
+
+                            if (skid.settings.skinUnlock.val && skid.skinCache && type === "0") {
+                                let skins = skid.skinCache;
+                                let pInfo = event[0];
+                                let pSize = 38;
+                                while (pInfo.length % pSize !== 0) pSize++;
+                                for(let i = 0; i < pInfo.length; i += pSize) {
+                                    if (pInfo[i] === skid.ws.socketId||0) {
+                                        pInfo[i + 12] = [skins.main, skins.secondary];
+                                        pInfo[i + 13] = skins.hat;
+                                        pInfo[i + 14] = skins.body;
+                                        pInfo[i + 19] = skins.knife;
+                                        pInfo[i + 24] = skins.dye;
+                                        pInfo[i + 33] = skins.waist;
+                                    }
+                                }
+                            }
+
+                            return target.apply(that, arguments[2]);
+                        }
+                    })
                 })
-            })
 
-            if (this.isDefined(window.SOUND)) {
-                window.SOUND.play = new Proxy(window.SOUND.play, {
-                    apply: function(target, that, [src, vol, loop, rate]) {
-                        if ( src.startsWith("fart_") && skid.settings.disableHckSnd.val ) return;
-                        return target.apply(that, [src, vol, loop, rate]);
-                    }
-                })
-            }
-
-            AudioParam.prototype.setValueAtTime = new Proxy(AudioParam.prototype.setValueAtTime, {
-                apply: function(target, that, [value, startTime]) {
-                    return target.apply(that, [value, 0]);
+                if (this.isDefined(window.SOUND)) {
+                    window.SOUND.play = new Proxy(window.SOUND.play, {
+                        apply: function(target, that, [src, vol, loop, rate]) {
+                            if ( src.startsWith("fart_") && skid.settings.disableHckSnd.val ) return;
+                            return target.apply(that, [src, vol, loop, rate]);
+                        }
+                    })
                 }
-            })
 
-            this.rayC = new this.three.Raycaster();
-            this.vec2 = new this.three.Vector2(0, 0);
+                AudioParam.prototype.setValueAtTime = new Proxy(AudioParam.prototype.setValueAtTime, {
+                    apply: function(target, that, [value, startTime]) {
+                        return target.apply(that, [value, 0]);
+                    }
+                })
 
+                this.rayC = new this.three.Raycaster();
+                this.vec2 = new this.three.Vector2(0, 0);
+            }
         })
     }
 
-    patchScript() {
-        const patches = new Map()
-        .set("exports", [/(this\['\w+']\['\w+']\(this\);};},function\(\w+,\w+,(\w+)\){)/, `$1 ${skidStr}.exports=$2.c; ${skidStr}.modules=$2.m;`])
-        //.set("exports", [/(function\(\w+,\w+,(\w+)\){\(function\(\w+\){)(\w+\['exports'])/,`$1window[${utlStr}].exports=$2.c; window[${utlStr}].modules=$2.m;$3`])
-        //.set("inView", [/if\((!\w+\['\w+'])\)continue;/, "if($1&&void 0 !== ${skidStr}.nameTags)continue;"])
-        //.set("inView", [/(\w+\['\w+']\){if\(\(\w+=\w+\['\w+']\['position']\['clone']\(\))/, "(void 0 == window[${utlStr}].nameTags)||$1"])
-        .set("inView", [/&&(\w+\['\w+'])\){(if\(\(\w+=\w+\['\w+']\['\w+']\['\w+'])/, `){if(!$1&&void 0 !== ${skidStr}.nameTags)continue;$2`])
-        .set("inputs", [/(\w+\['\w+']\[\w+\['\w+']\['\w+']\?'\w+':'push']\()(\w+)\),/, `$1${skidStr}.onInput($2)),`])
-        //.set("procInputs", [/(this\['\w+']\()(this\['inputs']\[\w+])(,\w+,!0x1,!\w+|\|\w+\['moveLock']\))/, `$1window[${utlStr}].onInput($2)$3`])
+    gameJS(script) {
+        let entries = {
+            // Deobfu
+            inView: { regex: /(\w+\['(\w+)']\){if\(\(\w+=\w+\['\w+']\['position']\['clone']\(\))/, index: 2 },
+            spectating: { regex: /\['team']:window\['(\w+)']/, index: 1 },
+            //inView: { regex: /\]\)continue;if\(!\w+\['(.+?)\']\)continue;/, index: 1 },
+            //canSee: { regex: /\w+\['(\w+)']\(\w+,\w+\['x'],\w+\['y'],\w+\['z']\)\)&&/, index: 1 },
+            //procInputs: { regex: /this\['(\w+)']=function\((\w+),(\w+),\w+,\w+\){(this)\['recon']/, index: 1 },
+            aimVal: { regex: /this\['(\w+)']-=0x1\/\(this\['weapon']\['\w+']\/\w+\)/, index: 1 },
+            pchObjc: { regex: /0x0,this\['(\w+)']=new \w+\['Object3D']\(\),this/, index: 1 },
+            didShoot: { regex: /--,\w+\['(\w+)']=!0x0/, index: 1 },
+            nAuto: { regex: /'Single\\x20Fire','varN':'(\w+)'/, index: 1 },
+            crouchVal: { regex: /this\['(\w+)']\+=\w\['\w+']\*\w+,0x1<=this\['\w+']/, index: 1 },
+            recoilAnimY: { regex: /\+\(-Math\['PI']\/0x4\*\w+\+\w+\['(\w+)']\*\w+\['\w+']\)\+/, index: 1 },
+            //recoilAnimY: { regex: /this\['recoilAnim']=0x0,this\[(.*?\(''\))]/, index: 1 },
+            ammos: { regex: /\['length'];for\(\w+=0x0;\w+<\w+\['(\w+)']\['length']/, index: 1 },
+            weaponIndex: { regex: /\['weaponConfig']\[\w+]\['secondary']&&\(\w+\['(\w+)']==\w+/, index: 1 },
+            isYou: { regex: /0x0,this\['(\w+)']=\w+,this\['\w+']=!0x0,this\['inputs']/, index: 1 },
+            objInstances: { regex: /\w+\['\w+']\(0x0,0x0,0x0\);if\(\w+\['(\w+)']=\w+\['\w+']/, index: 1 },
+            getWorldPosition: { regex: /{\w+=\w+\['camera']\['(\w+)']\(\);/, index: 1 },
+            //mouseDownL: { regex: /this\['\w+'\]=function\(\){this\['(\w+)'\]=\w*0,this\['(\w+)'\]=\w*0,this\['\w+'\]={}/, index: 1 },
+            mouseDownR: { regex: /this\['(\w+)']=0x0,this\['keys']=/, index: 1 },
+            //reloadTimer: { regex:  /this\['(\w+)']&&\(\w+\['\w+']\(this\),\w+\['\w+']\(this\)/, index: 1 },
+            maxHealth: { regex: /this\['health']\/this\['(\w+)']\?/, index: 1 },
+            xDire: { regex: /this\['(\w+)']=Math\['lerpAngle']\(this\['xDir2']/, index: 1 },
+            yDire: { regex: /this\['(\w+)']=Math\['lerpAngle']\(this\['yDir2']/, index: 1 },
+            //xVel: { regex: /this\['x']\+=this\['(\w+)']\*\w+\['map']\['config']\['speedX']/, index: 1 },
+            yVel: { regex: /this\['y']\+=this\['(\w+)']\*\w+\['map']\['config']\['speedY']/, index: 1 },
+            //zVel: { regex: /this\['z']\+=this\['(\w+)']\*\w+\['map']\['config']\['speedZ']/, index: 1 },
 
-        //.set("procInputs", [/this\['meleeAnim']\['armS']=0x0;},this\['\w+']=function\((\w+),\w+,\w+,\w+\){/, `$&window.cheat.onInput($1);`])
-        //.set("wallBangs", [/!(\w+)\['transparent']/, "$&& (!cheat.settings.wallbangs || !$1.penetrable )"])
-        .set("thirdPerson", [/(\w+)\[\'config\'\]\[\'thirdPerson\'\]/g, `void 0 !== ${skidStr}.thirdPerson`])
-        //.set("onRender", [/\w+\['render']=function\((\w+,\w+,\w+,\w+,\w+,\w+,\w+,\w+)\){/, `$&window.cheat.onRender($1);`])
-        .set("isHacker", [/(window\['\w+']=)!0x0\)/, `$1!0x1)`])
-        //.set("Damage", [/\['send']\('vtw',(\w+)\)/, `['send']('kpd',$1)`])
-        .set("fixHowler", [/(Howler\['orientation'](.+?)\)\),)/, ``])
-        .set("respawnT", [/'\w+':0x3e8\*/g, `'respawnT':0x0*`])
-
-        .set("anticheat#0", [/&&\w+\(\),window\['utilities']&&\(\w+\(null,null,null,!0x0\),\w+\(\)\)/,""])
-        //.set("videoAds", [/!function\(\){var \w+=document\['createElement']\('script'\);.*?}\(\);/, ""])
-        //.set("frustum", [/(;const (\w+)=this\['frustum']\['containsPoint'];.*?return)!0x1/, "$1 $2"])
-
-        //.set("anticheat#0", [/Object\['defineProperty']\(window,'setTimeou,t'.*?(var \w+='undefined')/, "$1"])
-        //.set("anticheat#1", [/Object\['defineProperty']\(navigator.*?;(var \w+=)/, "$1"])
-        .set("anticheat#2", [/(\[]instanceof Array;).*?(var)/, "$1 $2"])
-        .set("anticheat#3", [/windows\['length'\]>\d+.*?0x25/, `0x25`])
-        .set("commandline", [/Object\['defineProperty']\(console.*?\),/, ""])
-        //.set("render", [/(\['\w+']=function\(\w+,\w+,\w+,\w+,\w+,\w+,\w+,\w+\){)/, "$1console.log(arguments)"])
-
-        //.set("FPS", [/(window\['mozRequestAnimationFrame']\|\|function\(\w+\){window\['setTimeout'])\(\w+,0x3e8\/0x3c\);/, "$1()"])
-        //.set("Update", [/(\w+=window\['setTimeout']\(function\(\){\w+)\((\w+)\+(\w+)\)/, "$1($2=$3=0)"])
-        // .set("weaponZoom", [/(,'zoom':)(\d.+?),/g, "$1${skidStr}.settings.weaponZoom.val||$2"])
-
-        .set("configurable", [/'writeable':!0x1/g, "writeable:true"])
-        .set("configurable", [/'configurable':!0x1/g, "configurable:true"])
-        .set("configurable", [/throw new TypeError/g, "console.error"])
-        .set("configurable", [/throw new Error/g, "console.error"])
-
-
-        console.groupCollapsed("PATCHING");
-        let string = this.script;
-        for (let [name, arr] of patches) {
-            let found = arr[0].exec(string);
-            if (found) {
-                console.groupCollapsed(name);
-                for (let i = 0; i < found.length; ++i) {
-                    if (i == 0) {
-                        console.log("Regex ", arr[0]);
-                        console.log("Found ", found[i]);
-                        console.log("Index ", found.index);
-                    } else console.log("$", i, " ", found[i]);
-                }
-                console.log("Replace " + arr[1]);
-                const patched = string.substr(0, found.index) + String.prototype.replace.call( string.substr(found.index, string.length), arr[0], arr[1] );
-                if (string === patched) {
-                    alert(`Failed to patch ${name}`);
-                    continue;
-                } else {
-                    string = patched;
-                    console.log("patched");
-                }
-                console.groupEnd();
-            } else {
-                alert("Failed to find " + name);
-            }
-        }
-        console.groupEnd();
-        /*Lemons1337*/string = string.replace(/\[(0x[a-zA-Z0-9]+,?)+]\['map']\(\w+=>String\['fromCharCode']\(\w+\)\)\['join']\(''\)/g, a => "'" + w.eval(a) + "'");
-        const spoonter = `console.log("ahoy thar Skidney",'💩');`
-        return spoonter + string;
-    }
-
-    deObfuscate() {
-        const obfu = {
-            //\]\)continue;if\(!\w+\['(.+?)\']\)continue;
-            inView: { regex: /(\w+\['(\w+)']\){if\(\(\w+=\w+\['\w+']\['position']\['clone']\(\))/, pos: 2 },
-            spectating: { regex: /\['team']:window\['(\w+)']/, pos: 1 },
-            //inView: { regex: /\]\)continue;if\(!\w+\['(.+?)\']\)continue;/, pos: 1 },
-            //canSee: { regex: /\w+\['(\w+)']\(\w+,\w+\['x'],\w+\['y'],\w+\['z']\)\)&&/, pos: 1 },
-            //procInputs: { regex: /this\['(\w+)']=function\((\w+),(\w+),\w+,\w+\){(this)\['recon']/, pos: 1 },
-            aimVal: { regex: /this\['(\w+)']-=0x1\/\(this\['weapon']\['\w+']\/\w+\)/, pos: 1 },
-            pchObjc: { regex: /0x0,this\['(\w+)']=new \w+\['Object3D']\(\),this/, pos: 1 },
-            didShoot: { regex: /--,\w+\['(\w+)']=!0x0/, pos: 1 },
-            nAuto: { regex: /'Single\\x20Fire','varN':'(\w+)'/, pos: 1 },
-            crouchVal: { regex: /this\['(\w+)']\+=\w\['\w+']\*\w+,0x1<=this\['\w+']/, pos: 1 },
-            recoilAnimY: { regex: /\+\(-Math\['PI']\/0x4\*\w+\+\w+\['(\w+)']\*\w+\['\w+']\)\+/, pos: 1 },
-            //recoilAnimY: { regex: /this\['recoilAnim']=0x0,this\[(.*?\(''\))]/, pos: 1 },
-            ammos: { regex: /\['length'];for\(\w+=0x0;\w+<\w+\['(\w+)']\['length']/, pos: 1 },
-            weaponIndex: { regex: /\['weaponConfig']\[\w+]\['secondary']&&\(\w+\['(\w+)']==\w+/, pos: 1 },
-            isYou: { regex: /0x0,this\['(\w+)']=\w+,this\['\w+']=!0x0,this\['inputs']/, pos: 1 },
-            objInstances: { regex: /\w+\['\w+']\(0x0,0x0,0x0\);if\(\w+\['(\w+)']=\w+\['\w+']/, pos: 1 },
-            getWorldPosition: { regex: /{\w+=\w+\['camera']\['(\w+)']\(\);/, pos: 1 },
-            //mouseDownL: { regex: /this\['\w+'\]=function\(\){this\['(\w+)'\]=\w*0,this\['(\w+)'\]=\w*0,this\['\w+'\]={}/, pos: 1 },
-            mouseDownR: { regex: /this\['(\w+)']=0x0,this\['keys']=/, pos: 1 },
-            //reloadTimer: { regex:  /this\['(\w+)']&&\(\w+\['\w+']\(this\),\w+\['\w+']\(this\)/, pos: 1 },
-            maxHealth: { regex: /this\['health']\/this\['(\w+)']\?/, pos: 1 },
-            xDire: { regex: /this\['(\w+)']=Math\['lerpAngle']\(this\['xDir2']/, pos: 1 },
-            yDire: { regex: /this\['(\w+)']=Math\['lerpAngle']\(this\['yDir2']/, pos: 1 },
-            //xVel: { regex: /this\['x']\+=this\['(\w+)']\*\w+\['map']\['config']\['speedX']/, pos: 1 },
-            yVel: { regex: /this\['y']\+=this\['(\w+)']\*\w+\['map']\['config']\['speedY']/, pos: 1 },
-            //zVel: { regex: /this\['z']\+=this\['(\w+)']\*\w+\['map']\['config']\['speedZ']/, pos: 1 },
+            // Patches
+            exports: {regex: /(this\['\w+']\['\w+']\(this\);};},function\(\w+,\w+,(\w+)\){)/, patch: `$1 ${skidStr}.exports=$2.c; ${skidStr}.modules=$2.m;`},
+            inputs: {regex: /(\w+\['\w+']\[\w+\['\w+']\['\w+']\?'\w+':'push']\()(\w+)\),/, patch: `$1${skidStr}.onInput($2)),`},
+            inView: {regex: /&&(\w+\['\w+'])\){(if\(\(\w+=\w+\['\w+']\['\w+']\['\w+'])/, patch: `){if(!$1&&void 0 !== ${skidStr}.nameTags)continue;$2`},
+            thirdPerson:{regex: /(\w+)\[\'config\'\]\[\'thirdPerson\'\]/g, patch: `void 0 !== ${skidStr}.thirdPerson`},
+            isHacker:{regex: /(window\['\w+']=)!0x0\)/, patch: `$1!0x1)`},
+            fixHowler:{regex: /(Howler\['orientation'](.+?)\)\),)/, patch: ``},
+            respawnT:{regex: /'\w+':0x3e8\*/g, patch: `'respawnT':0x0*`},
+            anticheat1:{regex: /&&\w+\(\),window\['utilities']&&\(\w+\(null,null,null,!0x0\),\w+\(\)\)/, patch: ""},
+            anticheat2:{regex: /(\[]instanceof Array;).*?(var)/, patch: "$1 $2"},
+            anticheat3:{regex: /windows\['length'\]>\d+.*?0x25/, patch: `0x25`},
+            commandline:{regex: /Object\['defineProperty']\(console.*?\),/, patch: ""},
+            writeable:{regex: /'writeable':!0x1/g, patch: "writeable:true"},
+            configurable:{regex: /'configurable':!0x1/g, patch: "configurable:true"},
+            typeError:{regex: /throw new TypeError/g, patch: "console.error"},
+            error:{regex: /throw new Error/g, patch: "console.error"},
         };
-        console.groupCollapsed("DEOBFUSCATE");
-        for (let key in obfu) {
-            let result = obfu[key].regex.exec(this.script);
-            if (result) {
-                skid.vars[key] = result[obfu[key].pos];
-                console.log("found: ", key, " at ", result.index, " value: ", skid.vars[key]);
-            } else {
-                const str = "Failed to find " + key;
-                console.error(str);
-                alert(str);
-                skid.vars[key] = null;
-            }
+        for(let name in entries) {
+            let object = entries[name];
+            let found = object.regex.exec(script);
+            if (object.hasOwnProperty('index')) {
+                if (!found) {
+                    object.val = null;
+                    alert("Failed to Find " + name);
+                } else {
+                    object.val = found[object.index];
+                    console.log ("Found ", name, ":", object.val);
+                }
+                Object.defineProperty(skid.vars, name, {
+                    configurable: false,
+                    value: object.val
+                });
+            } else if (found) {
+                script = script.replace(object.regex, object.patch);
+                console.log ("Patched ", name);
+            } else alert("Failed to Patch " + name);
         }
-        console.groupEnd();
+        return script;
     }
 
     createObservers() {
@@ -1429,53 +1383,195 @@ class Skid {
     }
 }
 
-// Load Without Wasm
-const request = async function(url, type, opt = {}) {
-    return fetch(url, opt).then(response => {
-        if (!response.ok) {
-            throw new Error("Network response from " + url + " was not ok")
+function loadWASM() {
+    window.Function = new Proxy(window.Function, {
+        construct(target, args) {
+            const original = new target(...args);
+            if (args.length) {
+                let body = args[args.length - 1];
+                if (body.length > 38e5) {
+                    // game.js at game loader Easy Method
+                    //console.log(body)
+                }
+                else if (args[0] == "requireRegisteredType") {
+                    return (function(...fnArgs){
+                        // Expose WASM functions
+                        if (!window.hasOwnProperty("WASM")) {
+                            window.Object.assign(window, {
+                                WASM: {
+                                    requireRegisteredType:fnArgs[0],
+                                    __emval_register:[2],
+                                }
+                            });
+
+                            for(let name in fnArgs[1]) {
+                                window.WASM[name] = fnArgs[1][name];
+                                switch (name) {
+                                    case "__Z01dynCall_fijfiv": //game.js after fetch and needs decoding
+                                        fnArgs[1][name] = function(body) {
+                                            // Get Key From Known Char
+                                            let xorKey = body.charCodeAt() ^ '!'.charCodeAt(), str = "", ret ="";
+
+                                            // Decode Mangled String
+                                            for (let i = 0, strLen = body.length; i < strLen; i++) {
+                                                str += String.fromCharCode(body.charCodeAt(i) ^ xorKey);
+                                            }
+
+                                            // Manipulate String
+                                            //console.log(str)
+                                            window[skidStr] = new Skid();
+                                            str = skid.gameJS(str);
+
+                                            //ReEncode Mangled String
+                                            for (let i = 0, strLen = str.length; i < strLen; i++) {
+                                                ret += String.fromCharCode(str[i].charCodeAt() ^ xorKey);
+                                            }
+
+                                            // Return With Our Manipulated Code
+                                            return window.WASM[name].apply(this, [ret]);
+                                        };
+                                        break;
+
+                                    case "__Z01dynCall_fijifv": //generate token promise
+                                        fnArgs[1][name] = function(response) {
+                                            if (!response.ok) {
+                                                throw new window.Error("Network response from " + response.url + " was not ok")
+                                            }
+                                            let promise = window.WASM[name].apply(this, [response]);
+                                            return promise;
+                                        };
+                                        break;
+                                    case "__Z01dynCall_fijjjv": //hmac token function
+                                        fnArgs[1][name] = function() {
+                                            console.log(arguments[0]);
+                                            return window.WASM[name].apply(this, arguments);
+                                        };
+                                        break;
+
+                                }
+                            }
+                        }
+                        return new target(...args).apply(this, fnArgs);
+                    })
+                }
+                // If changed return with spoofed toString();
+                if (args[args.length - 1] !== body) {
+                    args[args.length - 1] = body;
+                    let patched = new target(...args);
+                    patched.toString = () => original.toString();
+                    return patched;
+                }
+            }
+            return original;
         }
-        return response[type]()
     })
-}
-const fetchScript = async function() {
-    const data = await request("https://krunker.io/social.html", "text");
-    const buffer = await request("https://krunker.io/pkg/krunker." + /\w.exports="(\w+)"/.exec(data)[1] + ".vries", "arrayBuffer");
-    const array = Array.from(new Uint8Array(buffer));
-    const xor = array[0] ^ '!'.charCodeAt(0);
-    return array.map((code) => String.fromCharCode(code ^ xor)).join('');
-}
-const onInit = function() {
-    // Fetch and Load Game Script
-    fetchScript().then(script=>{
-        window[skidStr] = new Skid(script);
-        const loader = new Function("__LOADER__mmTokenPromise", "Module", skid.patchScript());
-        loader(request("https://api.sys32.dev/token", "json").then(json => { console.log("Token: ", json.token); return json.token }), { csv: async () => 0 });
-        window.instructionHolder.style.pointerEvents = "none";
-    })
-}
 
-function onPageLoad() {
-    window.instructionHolder.style.display = "block";
-    window.instructions.innerHTML = `<div id="settHolder"><img src="https://i.imgur.com/yzb2ZmS.gif" width="25%"></div><a href='https://skidlamer.github.io/wp/' target='_blank.'><div class="imageButton discordSocial"></div></a>`
-    window.instructionHolder.style.pointerEvents = "all";
-    window._debugTimeStart = Date.now();
-}
+    function onPageLoad() {
+        window.instructionHolder.style.display = "block";
+        window.instructions.innerHTML = `<div id="settHolder"><img src="https://i.imgur.com/yzb2ZmS.gif" width="25%"></div><a href='https://skidlamer.github.io/wp/' target='_blank.'><div class="imageButton discordSocial"></div></a>`
+        window.request = (url, type, opt = {}) => fetch(url, opt).then(response => response.ok ? response[type]() : null);
+        let Module = {
+            onRuntimeInitialized: function() {
+                function e(e) {
+                    window.instructionHolder.style.display = "block";
+                    window.instructions.innerHTML = "<div style='color: rgba(255, 255, 255, 0.6)'>" + e + "</div><div style='margin-top:10px;font-size:20px;color:rgba(255,255,255,0.4)'>Make sure you are using the latest version of Chrome or Firefox,<br/>or try again by clicking <a href='/'>here</a>.</div>";
+                    window.instructionHolder.style.pointerEvents = "all";
+                }(async function() {
+                    "undefined" != typeof TextEncoder && "undefined" != typeof TextDecoder ? await Module.initialize(Module) : e("Your browser is not supported.")
+                })().catch(err => {
+                    e("Failed to load game.");
+                    throw new Error(err);
+                })
+            }
+        };
+        window._debugTimeStart = Date.now();
+        window.request("/pkg/maindemo.wasm","arrayBuffer",{cache: "no-store"}).then(body => {
+            Module.wasmBinary = body;
+            window.request("/pkg/maindemo.js","text",{cache: "no-store"}).then(body => {
+                body = body.replace(/(function UTF8ToString\((\w+),\w+\)){return \w+\?(.+?)\}/, `$1{let str=$2?$3;if (str.includes("CLEAN_WINDOW") || str.includes("Array.prototype.filter = undefined")) return "";return str;}`);
+                body = body.replace(/(_emscripten_run_script\(\w+\){)eval\((\w+\(\w+\))\)}/, `$1 let str=$2; console.log(str);}`);
+                new Function(body)();
+                window.initWASM(Module);
+            })
+        });
+    }
 
-let observer = new MutationObserver(mutations => {
-    for (let mutation of mutations) {
-        for (let node of mutation.addedNodes) {
-            if (node.tagName === 'SCRIPT' && node.type === "text/javascript" && node.innerHTML.startsWith("*!", 1)) {
-                //node.innerHTML = "";
-                node.innerHTML = onPageLoad.toString() + "\nonPageLoad();";
-                observer.disconnect();
-                onInit();
+    let observer = new MutationObserver(mutations => {
+        for (let mutation of mutations) {
+            for (let node of mutation.addedNodes) {
+                if (node.tagName === 'SCRIPT' && node.type === "text/javascript" && node.innerHTML.startsWith("*!", 1)) {
+                    observer.disconnect();
+                    node.innerHTML = onPageLoad.toString() + "\nonPageLoad();";
+                }
             }
         }
-    }
-});
+    });
 
-observer.observe(document, {
-    childList: true,
-    subtree: true
-});
+    observer.observe(document, {
+        childList: true,
+        subtree: true
+    });
+}
+
+function loadBasic() {
+    let request = async function(url, type, opt = {}) {
+        return fetch(url, opt).then(response => {
+            if (!response.ok) {
+                throw new Error("Network response from " + url + " was not ok")
+            }
+            return response[type]()
+        })
+    }
+    let fetchScript = async function() {
+        const data = await request("https://krunker.io/social.html", "text");
+        const buffer = await request("https://krunker.io/pkg/krunker." + /\w.exports="(\w+)"/.exec(data)[1] + ".vries", "arrayBuffer");
+        const array = Array.from(new Uint8Array(buffer));
+        const xor = array[0] ^ '!'.charCodeAt(0);
+        return array.map((code) => String.fromCharCode(code ^ xor)).join('');
+    }
+
+    function onPageLoad() {
+        window.instructionHolder.style.display = "block";
+        window.instructions.innerHTML = `<div id="settHolder"><img src="https://i.imgur.com/yzb2ZmS.gif" width="25%"></div><a href='https://skidlamer.github.io/wp/' target='_blank.'><div class="imageButton discordSocial"></div></a>`
+        window.instructionHolder.style.pointerEvents = "all";
+        window._debugTimeStart = Date.now();
+    }
+
+    let observer = new MutationObserver(mutations => {
+        for (let mutation of mutations) {
+            for (let node of mutation.addedNodes) {
+                if (node.tagName === 'SCRIPT' && node.type === "text/javascript" && node.innerHTML.startsWith("*!", 1)) {
+                    observer.disconnect();
+                    node.innerHTML = onPageLoad.toString() + "\nonPageLoad();";
+                    fetchScript().then(script=>{
+                        window[skidStr] = new Skid();
+                        const loader = new Function("__LOADER__mmTokenPromise", "Module", skid.gameJS(script));
+                        loader(new Promise(res=>res(JSON.parse(xhr.responseText).token)), { csv: async () => 0 });
+                        window.instructionHolder.style.pointerEvents = "none";
+                    })
+                }
+            }
+        }
+    });
+
+    observer.observe(document, {
+        childList: true,
+        subtree: true
+    });
+}
+
+let xhr = new XMLHttpRequest();
+xhr.open('GET', 'https://api.sys32.dev/token', false);
+
+try {
+  xhr.send();
+  if (xhr.status != 200) {
+      loadWASM();
+  } else {
+      if (xhr.responseText.includes('success')) {
+          loadBasic();
+      } else loadWASM();
+  }
+} catch(err) {
+    loadWASM();
+}
