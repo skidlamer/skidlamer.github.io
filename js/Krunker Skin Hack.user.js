@@ -1,12 +1,13 @@
 // ==UserScript==
 // @name         Krunker Skin Hack
-// @version      1.1
+// @version      1.0
 // @author       SkidLamer - From The Gaming Gurus
 // @homepage     https://skidlamer.github.io/
 // @supportURL   https://discord.gg/2uqj5Y6h7s
 // @description  unlocks all skins, client side only
 // @match        *://krunker.io/*
-// @exclude      *social.html*
+// @exclude      *://krunker.io/editor*
+// @exclude      *://krunker.io/social*
 // @run-at       document-start
 // @grant        none
 // ==/UserScript==
@@ -72,28 +73,6 @@
             }
         })
     }
-
-    window.Function = new Proxy(Function, {
-        construct(target, args) {
-            const that = new target(...args);
-            if (args.length) {
-                let string = args[args.length - 1];
-
-                if (string.length > 38e5) {
-                    string = string.replace(/windows\['length'\]>\d+.*?0x25/, "0x25")
-                }
-
-                // If changed return with spoofed toString();
-                if (args[args.length - 1] !== string) {
-                    args[args.length - 1] = string;
-                    let patched = new target(...args);
-                    patched.toString = () => that.toString();
-                    return patched;
-                }
-            }
-            return that;
-        }
-    })
 
     const $events = Symbol("events");
     const $skins = Symbol("skins");
