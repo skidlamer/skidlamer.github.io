@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Krunker  Dogeware - by The Gaming Gurus
 // @description   The most advanced krunker cheat
-// @version       2.20
+// @version       2.21
 // @author        SkidLamer - From The Gaming Gurus
 // @supportURL    https://discord.gg/upA3nap6Ug
 // @homepage      https://skidlamer.github.io/
@@ -83,15 +83,14 @@
                 pressedKeys: new Set(),
                 spinCounter: 0,
                 activeTab: 0,
-                nameTags:false,
+                nameTags: false,
                 frame: 0
             });
             this.vars = {};
             this.GUI = {};
             try {
                 this.onLoad();
-            }
-            catch(e) {
+            } catch (e) {
                 console.error(e);
                 console.trace(e.stack);
             }
@@ -103,24 +102,26 @@
             localStorage.kro_setngss_json = JSON.stringify(this.settings);
             this.listeners();
 
-            this.waitFor(_=>window.Module.token, 5e3).then(token => {
-                if (!token) {
-                    return window.request("https://krunker.space/token","json",{cache: "no-store"}).then(json => {
-                        if (json && json.token) {
-                            console.log("krunker.space/token");
-                            return json.token;
-                        }
-                        else {
-                            console.error("game token not found");
-                            return null;
-                        }
-                    })
-                } else return token;
-            }).then(token => {
-                if (!token) location.reload();
-                const loader = new Function("WP_fetchMMToken", "Module", this.gameJS());
-                loader(new Promise(res=>res(token)), { csv: async () => 0 }); //window.Module
-                return this.hooking();
+            this.waitFor(_=>window.Module, 5e3).then(_=> {
+                this.waitFor(_=>window.Module.token, 5e3).then(token => {
+                    if (!token) {
+                        return window.request("https://krunker.space/token","json",{cache: "no-store"}).then(json => {
+                            if (json && json.token) {
+                                console.log("krunker.space/token");
+                                return json.token;
+                            }
+                            else {
+                                console.error("game token not found");
+                                return null;
+                            }
+                        })
+                    } else return token;
+                }).then(token => {
+                    if (!token) location.reload();
+                    const loader = new Function("WP_fetchMMToken", "Module", this.gameJS());
+                    loader(new Promise(res=>res(token)), { csv: async () => 0 });
+                    return this.hooking();
+                })
             })
         }
 
@@ -150,7 +151,9 @@
         }
 
         saveAs(name, data) {
-            let blob = new Blob([data], {type: 'text/plain'});
+            let blob = new Blob([data], {
+                type: 'text/plain'
+            });
             let el = window.document.createElement("a");
             el.href = window.URL.createObjectURL(blob);
             el.download = name;
@@ -167,39 +170,108 @@
 
         gameJS() {
             let entries = {
-                inView: {regex: /(\w+\['(\w+)']\){if\(\(\w+=\w+\['\w+']\['position']\['clone']\(\))/, index: 2},
-                procInputs: {regex: /this\['(\w+)']=function\((\w+),(\w+),\w+,\w+\){(this)\['recon']/, index: 1},
-                aimVal: {regex: /this\['(\w+)']-=0x1\/\(this\['weapon']\['\w+']\/\w+\)/, index: 1},
-                didShoot: {regex: /--,\w+\['(\w+)']=!0x0/, index: 1},
-                nAuto: {regex: /'Single\\x20Fire','varN':'(\w+)'/, index: 1},
-                crouchVal: {regex: /this\['(\w+)']\+=\w\['\w+']\*\w+,0x1<=this\['\w+']/, index: 1},
-                ammos: {regex: /\['length'];for\(\w+=0x0;\w+<\w+\['(\w+)']\['length']/, index: 1},
-                weaponIndex: {regex: /\['weaponConfig']\[\w+]\['secondary']&&\(\w+\['(\w+)']==\w+/, index: 1},
-                objInstances: {regex: /\(\w+=\w+\['players']\['list']\[\w+]\)\['active']&&\w+\['(\w+)']\)/, index: 1},
+                inView: {
+                    regex: /(\w+\['(\w+)']\){if\(\(\w+=\w+\['\w+']\['position']\['clone']\(\))/,
+                    index: 2
+                },
+                procInputs: {
+                    regex: /this\['(\w+)']=function\((\w+),(\w+),\w+,\w+\){(this)\['recon']/,
+                    index: 1
+                },
+                aimVal: {
+                    regex: /this\['(\w+)']-=0x1\/\(this\['weapon']\['\w+']\/\w+\)/,
+                    index: 1
+                },
+                didShoot: {
+                    regex: /--,\w+\['(\w+)']=!0x0/,
+                    index: 1
+                },
+                nAuto: {
+                    regex: /'Single\\x20Fire','varN':'(\w+)'/,
+                    index: 1
+                },
+                crouchVal: {
+                    regex: /this\['(\w+)']\+=\w\['\w+']\*\w+,0x1<=this\['\w+']/,
+                    index: 1
+                },
+                ammos: {
+                    regex: /\['length'];for\(\w+=0x0;\w+<\w+\['(\w+)']\['length']/,
+                    index: 1
+                },
+                weaponIndex: {
+                    regex: /\['weaponConfig']\[\w+]\['secondary']&&\(\w+\['(\w+)']==\w+/,
+                    index: 1
+                },
+                objInstances: {
+                    regex: /\(\w+=\w+\['players']\['list']\[\w+]\)\['active']&&\w+\['(\w+)']\)/,
+                    index: 1
+                },
                 //reloadTimer: {regex: /this\['(\w+)']&&\(\w+\['\w+']\(this\),\w+\['\w+']\(this\)/, index: 1},
-                reloadTimer: {regex: /0x0>=this\['(\w+')]&&0x0>=this\['swapTime']/, index: 1},
-                recoilAnimY: {regex: /this\['(\w+)']\+=this\['\w+']\*\(/, index: 1},
-                maxHealth: {regex: /this\['health']\/this\['(\w+)']\?/, index: 1},
+                reloadTimer: {
+                    regex: /0x0>=this\['(\w+')]&&0x0>=this\['swapTime']/,
+                    index: 1
+                },
+                recoilAnimY: {
+                    regex: /this\['(\w+)']\+=this\['\w+']\*\(/,
+                    index: 1
+                },
+                maxHealth: {
+                    regex: /this\['health']\/this\['(\w+)']\?/,
+                    index: 1
+                },
                 //xVel: { regex: /this\['x']\+=this\['(\w+)']\*\w+\['map']\['config']\['speedX']/, index: 1 },
-                yVel: { regex: /this\['y']\+=this\['(\w+)']\*\w+\['map']\['config']\['speedY']/, index: 1 },
+                yVel: {
+                    regex: /this\['y']\+=this\['(\w+)']\*\w+\['map']\['config']\['speedY']/,
+                    index: 1
+                },
                 //zVel: { regex: /this\['z']\+=this\['(\w+)']\*\w+\['map']\['config']\['speedZ']/, index: 1 },
                 // Patches
-                socket: {regex: /\['onopen']=\(\)=>{/, patch: `$&${dogStr}.socket=this;`},
+                socket: {
+                    regex: /\['onopen']=\(\)=>{/,
+                    patch: `$&${dogStr}.socket=this;`
+                },
                 //frustum: {regex: /(;const (\w+)=this\['frustum']\['containsPoint'];.*?return)!0x1/, patch: "$1 $2"},
                 //videoAds: {regex: /!function\(\){var \w+=document\['createElement']\('script'\);.*?}\(\);/, patch: ""},
-                anticheat1: {regex: /(\[]instanceof Array;).*?(var)/, patch: "$1 $2"},
-                anticheat2: {regex: /windows\['length'\]>\d+.*?0x25/, patch: "0x25"},
-                writeable: {regex: /'writeable':!0x1/g, patch: "writeable:true"},
-                configurable: {regex: /'configurable':!0x1/g, patch: "configurable:true"},
-                typeError: {regex: /throw new TypeError/g, patch: "console.error"},
-                error: {regex: /throw new Error/g, patch: "console.error"},
+                anticheat1: {
+                    regex: /(\[]instanceof Array;).*?(var)/,
+                    patch: "$1 $2"
+                },
+                anticheat2: {
+                    regex: /windows\['length'\]>\d+.*?0x25/,
+                    patch: "0x25"
+                },
+                writeable: {
+                    regex: /'writeable':!0x1/g,
+                    patch: "writeable:true"
+                },
+                configurable: {
+                    regex: /'configurable':!0x1/g,
+                    patch: "configurable:true"
+                },
+                typeError: {
+                    regex: /throw new TypeError/g,
+                    patch: "console.error"
+                },
+                error: {
+                    regex: /throw new Error/g,
+                    patch: "console.error"
+                },
                 //exports: {regex: /(this\['\w+']\['\w+']\(this\);};},function\(\w+,\w+,(\w+)\){)/, patch: `$1 ${dogStr}.exports=$2.c; ${dogStr}.modules=$2.m;`},
-                inputs: {regex: /(\w+\['\w+']\[\w+\['\w+']\['\w+']\?'\w+':'push']\()(\w+)\),/, patch: `$1${dogStr}.inputs($2)),`},
-                nametags: {regex: /&&(\w+\['\w+'])\){(if\(\(\w+=\w+\['\w+']\['\w+']\['\w+'])/, patch: `){if(!$1&&!${dogStr}.state.nameTags)continue;$2`},
-                wallbangs: {regex: /!(\w+)\['transparent']/, patch: `${dogStr}.settings.wallbangs?!$1.penetrable : !$1.transparent`}
+                inputs: {
+                    regex: /(\w+\['\w+']\[\w+\['\w+']\['\w+']\?'\w+':'push']\()(\w+)\),/,
+                    patch: `$1${dogStr}.inputs($2)),`
+                },
+                nametags: {
+                    regex: /&&(\w+\['\w+'])\){(if\(\(\w+=\w+\['\w+']\['\w+']\['\w+'])/,
+                    patch: `){if(!$1&&!${dogStr}.state.nameTags)continue;$2`
+                },
+                wallbangs: {
+                    regex: /!(\w+)\['transparent']/,
+                    patch: `${dogStr}.settings.wallbangs?!$1.penetrable : !$1.transparent`
+                }
             };
             let script = window.Module.gameJS;
-            for(let name in entries) {
+            for (let name in entries) {
                 let object = entries[name];
                 let found = object.regex.exec(script);
                 if (object.hasOwnProperty('index')) {
@@ -209,7 +281,7 @@
                         console.error("Failed to Find " + name);
                     } else {
                         object.val = found[object.index];
-                        console.log ("Found ", name, ":", object.val);
+                        console.log("Found ", name, ":", object.val);
                     }
                     Object.defineProperty(dog.vars, name, {
                         configurable: false,
@@ -217,8 +289,8 @@
                     });
                 } else if (found) {
                     script = script.replace(object.regex, object.patch);
-                    console.log ("Patched ", name);
-                } else console.error("Failed to Patch " + name);//alert("Failed to Patch " + name);
+                    console.log("Patched ", name);
+                } else console.error("Failed to Patch " + name); //alert("Failed to Patch " + name);
             }
             return script;
         }
@@ -249,7 +321,7 @@
                     if (doWhile && doWhile instanceof Function) doWhile();;
                     if (timeout_ms % 10000 < freq) console.log("waiting for: ", test);
                     if ((timeout_ms -= freq) < 0) {
-                        console.log( "Timeout : ", test );
+                        console.log("Timeout : ", test);
                         resolve(false);
                         return;
                     }
@@ -262,7 +334,7 @@
         };
 
         async hooking() {
-            await this.waitFor(_=>this.isDefined(this.socket))
+            await this.waitFor(_ => this.isDefined(this.socket))
             if (!this.isDefined(this.socket)) location.assign(location.origin);
             this.wsEvent = this.socket._dispatchEvent.bind(this.socket);
             this.wsSend = this.socket.send.bind(this.socket);
@@ -288,8 +360,8 @@
                         let pInfo = args[1][0];
                         let pSize = 38;
                         while (pInfo.length % pSize !== 0) pSize++;
-                        for(let i = 0; i < pInfo.length; i += pSize) {
-                            if (pInfo[i] === that.socketId||0) {
+                        for (let i = 0; i < pInfo.length; i += pSize) {
+                            if (pInfo[i] === that.socketId || 0) {
                                 pInfo[i + 12] = [that.skinCache.main, that.skinCache.secondary];
                                 pInfo[i + 13] = that.skinCache.hat;
                                 pInfo[i + 14] = that.skinCache.body;
@@ -304,11 +376,13 @@
                 }
             })
 
-            await this.waitFor(_=>this.isDefined(this.overlay))
+            await this.waitFor(_ => this.isDefined(this.overlay))
             this.ctx = this.overlay.canvas.getContext('2d');
             this.overlay.render = new Proxy(this.overlay.render, {
                 apply(target, that, args) {
-                    ["scale", "game", "controls", "renderer", "me"].forEach((item, index)=>{ dog[item] = args[index] });
+                    ["scale", "game", "controls", "renderer", "me"].forEach((item, index) => {
+                        dog[item] = args[index]
+                    });
                     Reflect.apply(...arguments);
                     if (dog.me && dog.ctx) {
                         dog.ctx.save();
@@ -321,7 +395,8 @@
 
             this.cleanGUI();
             this.customCSS();
-            await this.waitFor(_=>this.isDefined(window.windows)); this.initGUI();
+            await this.waitFor(_ => this.isDefined(window.windows));
+            this.initGUI();
         }
 
         defines() {
@@ -347,7 +422,9 @@
                         dog.renderer = this._value;
 
                         Object.defineProperty(this._value, "adsFovMlt", {
-                            get() {return dog.settings.weaponZoom}
+                            get() {
+                                return dog.settings.weaponZoom
+                            }
                         })
 
                         dog.fxComposer = this;
@@ -383,9 +460,11 @@
                     }
                 },
                 useLooseClient: {
-                    enumerable: false, get() {
+                    enumerable: false,
+                    get() {
                         return this._ulc
-                    }, set(v) {
+                    },
+                    set(v) {
                         //dog.config = this
                         // Increase the rate in which inView is updated to every frame, making aimbot way more responsive
                         Object.defineProperty(this, "nameVisRate", {
@@ -398,13 +477,21 @@
                 },
                 trail: { // All weapon tracers
                     enumerable: false,
-                    get() { return dog.settings.alwaysTrail || this._trail },
-                    set(v) { this._trail = v }
+                    get() {
+                        return dog.settings.alwaysTrail || this._trail
+                    },
+                    set(v) {
+                        this._trail = v
+                    }
                 },
                 showTracers: {
                     enumerable: false,
-                    get() { return dog.settings.alwaysTrail || this._showTracers },
-                    set(v) { this._showTracers = v }
+                    get() {
+                        return dog.settings.alwaysTrail || this._showTracers
+                    },
+                    set(v) {
+                        this._showTracers = v
+                    }
                 },
                 shaderId: { // Animated billboards
                     enumerable: false,
@@ -418,16 +505,20 @@
                 },
                 // Clientside prevention of inactivity kick
                 idleTimer: {
-                    enumerable: false, get() {
+                    enumerable: false,
+                    get() {
                         return dog.settings.antikick ? 0 : this._idleTimer
-                    }, set(v) {
+                    },
+                    set(v) {
                         this._idleTimer = v
                     }
                 },
                 kickTimer: {
-                    enumerable: false, get() {
+                    enumerable: false,
+                    get() {
                         return dog.settings.antikick ? Infinity : this._kickTimer
-                    }, set(v) {
+                    },
+                    set(v) {
                         this._kickTimer = v
                     }
                 },
@@ -441,7 +532,7 @@
                     try {
                         return old.apply(this, arguments)
                     } catch (e) {
-                        console.log("AudioParam error:\n"+e)
+                        console.log("AudioParam error:\n" + e)
                         return false
                     }
                 }
@@ -450,7 +541,7 @@
 
         listeners() {
             window.addEventListener("mouseup", (e) => {
-                if(e.which === 2 && dog.settings.guiOnMMB) {
+                if (e.which === 2 && dog.settings.guiOnMMB) {
                     e.preventDefault()
                     dog.showGUI()
                 }
@@ -461,11 +552,11 @@
                     switch (event.code) {
                         case "KeyY":
                             this.state.bindAimbotOn = !this.state.bindAimbotOn
-                            this.wsEvent("ch", [null, ("Aimbot "+(this.state.bindAimbotOn?"on":"off")), 1])
+                            this.wsEvent("ch", [null, ("Aimbot " + (this.state.bindAimbotOn ? "on" : "off")), 1])
                             break
                         case "KeyH":
-                            this.settings.esp = (this.settings.esp+1)%4
-                            this.wsEvent("ch", [null, "ESP: "+["disabled", "nametags", "box", "full"][this.settings.esp], 1])
+                            this.settings.esp = (this.settings.esp + 1) % 4
+                            this.wsEvent("ch", [null, "ESP: " + ["disabled", "nametags", "box", "full"][this.settings.esp], 1])
                             break
                     }
                 }
@@ -529,7 +620,7 @@
 
                 //AUTO BHOP
                 if (this.settings.bhop) {
-                    if (this.state.pressedKeys.has("Space") || this.settings.bhop % 2 ) {
+                    if (this.state.pressedKeys.has("Space") || this.settings.bhop % 2) {
                         this.controls.keys[this.controls.binds.jumpKey.val] ^= 1;
                         if (this.controls.keys[this.controls.binds.jumpKey.val]) {
                             this.controls.didPressed[this.controls.binds.jumpKey.val] = 1;
@@ -538,7 +629,7 @@
                             if (this.me[this.vars.yVel] < -0.03 && this.me.canSlide) {
                                 setTimeout(() => {
                                     this.controls.keys[this.controls.binds.crouchKey.val] = 0;
-                                }, this.me.slideTimer||325);
+                                }, this.me.slideTimer || 325);
                                 this.controls.keys[this.controls.binds.crouchKey.val] = 1;
                                 this.controls.didPressed[this.controls.binds.crouchKey.val] = 1;
                             }
@@ -635,7 +726,7 @@
 
                     // If there's a fov box, pick an enemy inside it instead (if there is)
                     if (this.settings.fovbox) {
-                        const scale = this.scale||parseFloat(document.getElementById("uiBase").style.transform.match(/\((.+)\)/)[1])
+                        const scale = this.scale || parseFloat(document.getElementById("uiBase").style.transform.match(/\((.+)\)/)[1])
                         const width = innerWidth / scale,
                               height = innerHeight / scale
 
@@ -865,8 +956,9 @@
 
         render() {
 
-            var scale = this.scale||parseFloat(document.getElementById("uiBase").style.transform.match(/\((.+)\)/)[1]);
-            let width = innerWidth / scale, height = innerHeight / scale
+            var scale = this.scale || parseFloat(document.getElementById("uiBase").style.transform.match(/\((.+)\)/)[1]);
+            let width = innerWidth / scale,
+                height = innerHeight / scale
 
             let world2Screen = (pos, yOffset = 0) => {
                 pos.y += yOffset
@@ -930,13 +1022,17 @@
             //this.ctx.clearRect(0, 0, width, height)
             // tecchhchy (with some stuff by me)
             if (this.settings.esp > 1) {
-                for(const player of this.game.players.list.filter(v => (!v.isYTMP && v.active && (v.pos = {x: v.x, y: v.y, z: v.z})))) {
+                for (const player of this.game.players.list.filter(v => (!v.isYTMP && v.active && (v.pos = {
+                    x: v.x,
+                    y: v.y,
+                    z: v.z
+                })))) {
                     const pos = new this.three.Vector3(player.pos.x, player.pos.y, player.pos.z)
                     const screenR = world2Screen(pos.clone())
                     const screenH = world2Screen(pos.clone(), player.height)
                     const hDiff = ~~(screenR.y - screenH.y)
                     const bWidth = ~~(hDiff * 0.6)
-                    const font = this.settings.espFontSize+"px GameFont"
+                    const font = this.settings.espFontSize + "px GameFont"
 
                     if (!this.containsPoint(player.pos)) {
                         continue
@@ -949,12 +1045,12 @@
                     if (player.isTarget) {
                         this.ctx.save()
                         const meas = getTextMeasurements(["TARGET"])
-                        text("TARGET", font, "#FFFFFF", screenH.x-meas[0]/2, screenH.y-this.settings.espFontSize*1.5)
+                        text("TARGET", font, "#FFFFFF", screenH.x - meas[0] / 2, screenH.y - this.settings.espFontSize * 1.5)
 
                         this.ctx.beginPath()
 
-                        this.ctx.translate(screenH.x, screenH.y+Math.abs(hDiff/2))
-                        this.ctx.arc(0, 0, Math.abs(hDiff/2)+10, 0, Math.PI*2)
+                        this.ctx.translate(screenH.x, screenH.y + Math.abs(hDiff / 2))
+                        this.ctx.arc(0, 0, Math.abs(hDiff / 2) + 10, 0, Math.PI * 2)
 
                         this.ctx.strokeStyle = "#FFFFFF"
                         this.ctx.stroke()
@@ -965,7 +1061,7 @@
                     if (this.settings.esp === 2) {
                         this.ctx.save()
                         this.ctx.strokeStyle = (this.me.team === null || player.team !== this.me.team) ? "#FF4444" : "#44AAFF"
-                        this.ctx.strokeRect(screenH.x-bWidth/2, screenH.y, bWidth, hDiff)
+                        this.ctx.strokeRect(screenH.x - bWidth / 2, screenH.y, bWidth, hDiff)
                         this.ctx.restore()
                         continue
                     }
@@ -996,21 +1092,25 @@
                     if (player.level) {
                         const grad = gradient(0, 0, (meas[4] * 2) + meas[3] + (padding * 3), 0, ["rgba(0, 0, 0, 0)", "rgba(0, 0, 0, 0.25)"])
                         rect(~~(screenH.x - bWidth / 2) - 12 - (meas[4] * 2) - meas[3] - (padding * 3), ~~screenH.y - padding, 0, 0, (meas[4] * 2) + meas[3] + (padding * 3), meas[4] + (padding * 2), grad, true)
-                        text(""+player.level, font, '#FFFFFF', ~~(screenH.x - bWidth / 2) - 16 - meas[3], ~~screenH.y + meas[4] * 1)
+                        text("" + player.level, font, '#FFFFFF', ~~(screenH.x - bWidth / 2) - 16 - meas[3], ~~screenH.y + meas[4] * 1)
                     }
                     rect(~~(screenH.x + bWidth / 2) + padding, ~~screenH.y - padding, 0, 0, (meas[4] * 5), (meas[4] * 4) + (padding * 2), grad2, true)
                     text(player.name, font, player.team === null ? '#FFCDB4' : this.me.team === player.team ? '#B4E6FF' : '#FFCDB4', (screenH.x + bWidth / 2) + 4, screenH.y + meas[4] * 1)
-                    if (player.clan) text("["+player.clan+"]", font, "#AAAAAA", (screenH.x + bWidth / 2) + 8 + meas[5], screenH.y + meas[4] * 1)
-                    text(player.health+" HP", font, "#33FF33", (screenH.x + bWidth / 2) + 4, screenH.y + meas[4] * 2)
+                    if (player.clan) text("[" + player.clan + "]", font, "#AAAAAA", (screenH.x + bWidth / 2) + 8 + meas[5], screenH.y + meas[4] * 1)
+                    text(player.health + " HP", font, "#33FF33", (screenH.x + bWidth / 2) + 4, screenH.y + meas[4] * 2)
                     text(player.weapon.name, font, "#DDDDDD", (screenH.x + bWidth / 2) + 4, screenH.y + meas[4] * 3)
                     text("[", font, "#AAAAAA", (screenH.x + bWidth / 2) + 4, screenH.y + meas[4] * 4)
-                    text(""+playerDist, font, "#DDDDDD", (screenH.x + bWidth / 2) + 4 + meas[0], screenH.y + meas[4] * 4)
+                    text("" + playerDist, font, "#DDDDDD", (screenH.x + bWidth / 2) + 4 + meas[0], screenH.y + meas[4] * 4)
                     text("m]", font, "#AAAAAA", (screenH.x + bWidth / 2) + 4 + meas[0] + meas[1], screenH.y + meas[4] * 4)
                 }
             }
             // Chams
             if (this.settings.chams && this.game.players) {
-                for (const player of this.game.players.list.filter(v => ((this.settings.selfChams || !v.isYTMP) && v.active && (v.pos = {x: v.x, y: v.y, z: v.z})))) {
+                for (const player of this.game.players.list.filter(v => ((this.settings.selfChams || !v.isYTMP) && v.active && (v.pos = {
+                    x: v.x,
+                    y: v.y,
+                    z: v.z
+                })))) {
                     const o = player[this.vars.objInstances]
                     if (!o) {
                         continue
@@ -1020,7 +1120,7 @@
                             get() {
                                 return dog.settings.chams || this._visible
                             },
-                            set(v){
+                            set(v) {
                                 this._visible = v
                             }
                         })
@@ -1032,7 +1132,7 @@
                                 get() {
                                     return dog.settings.wireframe || this._wf
                                 },
-                                set(v){
+                                set(v) {
                                     this._wf = v
                                 }
                             })
@@ -1044,20 +1144,35 @@
 
                             const modes = [
                                 null,
-                                {r: 1},
-                                {g: 1},
-                                {b: 1},
-                                {g: 1, b: 1},
-                                {r: 1, b: 1},
-                                {r: 1, g: 1}
+                                {
+                                    r: 1
+                                },
+                                {
+                                    g: 1
+                                },
+                                {
+                                    b: 1
+                                },
+                                {
+                                    g: 1,
+                                    b: 1
+                                },
+                                {
+                                    r: 1,
+                                    b: 1
+                                },
+                                {
+                                    r: 1,
+                                    g: 1
+                                }
                             ]
                             if (this.settings.chamsc === 7) {
                                 // epilepsy
-                                e.material.emissive = modes[1+Math.floor(Math.random()*6)]
+                                e.material.emissive = modes[1 + Math.floor(Math.random() * 6)]
                             } else if (this.settings.chamsc === 8) {
                                 // rgb
-                                const cur = ~~((Date.now()%(this.settings.chamsInterval*6))/this.settings.chamsInterval)
-                                e.material.emissive = modes[cur+1]
+                                const cur = ~~((Date.now() % (this.settings.chamsInterval * 6)) / this.settings.chamsInterval)
+                                e.material.emissive = modes[cur + 1]
                             } else {
                                 e.material.emissive = modes[this.settings.chamsc]
                             }
@@ -1067,15 +1182,15 @@
             }
 
             if (this.settings.fovbox && this.settings.drawFovbox) {
-                let fovBox = [width/3, height/4, width*(1/3), height/2]
+                let fovBox = [width / 3, height / 4, width * (1 / 3), height / 2]
                 switch (this.settings.fovBoxSize) {
                         // medium
                     case 2:
-                        fovBox = [width*0.4, height/3, width*0.2, height/3]
+                        fovBox = [width * 0.4, height / 3, width * 0.2, height / 3]
                         break
                         // small
                     case 3:
-                        fovBox = [width*0.45, height*0.4, width*0.1, height*0.2]
+                        fovBox = [width * 0.45, height * 0.4, width * 0.1, height * 0.2]
                         break
                 }
                 this.ctx.save()
@@ -1086,7 +1201,7 @@
         }
 
         cleanGUI() {
-            let head = document.head||document.getElementsByTagName('head')[0]||0,
+            let head = document.head || document.getElementsByTagName('head')[0] || 0,
                 css = this.createElement("style", "#aMerger, #endAMerger { display: none !important }");
             head.appendChild(css);
             window['onetrust-consent-sdk'].style.display = "none";
@@ -1097,7 +1212,7 @@
 
         customCSS() {
             if (!this.isDefined(this.CSSres)) {
-                let head = document.head||document.getElementsByTagName('head')[0]||0
+                let head = document.head || document.getElementsByTagName('head')[0] || 0
                 this.CSSres = document.createElement("link");
                 this.CSSres.rel = "stylesheet";
                 this.CSSres.href = "https://skidlamer.github.io/css/kpal.css"
@@ -1108,13 +1223,15 @@
                 //let head = document.head||document.getElementsByTagName('head')[0]||0
                 this.CSSres.href = this.settings.customCSS;
                 //head.appendChild(this.CSSres);
-            }
-            else this.CSSres = undefined;
+            } else this.CSSres = undefined;
         }
 
         initGUI() {
             function createButton(name, iconURL, fn) {
-                const menu = document.querySelector("#menuItemContainer"), menuItem = document.createElement("div"), menuItemIcon = document.createElement("div"), menuItemTitle = document.createElement("div")
+                const menu = document.querySelector("#menuItemContainer"),
+                      menuItem = document.createElement("div"),
+                      menuItemIcon = document.createElement("div"),
+                      menuItemTitle = document.createElement("div")
 
                 menuItem.className = "menuItem"
                 menuItemIcon.className = "menuItemIcon"
@@ -1141,7 +1258,7 @@
                 }
                 localStorage.kro_setngss_json = JSON.stringify(dog.settings);
             }
-            dog.GUI.windowIndex = windows.length+1
+            dog.GUI.windowIndex = windows.length + 1
             dog.GUI.settings = {
                 aimbot: {
                     val: this.settings.aimbot
@@ -1176,44 +1293,44 @@
             const builder = {
                 checkbox: (name, settingName, description = "", needsRestart = false) => `<div class="settName" title="${description}">${name} ${needsRestart ? "<span style=\"color: #eb5656\">*</span>" : ""}<label class="switch" style="margin-left:10px"><input type="checkbox" onclick='${dogStr}.GUI.setSetting("${settingName}", this.checked)' ${dog.settings[settingName]?"checked":""}><span class="slider"></span></label></div>`,
                 client_setting: (name, settingName, description = "", needsRestart = true) => `<div class="settName" title="${description}">${name} ${needsRestart ? "<span style=\"color: #eb5656\">*</span>" : ""}<label class="switch" style="margin-left:10px"><input type="checkbox" onclick='doge_setsetting("${settingName}", this.checked?"1":"0")' ${dog.settings[settingName]?"checked":""}><span class="slider"></span></label></div>`,
-                select: (name, settingName, options, description = "", needsRestart = false) => {
-                let built = `<div class="settName" title="${description}">${name} ${needsRestart ? "<span style=\"color: #eb5656\">*</span>" : ""}<select onchange='${dogStr}.GUI.setSetting("${settingName}", parseInt(this.value))' class="inputGrey2">`
-                for (const option in options) {
-                if (options.hasOwnProperty(option)) built += `<option value="${options[option]}" ${dog.settings[settingName] == options[option]?"selected":""}>${option}</option>,`
-                }
-                return built + "</select></div>"
-                },
-                slider: (name, settingName, min, max, step, description = "") => `<div class="settName" title="${description}">${name} <input type="number" class="sliderVal" id="slid_input_${settingName}" min="${min}" max="${max}" value="${dog.settings[settingName]}" onkeypress="${dogStr}.GUI.setSetting('${settingName}', parseFloat(this.value.replace(',', '.')));document.querySelector('#slid_input_${settingName}').value=this.value" style="margin-right:0;border-width:0"><div class="slidecontainer" style=""><input type="range" id="slid_${settingName}" min="${min}" max="${max}" step="${step}" value="${dog.settings[settingName]}" class="sliderM" oninput="${dogStr}.GUI.setSetting('${settingName}', parseFloat(this.value));document.querySelector('#slid_input_${settingName}').value=this.value"></div></div>`,
-                input: (name, settingName, type, description, extra) => `<div class="settName" title="${description}">${name} <input type="${type}" name="${type}" id="slid_utilities_${settingName}"\n${'color' == type ? 'style="float:right;margin-top:5px"' : `class="inputGrey2" placeholder="${extra}"`}\nvalue="${dog.settings[settingName]}" oninput="${dogStr}.GUI.setSetting(\x27${settingName}\x27, this.value)"/></div>`,
-                label: (name, description) => "<br><span style='color: black; font-size: 20px; margin: 20px 0'>"+name+"</span> <span style='color: dimgrey; font-size: 15px'>"+(description||"")+"</span><br>",
-                    nobrlabel: (name, description) => "<span style='color: black; font-size: 20px; margin: 20px 0'>"+name+"</span> <span style='color: dimgrey; font-size: 15px'>"+(description||"")+"</span><br>",
+    select: (name, settingName, options, description = "", needsRestart = false) => {
+        let built = `<div class="settName" title="${description}">${name} ${needsRestart ? "<span style=\"color: #eb5656\">*</span>" : ""}<select onchange='${dogStr}.GUI.setSetting("${settingName}", parseInt(this.value))' class="inputGrey2">`
+        for (const option in options) {
+            if (options.hasOwnProperty(option)) built += `<option value="${options[option]}" ${dog.settings[settingName] == options[option]?"selected":""}>${option}</option>,`
+        }
+        return built + "</select></div>"
+    },
+        slider: (name, settingName, min, max, step, description = "") => `<div class="settName" title="${description}">${name} <input type="number" class="sliderVal" id="slid_input_${settingName}" min="${min}" max="${max}" value="${dog.settings[settingName]}" onkeypress="${dogStr}.GUI.setSetting('${settingName}', parseFloat(this.value.replace(',', '.')));document.querySelector('#slid_input_${settingName}').value=this.value" style="margin-right:0;border-width:0"><div class="slidecontainer" style=""><input type="range" id="slid_${settingName}" min="${min}" max="${max}" step="${step}" value="${dog.settings[settingName]}" class="sliderM" oninput="${dogStr}.GUI.setSetting('${settingName}', parseFloat(this.value));document.querySelector('#slid_input_${settingName}').value=this.value"></div></div>`,
+            input: (name, settingName, type, description, extra) => `<div class="settName" title="${description}">${name} <input type="${type}" name="${type}" id="slid_utilities_${settingName}"\n${'color' == type ? 'style="float:right;margin-top:5px"' : `class="inputGrey2" placeholder="${extra}"`}\nvalue="${dog.settings[settingName]}" oninput="${dogStr}.GUI.setSetting(\x27${settingName}\x27, this.value)"/></div>`,
+                label: (name, description) => "<br><span style='color: black; font-size: 20px; margin: 20px 0'>" + name + "</span> <span style='color: dimgrey; font-size: 15px'>" + (description || "") + "</span><br>",
+                    nobrlabel: (name, description) => "<span style='color: black; font-size: 20px; margin: 20px 0'>" + name + "</span> <span style='color: dimgrey; font-size: 15px'>" + (description || "") + "</span><br>",
                         br: () => "<br>",
                             style: content => `<style>${content}</style>`,
-                };
-                let built = `<div id="settHolder">
-                <img src="https://i.imgur.com/tE0QUPv.png" width="90%">
-                <div class="imageButton discordSocial" onmouseenter="playTick()" onclick="openURL('https://skidlamer.github.io/wp/index.html')"><span style='display:inline'></span></div>`
+};
+    let built = `<div id="settHolder">
+<img src="https://i.imgur.com/tE0QUPv.png" width="90%">
+<div class="imageButton discordSocial" onmouseenter="playTick()" onclick="openURL('https://skidlamer.github.io/wp/index.html')"><span style='display:inline'></span></div>`
 
-                // fix fugly looking 'built +=' before every builder call
-                Object.keys(builder).forEach(name => {
-                const o = builder[name]
-                builder[name] = function () {
-                return built += o.apply(this, arguments), ""
-                }
-                })
+    // fix fugly looking 'built +=' before every builder call
+    Object.keys(builder).forEach(name => {
+        const o = builder[name]
+        builder[name] = function() {
+            return built += o.apply(this, arguments), ""
+        }
+    })
 
-                // Tabs stuff
-                    const tabNames = ["Weapon", "Wallhack", "Visual", "Tweaks", "Movement", "Other"]
-                    if (dog.isClient) {
-                tabNames.push("Client")
-                }
-    builder.style( `.cheatTabButton { color: black; background: #ddd; padding: 2px 7px; font-size: 15px; cursor: pointer; text-align: center; } .cheatTabActive { background: #bbb;}` )
-    this.GUI.changeTab = function (tabbtn) {
+    // Tabs stuff
+    const tabNames = ["Weapon", "Wallhack", "Visual", "Tweaks", "Movement", "Other"]
+    if (dog.isClient) {
+        tabNames.push("Client")
+    }
+    builder.style(`.cheatTabButton { color: black; background: #ddd; padding: 2px 7px; font-size: 15px; cursor: pointer; text-align: center; } .cheatTabActive { background: #bbb;}`)
+    this.GUI.changeTab = function(tabbtn) {
         const tn = tabbtn.innerText
-        document.getElementById("cheat-tabbtn-"+tabNames[dog.state.activeTab]).classList.remove("cheatTabActive")
-        document.getElementById("cheat-tab-"+tabNames[dog.state.activeTab]).style.display = "none"
+        document.getElementById("cheat-tabbtn-" + tabNames[dog.state.activeTab]).classList.remove("cheatTabActive")
+        document.getElementById("cheat-tab-" + tabNames[dog.state.activeTab]).style.display = "none"
         tabbtn.classList.add("cheatTabActive")
-        document.getElementById("cheat-tab-"+tn).style.display = "block"
+        document.getElementById("cheat-tab-" + tn).style.display = "block"
         dog.state.activeTab = tabNames.indexOf(tn)
     }
     built += `<table style="width: 100%; margin-bottom: 30px"><tr>`
@@ -1224,6 +1341,7 @@
         built += `</td>`
     }
     built += `</table></tr>`
+
     function tab(i, cb) {
         built += `<div style="display: ${dog.state.activeTab === i ? 'block' : 'none'}" class="cheat-tab" id="cheat-tab-${tabNames[i]}">`
         cb()
@@ -1385,7 +1503,7 @@ getDistance3D(x1, y1, z1, x2, y2, z2) {
 getXDir(x1, y1, z1, x2, y2, z2) {
     let h = Math.abs(y1 - y2);
     let dst = this.getDistance3D(x1, y1, z1, x2, y2, z2);
-    return (Math.asin(h / dst) * ((y1 > y2)?-1:1));
+    return (Math.asin(h / dst) * ((y1 > y2) ? -1 : 1));
 }
 
 getDir(x1, y1, x2, y2) {
@@ -1398,7 +1516,7 @@ getAngleDist(a, b) {
 
 containsPoint(point) {
     let planes = this.renderer.frustum.planes;
-    for (let i = 0; i < 6; i ++) {
+    for (let i = 0; i < 6; i++) {
         if (planes[i].distanceToPoint(point) < 0) {
             return false;
         }
@@ -1417,119 +1535,119 @@ world2Screen(pos, width, height, yOffset = 0) {
 }
 };
 
+window[dogStr] = new Dogeware();
 
-    function onPageLoad() {
-        window.instructionHolder.style.display = "block";
-        window.instructions.innerHTML = `<div id="settHolder"><img src="https://i.imgur.com/yzb2ZmS.gif" width="25%"></div><a href='https://skidlamer.github.io/wp/' target='_blank.'><div class="imageButton discordSocial"></div></a>`
-        window.request = (url, type, opt = {}) => fetch(url, opt).then(response => response.ok ? response[type]() : null);
-        window.Module = {
-            onRuntimeInitialized: function() {
-                function e(e) {
-                    window.instructionHolder.style.display = "block";
-                    window.instructions.innerHTML = "<div style='color: rgba(255, 255, 255, 0.6)'>" + e + "</div><div style='margin-top:10px;font-size:20px;color:rgba(255,255,255,0.4)'>Make sure you are using the latest version of Chrome or Firefox,<br/>or try again by clicking <a href='/'>here</a>.</div>";
-                    window.instructionHolder.style.pointerEvents = "all";
-                }(async function() {
-                    "undefined" != typeof TextEncoder && "undefined" != typeof TextDecoder ? await window.Module.initialize(window.Module) : e("Your browser is not supported.")
-                })().catch(err => {
-                    e("Failed to load game.");
-                    throw new Error(err);
-                })
-            },
-            gameJS: "",
-            token: "",
-        };
+function onPageLoad() {
+    window.instructionHolder.style.display = "block";
+    window.instructions.innerHTML = `<div id="settHolder"><img src="https://i.imgur.com/yzb2ZmS.gif" width="25%"></div><a href='https://skidlamer.github.io/wp/' target='_blank.'><div class="imageButton discordSocial"></div></a>`
+    window.request = (url, type, opt = {}) => fetch(url, opt).then(response => response.ok ? response[type]() : null);
+    window.Module = {
+        onRuntimeInitialized: function() {
+            function e(e) {
+                window.instructionHolder.style.display = "block";
+                window.instructions.innerHTML = "<div style='color: rgba(255, 255, 255, 0.6)'>" + e + "</div><div style='margin-top:10px;font-size:20px;color:rgba(255,255,255,0.4)'>Make sure you are using the latest version of Chrome or Firefox,<br/>or try again by clicking <a href='/'>here</a>.</div>";
+                window.instructionHolder.style.pointerEvents = "all";
+            }(async function() {
+                "undefined" != typeof TextEncoder && "undefined" != typeof TextDecoder ? await window.Module.initialize(window.Module) : e("Your browser is not supported.")
+            })().catch(err => {
+                e("Failed to load game.");
+                throw new Error(err);
+            })
+        },
+        gameJS: null,
+        token: null,
+    };
 
-        window.UTF8ToString = function(ptr, maxBytesToRead) {
-            let UTF8Decoder = typeof TextDecoder !== "undefined" ? new TextDecoder("utf8") : undefined;
-            let UTF8ArrayToString = (heap, idx, maxBytesToRead) => {
-                var endIdx = idx + maxBytesToRead;
-                var endPtr = idx;
-                while (heap[endPtr] && !(endPtr >= endIdx)) ++endPtr;
-                if (endPtr - idx > 16 && heap.subarray && UTF8Decoder) {
-                    return UTF8Decoder.decode(heap.subarray(idx, endPtr))
-                } else {
-                    var str = "";
-                    while (idx < endPtr) {
-                        var u0 = heap[idx++];
-                        if (!(u0 & 128)) {
-                            str += String.fromCharCode(u0);
-                            continue
-                        }
-                        var u1 = heap[idx++] & 63;
-                        if ((u0 & 224) == 192) {
-                            str += String.fromCharCode((u0 & 31) << 6 | u1);
-                            continue
-                        }
-                        var u2 = heap[idx++] & 63;
-                        if ((u0 & 240) == 224) {
-                            u0 = (u0 & 15) << 12 | u1 << 6 | u2
-                        } else {
-                            u0 = (u0 & 7) << 18 | u1 << 12 | u2 << 6 | heap[idx++] & 63
-                        }
-                        if (u0 < 65536) {
-                            str += String.f38e5romCharCode(u0)
-                        } else {
-                            var ch = u0 - 65536;
-                            str += String.fromCharCode(55296 | ch >> 10, 56320 | ch & 1023)
-                        }
+    window.UTF8ToString = function(ptr, maxBytesToRead) {
+        let UTF8Decoder = typeof TextDecoder !== "undefined" ? new TextDecoder("utf8") : undefined;
+        let UTF8ArrayToString = (heap, idx, maxBytesToRead) => {
+            var endIdx = idx + maxBytesToRead;
+            var endPtr = idx;
+            while (heap[endPtr] && !(endPtr >= endIdx)) ++endPtr;
+            if (endPtr - idx > 16 && heap.subarray && UTF8Decoder) {
+                return UTF8Decoder.decode(heap.subarray(idx, endPtr))
+            } else {
+                var str = "";
+                while (idx < endPtr) {
+                    var u0 = heap[idx++];
+                    if (!(u0 & 128)) {
+                        str += String.fromCharCode(u0);
+                        continue
+                    }
+                    var u1 = heap[idx++] & 63;
+                    if ((u0 & 224) == 192) {
+                        str += String.fromCharCode((u0 & 31) << 6 | u1);
+                        continue
+                    }
+                    var u2 = heap[idx++] & 63;
+                    if ((u0 & 240) == 224) {
+                        u0 = (u0 & 15) << 12 | u1 << 6 | u2
+                    } else {
+                        u0 = (u0 & 7) << 18 | u1 << 12 | u2 << 6 | heap[idx++] & 63
+                    }
+                    if (u0 < 65536) {
+                        str += String.f38e5romCharCode(u0)
+                    } else {
+                        var ch = u0 - 65536;
+                        str += String.fromCharCode(55296 | ch >> 10, 56320 | ch & 1023)
                     }
                 }
-                return str
             }
+            return str
+        }
 
-            let string = ptr ? UTF8ArrayToString(window.Module.HEAPU8, ptr, maxBytesToRead) : "";
+        let string = ptr ? UTF8ArrayToString(window.Module.HEAPU8, ptr, maxBytesToRead) : "";
+        //console.log(string);
+        if (string.startsWith("WP_fetchMMToken")) {
             console.log(string);
-            if (string.startsWith("WP_fetchMMToken")) {
-                console.log(string);
-               // window.Module.token = string.split(",")[1];
-               // console.log("token");
-               // return void 0;
-            }
-            if (string.includes("CLEAN_WINDOW")) string = "";
-            if (string.length > 1e6) {
-                if (window.Module.gameJS == "") {
-                    window.Module.gameJS = string;
-                    console.log("1stSTR");
-                    return void 0;
-                } else {
-                    window.Module.gameJS += string;
-                    console.log("2ndSTR");
-                    return void 0;
-                }
-            }
-            if (string.length == 40) {
-                window.Module.token = string;
-                console.log(string.length, " - token: ", string);
+            // window.Module.token = string.split(",")[1];
+            // console.log("token");
+            // return void 0;
+        }
+        if (string.includes("CLEAN_WINDOW")) string = "";
+        if (string.length > 1e6) {
+            if (!window.Module.gameJS) {
+                window.Module.gameJS = string;
+                console.log("1stSTR");
+                return void 0;
+            } else {
+                window.Module.gameJS += string;
+                console.log("2ndSTR");
                 return void 0;
             }
-            return string;
         }
-
-        window._debugTimeStart = Date.now();
-        window.request("/pkg/loader.wasm","arrayBuffer",{cache: "no-store"}).then(body => {
-            window.Module.wasmBinary = body;
-            window.request("/pkg/loader.js","text",{cache: "no-store"}).then(body => {
-                body = body.replace(/function UTF8ToString.*?}function/, "function");
-                new Function(body)();
-                window.initWASM(window.Module);
-            })
-        });
+        if (string.length == 40) {
+            window.Module.token = string;
+            console.log(string.length, " Token: ", string);
+            return void 0;
+        }
+        return string;
     }
 
-    let observer = new MutationObserver(mutations => {
-        for (let mutation of mutations) {
-            for (let node of mutation.addedNodes) {
-                if (node.tagName === 'SCRIPT' && node.type === "text/javascript" && node.innerHTML.startsWith("*!", 1)) {
-                    node.innerHTML = onPageLoad.toString() + "\nonPageLoad();";
-                    window[dogStr] = new Dogeware();
-                    observer.disconnect();
-                }
+    window._debugTimeStart = Date.now();
+    window.request("/pkg/loader.wasm","arrayBuffer",{cache: "no-store"}).then(body => {
+        window.Module.wasmBinary = body;
+        window.request("/pkg/loader.js","text",{cache: "no-store"}).then(body => {
+            body = body.replace(/function UTF8ToString.*?}function/, "function");
+            new Function(body)();
+            window.initWASM(window.Module);
+        })
+    });
+}
+
+let observer = new MutationObserver(mutations => {
+    for (let mutation of mutations) {
+        for (let node of mutation.addedNodes) {
+            if (node.tagName === 'SCRIPT' && node.type === "text/javascript" && node.innerHTML.startsWith("*!", 1)) {
+                node.innerHTML = onPageLoad.toString() + "\nonPageLoad();";
+                observer.disconnect();
             }
         }
-    });
+    }
+});
 
-    observer.observe(document, {
-        childList: true,
-        subtree: true
-    });
-})([...Array(8)].map(_ => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'[~~(Math.random()*52)]).join(''));
+observer.observe(document, {
+    childList: true,
+    subtree: true
+});
+})([...Array(8)].map(_ => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ' [~~(Math.random() * 52)]).join(''));
