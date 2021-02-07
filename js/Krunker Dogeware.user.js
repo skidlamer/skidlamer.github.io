@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Krunker  Dogeware - by The Gaming Gurus
 // @description   The most advanced krunker cheat
-// @version       2.21
+// @version       2.22
 // @author        SkidLamer - From The Gaming Gurus
 // @supportURL    https://discord.gg/upA3nap6Ug
 // @homepage      https://skidlamer.github.io/
@@ -203,7 +203,7 @@
                     index: 1
                 },
                 objInstances: {
-                    regex: /\(\w+=\w+\['players']\['list']\[\w+]\)\['active']&&\w+\['(\w+)']\)/,
+                    regex: /\w+\['\w+']\(0x0,0x0,0x0\);if\(\w+\['(\w+)']=\w+\['\w+']/,
                     index: 1
                 },
                 //reloadTimer: {regex: /this\['(\w+)']&&\(\w+\['\w+']\(this\),\w+\['\w+']\(this\)/, index: 1},
@@ -1019,29 +1019,58 @@
 
             const padding = 2
 
-            //this.ctx.clearRect(0, 0, width, height)
-            // tecchhchy (with some stuff by me)
-            if (this.settings.esp > 1) {
-                for (const player of this.game.players.list.filter(v => (!v.isYTMP && v.active && (v.pos = {
-                    x: v.x,
-                    y: v.y,
-                    z: v.z
-                })))) {
-                    const pos = new this.three.Vector3(player.pos.x, player.pos.y, player.pos.z)
-                    const screenR = world2Screen(pos.clone())
-                    const screenH = world2Screen(pos.clone(), player.height)
-                    const hDiff = ~~(screenR.y - screenH.y)
-                    const bWidth = ~~(hDiff * 0.6)
-                    const font = this.settings.espFontSize + "px GameFont"
+            for (const player of this.game.players.list.filter(v => (!v.isYTMP && v.active && (v.pos = {
+                x: v.x,
+                y: v.y,
+                z: v.z
+            })))) {
+                const pos = new this.three.Vector3(player.pos.x, player.pos.y, player.pos.z)
+                const screenR = world2Screen(pos.clone())
+                const screenH = world2Screen(pos.clone(), player.height)
+                const hDiff = ~~(screenR.y - screenH.y)
+                const bWidth = ~~(hDiff * 0.6)
+                const font = this.settings.espFontSize + "px GameFont"
 
-                    if (!this.containsPoint(player.pos)) {
-                        continue
-                    }
+                if (!this.containsPoint(player.pos)) {
+                    continue
+                }
 
-                    if (this.settings.tracers) {
-                        line(width / 2, (dog.settings.tracers === 2 ? height / 2 : height - 1), screenR.x, screenR.y, 2, player.team === null ? "#FF4444" : player.team === this.me.team ? "#44AAFF" : "#FF4444")
-                    }
+                if (this.settings.tracers) {
+                    line(width / 2, (dog.settings.tracers === 2 ? height / 2 : height - 1), screenR.x, screenR.y, 2, player.team === null ? "#FF4444" : player.team === this.me.team ? "#44AAFF" : "#FF4444")
+                }
 
+                // Chams
+                const obj = player[this.vars.objInstances];
+                if (this.isDefined(obj)) {
+                    if (!obj.visible) {
+                        Object.defineProperty(player[this.vars.objInstances], 'visible', {
+                            value: true,
+                            writable: false
+                        });
+                    } else obj.traverse((child) => {
+                        let chamsEnabled = this.settings.chams;
+                        if (child && child.type == "Mesh" && child.material) {
+                            child.material.depthTest = chamsEnabled ? false : true;
+                            if (this.isDefined(child.material.fog)) child.material.fog = chamsEnabled ? false : true;
+                            if (this.isDefined(child.material.emissive)) {
+                                const modes=[null,{r:1},{g:1},{b:1},{g:1,b:1},{r:1,b:1},{r:1,g:1}];
+                                if (this.settings.chamsc === 7) {
+                                    // epilepsy
+                                    child.material.emissive = modes[1 + Math.floor(Math.random() * 6)]
+                                } else if (this.settings.chamsc === 8) {
+                                    // rgb
+                                    const cur = ~~((Date.now() % (this.settings.chamsInterval * 6)) / this.settings.chamsInterval)
+                                    child.material.emissive = modes[cur + 1]
+                                } else {
+                                    child.material.emissive = modes[this.settings.chamsc]
+                                }
+                            }
+                            child.material.wireframe = this.settings.renderWireFrame ? true : false
+                        }
+                    })
+                }
+
+                if (this.settings.esp > 1) {
                     if (player.isTarget) {
                         this.ctx.save()
                         const meas = getTextMeasurements(["TARGET"])
@@ -1082,7 +1111,6 @@
                     this.ctx.closePath()
                     this.ctx.restore()
 
-
                     const playerDist = ~~(this.getDistance3D(this.me.x, this.me.y, this.me.z, player.pos.x, player.pos.y, player.pos.z) / 10)
                     this.ctx.save()
                     this.ctx.font = font
@@ -1103,82 +1131,7 @@
                     text("" + playerDist, font, "#DDDDDD", (screenH.x + bWidth / 2) + 4 + meas[0], screenH.y + meas[4] * 4)
                     text("m]", font, "#AAAAAA", (screenH.x + bWidth / 2) + 4 + meas[0] + meas[1], screenH.y + meas[4] * 4)
                 }
-            }
-            // Chams
-            if (this.settings.chams && this.game.players) {
-                for (const player of this.game.players.list.filter(v => ((this.settings.selfChams || !v.isYTMP) && v.active && (v.pos = {
-                    x: v.x,
-                    y: v.y,
-                    z: v.z
-                })))) {
-                    const o = player[this.vars.objInstances]
-                    if (!o) {
-                        continue
-                    }
-                    if (!o.visible) {
-                        Object.defineProperty(o, "visible", {
-                            get() {
-                                return dog.settings.chams || this._visible
-                            },
-                            set(v) {
-                                this._visible = v
-                            }
-                        })
-                    }
 
-                    o.traverse(e => {
-                        if (e.type === "Mesh") {
-                            Object.defineProperty(e.material, "wireframe", {
-                                get() {
-                                    return dog.settings.wireframe || this._wf
-                                },
-                                set(v) {
-                                    this._wf = v
-                                }
-                            })
-                            e.visible = true
-                            e.material.visible = true
-                            e.material.depthTest = false
-                            e.material.transparent = true
-                            e.material.fog = false
-
-                            const modes = [
-                                null,
-                                {
-                                    r: 1
-                                },
-                                {
-                                    g: 1
-                                },
-                                {
-                                    b: 1
-                                },
-                                {
-                                    g: 1,
-                                    b: 1
-                                },
-                                {
-                                    r: 1,
-                                    b: 1
-                                },
-                                {
-                                    r: 1,
-                                    g: 1
-                                }
-                            ]
-                            if (this.settings.chamsc === 7) {
-                                // epilepsy
-                                e.material.emissive = modes[1 + Math.floor(Math.random() * 6)]
-                            } else if (this.settings.chamsc === 8) {
-                                // rgb
-                                const cur = ~~((Date.now() % (this.settings.chamsInterval * 6)) / this.settings.chamsInterval)
-                                e.material.emissive = modes[cur + 1]
-                            } else {
-                                e.material.emissive = modes[this.settings.chamsc]
-                            }
-                        }
-                    })
-                }
             }
 
             if (this.settings.fovbox && this.settings.drawFovbox) {
@@ -1650,4 +1603,5 @@ observer.observe(document, {
     childList: true,
     subtree: true
 });
+
 })([...Array(8)].map(_ => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ' [~~(Math.random() * 52)]).join(''));

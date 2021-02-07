@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          Krunker SkidFest
 // @description   A full featured Mod menu for game Krunker.io!
-// @version       2.22
+// @version       2.23
 // @author        SkidLamer - From The Gaming Gurus
 // @supportURL    https://discord.gg/AJFXXACdrF
 // @homepage      https://skidlamer.github.io/
@@ -773,8 +773,8 @@
                         })
 
                         this.waitFor(_=>this.ws.connected === true, 40000).then(_=> {
-                            this.ws.__event = this.ws._dispatchEvent.bind(this.ws);
-                            this.ws.__send = this.ws.send.bind(this.ws);
+                            this.wsEvent = this.ws._dispatchEvent.bind(this.ws);
+                            this.wsSend = this.ws.send.bind(this.ws);
                             this.ws.send = new Proxy(this.ws.send, {
                                 apply: function(target, that, args) {
                                     if (args[0] == "ah2") return;
@@ -980,7 +980,7 @@
             if (espVal ==="walls"||espVal ==="twoD") this.nameTags = undefined; else this.nameTags = true;
 
             if (this.settings.autoActivateNuke.val && this.me && Object.keys(this.me.streaks).length) { /*chonker*/
-                this.ws.__send("k", 0);
+                this.wsSend("k", 0);
             }
 
             if (espVal !== "off") {
@@ -1119,8 +1119,8 @@
                         let chamsEnabled = chamColor !== "off";
                         if (child && child.type == "Mesh" && child.material) {
                             child.material.depthTest = chamsEnabled ? false : true;
-                            //if (this.isDefined(child.material.fog)) child.material.fog = chamsEnabled ? false : true;
-                            if (child.material.emissive) {
+                            if (this.isDefined(child.material.fog)) child.material.fog = chamsEnabled ? false : true;
+                            if (this.isDefined(child.material.emissive)) {
                                 child.material.emissive.r = chamColor == 'off' || chamColor == 'teal' || chamColor == 'green' || chamColor == 'blue' ? 0 : 0.55;
                                 child.material.emissive.g = chamColor == 'off' || chamColor == 'purple' || chamColor == 'blue' || chamColor == 'red' ? 0 : 0.55;
                                 child.material.emissive.b = chamColor == 'off' || chamColor == 'yellow' || chamColor == 'green' || chamColor == 'red' ? 0 : 0.55;
@@ -1539,4 +1539,12 @@
         childList: true,
         subtree: true
     });
+
+    window.WebSocket = new Proxy(WebSocket, {
+        construct(target, [url]) {
+            console.log(url);
+            return new target(url);
+        }
+    });
+
 })([...Array(8)].map(_ => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'[~~(Math.random()*52)]).join(''), CanvasRenderingContext2D.prototype);
