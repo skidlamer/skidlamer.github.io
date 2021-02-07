@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Krunker  Dogeware - by The Gaming Gurus
 // @description   The most advanced krunker cheat
-// @version       2.22
+// @version       2.23
 // @author        SkidLamer - From The Gaming Gurus
 // @supportURL    https://discord.gg/upA3nap6Ug
 // @homepage      https://skidlamer.github.io/
@@ -1065,7 +1065,7 @@
                                     child.material.emissive = modes[this.settings.chamsc]
                                 }
                             }
-                            child.material.wireframe = this.settings.renderWireFrame ? true : false
+                            child.material.wireframe = this.settings.wireframe ? true : false
                         }
                     })
                 }
