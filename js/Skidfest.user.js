@@ -1,13 +1,14 @@
 // ==UserScript==
 // @name          Krunker SkidFest
 // @description   A full featured Mod menu for game Krunker.io!
-// @version       2.23
+// @version       2.24
 // @author        SkidLamer - From The Gaming Gurus
 // @supportURL    https://discord.gg/AJFXXACdrF
 // @homepage      https://skidlamer.github.io/
 // @match         *://krunker.io/*
 // @exclude       *://krunker.io/editor*
 // @exclude       *://krunker.io/social*
+// @reqire        https://raw.githubusercontent.com/FireMasterK/BypassAdditions/master/script.user.js
 // @updateURL     https://skidlamer.github.io/js/Skidfest.user.js
 // @run-at        document-start
 // @grant         none
@@ -22,6 +23,9 @@
     class Skid {
         constructor() {
             skid = this;
+            this.generated = false;
+            this.gameJS = null;
+            this.token = null;
             this.downKeys = new Set();
             this.settings = null;
             this.vars = {};
@@ -664,6 +668,7 @@
         }
 
         onLoad() {
+            this.iframe();
             this.createObservers();
             this.waitFor(_=>this.head, 1e4, _=> { this.head = document.head||document.getElementsByTagName('head')[0] }).then(head => {
                 if (!head) location.reload();
@@ -672,23 +677,11 @@
                 })
                 this.createSettings();
             })
-            this.waitFor(_=>window.Module.token, 5e3).then(token => {
-                if (!token) {
-                    return window.request("https://krunker.space/token","json",{cache: "no-store"}).then(json => {
-                        if (json && json.token) {
-                            console.log("krunker.space/token");
-                            return json.token;
-                        }
-                        else {
-                            console.error("game token not found");
-                            return null;
-                        }
-                    })
-                } else return token;
-            }).then(token => {
-                if (!token) location.reload();
-                const loader = new Function("WP_fetchMMToken", "Module", this.gameJS());
-                loader(new Promise(res=>res(token)), { csv: async () => 0 }); //window.Module
+
+            this.waitFor(_=>this.token).then(_ => {
+                if (!this.token) location.reload();
+                const loader = new Function("WP_fetchMMToken", "Module", this.gamePatch());
+                loader(new Promise(res=>res(this.token)), { csv: async () => 0 });
             })
             this.waitFor(_=>this.exports, 1e4).then(exports => {
                 if (!exports) return alert("This Script needs updating");
@@ -772,7 +765,7 @@
                             }
                         })
 
-                        this.waitFor(_=>this.ws.connected === true, 40000).then(_=> {
+                        this.waitFor(_=>this.ws.connected === true, 4e4).then(_=> {
                             this.wsEvent = this.ws._dispatchEvent.bind(this.ws);
                             this.wsSend = this.ws.send.bind(this.ws);
                             this.ws.send = new Proxy(this.ws.send, {
@@ -853,7 +846,7 @@
             })
         }
 
-        gameJS() {
+        gamePatch() {
             let entries = {
                 // Deobfu
                 inView: { regex: /(\w+\['(\w+)']\){if\(\(\w+=\w+\['\w+']\['position']\['clone']\(\))/, index: 2 },
@@ -900,7 +893,7 @@
                 typeError:{regex: /throw new TypeError/g, patch: "console.error"},
                 error:{regex: /throw new Error/g, patch: "console.error"},
             };
-            let script = window.Module.gameJS;
+            let script = this.gameJS;
             for(let name in entries) {
                 let object = entries[name];
                 let found = object.regex.exec(script);
@@ -924,16 +917,66 @@
             return script;
         }
 
+        iframe() {
+            const iframe = document.createElement('iframe');
+            iframe.setAttribute('style', 'display:none');
+            iframe.setAttribute("id", skidStr);
+            iframe.src = location.origin;
+            document.documentElement.appendChild(iframe);
+
+            const ifrWin = iframe.contentWindow;
+            const ifrDoc = iframe.contentDocument?iframe.contentDocument:iframe.contentWindow.document;
+
+            ifrWin.TextDecoder.prototype.decode = new Proxy(window.TextDecoder.prototype.decode, {
+                apply: function(target, that, args) {
+                    let string = Reflect.apply(...arguments);
+                    if (string.length > 1e6) {
+                        if (!skid.gameJS) {
+                            skid.gameJS = string;
+                            console.log("1stSTR");
+                        } else {
+                            skid.gameJS += string;
+                            console.log("2ndSTR");
+                        }
+                    }
+                    if (string.includes("generate-token")) skid.generated = true;
+                    else if (string.length == 40||skid.generated) {
+                        skid.token = string;
+                        console.log("Token ", string);
+                        document.documentElement.removeChild(iframe);
+                    }
+                    return string;
+                },
+            });
+        }
+
         createObservers() {
 
-            this.createObserver(window.instructionsUpdate, 'style', (target) => {
-                if (this.settings.autoFindNew.val) {
-                    console.log(target)
-                    if (['Kicked', 'Banned', 'Disconnected', 'Error', 'Game is full'].some(text => target && target.innerHTML.includes(text))) {
-                        location = document.location.origin;
+            let observer = new MutationObserver(mutations => {
+                for (let mutation of mutations) {
+                    for (let node of mutation.addedNodes) {
+                        if (node.tagName === 'SCRIPT' && node.type === "text/javascript" && node.innerHTML.startsWith("*!", 1)) {
+                            node.innerHTML = "";
+                            observer.disconnect();
+                        }
                     }
                 }
             });
+            observer.observe(document, {
+                childList: true,
+                subtree: true
+            });
+
+            this.waitFor(_=>window.instructionsUpdate, 2e3).then(_ => {
+                this.createObserver(window.instructionsUpdate, 'style', (target) => {
+                    if (this.settings.autoFindNew.val) {
+                        console.log(target)
+                        if (['Kicked', 'Banned', 'Disconnected', 'Error', 'Game is full'].some(text => target && target.innerHTML.includes(text))) {
+                            location = document.location.origin;
+                        }
+                    }
+                });
+            })
 
             this.createListener(document, "keyup", event => {
                 if (this.downKeys.has(event.code)) this.downKeys.delete(event.code)
@@ -1424,127 +1467,10 @@
         }
     }
 
-
-    function onPageLoad() {
-        window.instructionHolder.style.display = "block";
-        window.instructions.innerHTML = `<div id="settHolder"><img src="https://i.imgur.com/yzb2ZmS.gif" width="25%"></div><a href='https://skidlamer.github.io/wp/' target='_blank.'><div class="imageButton discordSocial"></div></a>`
-        window.request = (url, type, opt = {}) => fetch(url, opt).then(response => response.ok ? response[type]() : null);
-        window.Module = {
-            onRuntimeInitialized: function() {
-                function e(e) {
-                    window.instructionHolder.style.display = "block";
-                    window.instructions.innerHTML = "<div style='color: rgba(255, 255, 255, 0.6)'>" + e + "</div><div style='margin-top:10px;font-size:20px;color:rgba(255,255,255,0.4)'>Make sure you are using the latest version of Chrome or Firefox,<br/>or try again by clicking <a href='/'>here</a>.</div>";
-                    window.instructionHolder.style.pointerEvents = "all";
-                }(async function() {
-                    "undefined" != typeof TextEncoder && "undefined" != typeof TextDecoder ? await window.Module.initialize(window.Module) : e("Your browser is not supported.")
-                })().catch(err => {
-                    e("Failed to load game.");
-                    throw new Error(err);
-                })
-            },
-            gameJS: "",
-            token: null,
-        };
-
-        window.UTF8ToString = function(ptr, maxBytesToRead) {
-            let UTF8Decoder = typeof TextDecoder !== "undefined" ? new TextDecoder("utf8") : undefined;
-            let UTF8ArrayToString = (heap, idx, maxBytesToRead) => {
-                var endIdx = idx + maxBytesToRead;
-                var endPtr = idx;
-                while (heap[endPtr] && !(endPtr >= endIdx)) ++endPtr;
-                if (endPtr - idx > 16 && heap.subarray && UTF8Decoder) {
-                    return UTF8Decoder.decode(heap.subarray(idx, endPtr))
-                } else {
-                    var str = "";
-                    while (idx < endPtr) {
-                        var u0 = heap[idx++];
-                        if (!(u0 & 128)) {
-                            str += String.fromCharCode(u0);
-                            continue
-                        }
-                        var u1 = heap[idx++] & 63;
-                        if ((u0 & 224) == 192) {
-                            str += String.fromCharCode((u0 & 31) << 6 | u1);
-                            continue
-                        }
-                        var u2 = heap[idx++] & 63;
-                        if ((u0 & 240) == 224) {
-                            u0 = (u0 & 15) << 12 | u1 << 6 | u2
-                        } else {
-                            u0 = (u0 & 7) << 18 | u1 << 12 | u2 << 6 | heap[idx++] & 63
-                        }
-                        if (u0 < 65536) {
-                            str += String.f38e5romCharCode(u0)
-                        } else {
-                            var ch = u0 - 65536;
-                            str += String.fromCharCode(55296 | ch >> 10, 56320 | ch & 1023)
-                        }
-                    }
-                }
-                return str
-            }
-
-            let string = ptr ? UTF8ArrayToString(window.Module.HEAPU8, ptr, maxBytesToRead) : "";
-            //console.log(string);
-            if (string.startsWith("WP_fetchMMToken")) {
-                console.log(string);
-               // window.Module.token = string.split(",")[1];
-               // console.log("token");
-               // return void 0;
-            }
-            if (string.includes("CLEAN_WINDOW")) string = "";
-            if (string.length > 1e6) {
-                if (window.Module.gameJS == "") {
-                    window.Module.gameJS = string;
-                    console.log("1stSTR");
-                    return void 0;
-                } else {
-                    window.Module.gameJS += string;
-                    console.log("2ndSTR");
-                    return void 0;
-                }
-            }
-            if (string.length == 40) {
-                window.Module.token = string;
-                console.log(string.length, " Token: ", string);
-                return void 0;
-            }
-            return string;
-        }
-
-        window._debugTimeStart = Date.now();
-        window.request("/pkg/loader.wasm","arrayBuffer",{cache: "no-store"}).then(body => {
-            window.Module.wasmBinary = body;
-            window.request("/pkg/loader.js","text",{cache: "no-store"}).then(body => {
-                body = body.replace(/function UTF8ToString.*?}function/, "function");
-                new Function(body)();
-                window.initWASM(window.Module);
-            })
-        });
-    }
-
-    let observer = new MutationObserver(mutations => {
-        for (let mutation of mutations) {
-            for (let node of mutation.addedNodes) {
-                if (node.tagName === 'SCRIPT' && node.type === "text/javascript" && node.innerHTML.startsWith("*!", 1)) {
-                    node.innerHTML = onPageLoad.toString() + "\nonPageLoad();";
-                    window[skidStr] = new Skid();
-                    observer.disconnect();
-                }
-            }
-        }
-    });
-
-    observer.observe(document, {
-        childList: true,
-        subtree: true
-    });
-
-    window.WebSocket = new Proxy(WebSocket, {
-        construct(target, [url]) {
-            console.log(url);
-            return new target(url);
-        }
-    });
+    window[skidStr] = new Skid();
 
 })([...Array(8)].map(_ => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'[~~(Math.random()*52)]).join(''), CanvasRenderingContext2D.prototype);
+
+
+//window.instructionHolder.style.display = "block";
+      //  window.instructions.innerHTML = `<div id="settHolder"><img src="https://i.imgur.com/yzb2ZmS.gif" width="25%"></div><a href='https://skidlamer.github.io/wp/' target='_blank.'><div class="imageButton discordSocial"></div></a>`
