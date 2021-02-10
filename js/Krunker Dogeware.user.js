@@ -23,6 +23,9 @@
     class Dogeware {
         constructor() {
             dog = this;
+            this.token = null;
+            this.gameJS = null;
+            this.generated = false;
             console.dir(this);
             this.settings = Object.assign({}, {
                 aimbot: 1,
@@ -97,31 +100,18 @@
         }
 
         onLoad() {
+
+            this.iframe();
+            this.createObservers();
             this.defines();
             localStorage.kro_setngss_json ? Object.assign(this.settings, JSON.parse(localStorage.kro_setngss_json)) :
             localStorage.kro_setngss_json = JSON.stringify(this.settings);
-            this.listeners();
-
-            this.waitFor(_=>window.Module, 5e3).then(_=> {
-                this.waitFor(_=>window.Module.token, 5e3).then(token => {
-                    if (!token) {
-                        return window.request("https://krunker.space/token","json",{cache: "no-store"}).then(json => {
-                            if (json && json.token) {
-                                console.log("krunker.space/token");
-                                return json.token;
-                            }
-                            else {
-                                console.error("game token not found");
-                                return null;
-                            }
-                        })
-                    } else return token;
-                }).then(token => {
-                    if (!token) location.reload();
-                    const loader = new Function("WP_fetchMMToken", "Module", this.gameJS());
-                    loader(new Promise(res=>res(token)), { csv: async () => 0 });
-                    return this.hooking();
-                })
+            this.createListeners();
+            this.waitFor(_=>this.token).then(_ => {
+                if (!this.token) location.reload();
+                const loader = new Function("WP_fetchMMToken", "Module", this.gamePatch());
+                loader(new Promise(res=>res(this.token)), { csv: async () => 0 });
+                return this.hooking();
             })
         }
 
@@ -168,7 +158,7 @@
             })
         }
 
-        gameJS() {
+        gamePatch() {
             let entries = {
                 inView: {
                     regex: /(\w+\['(\w+)']\){if\(\(\w+=\w+\['\w+']\['position']\['clone']\(\))/,
@@ -270,7 +260,7 @@
                     patch: `${dogStr}.settings.wallbangs?!$1.penetrable : !$1.transparent`
                 }
             };
-            let script = window.Module.gameJS;
+            let script = this.gameJS;
             for (let name in entries) {
                 let object = entries[name];
                 let found = object.regex.exec(script);
@@ -539,7 +529,59 @@
             })
         }
 
-        listeners() {
+        iframe() {
+            const iframe = document.createElement('iframe');
+            iframe.setAttribute('style', 'display:none');
+            iframe.setAttribute("id", dogStr);
+            iframe.src = location.origin;
+            document.documentElement.appendChild(iframe);
+
+            const ifrWin = iframe.contentWindow;
+            const ifrDoc = iframe.contentDocument?iframe.contentDocument:iframe.contentWindow.document;
+
+            ifrWin.TextDecoder.prototype.decode = new Proxy(window.TextDecoder.prototype.decode, {
+                apply: function(target, that, args) {
+                    let string = Reflect.apply(...arguments);
+                    if (string.length > 1e6) {
+                        if (!dog.gameJS) {
+                            dog.gameJS = string;
+                            console.log("1stSTR");
+                        } else {
+                            dog.gameJS += string;
+                            console.log("2ndSTR");
+                        }
+                    }
+                    if (string.includes("generate-token")) dog.generated = true;
+                    else if (string.length == 40||dog.generated) {
+                        dog.token = string;
+                        console.log("Token ", string);
+                        document.documentElement.removeChild(iframe);
+                    }
+                    return string;
+                },
+            });
+        }
+
+        createObservers() {
+
+            let observer = new MutationObserver(mutations => {
+                for (let mutation of mutations) {
+                    for (let node of mutation.addedNodes) {
+                        if (node.tagName === 'SCRIPT' && node.type === "text/javascript" && node.innerHTML.startsWith("*!", 1)) {
+                            node.innerHTML = "";
+                            observer.disconnect();
+                        }
+                    }
+                }
+            });
+            observer.observe(document, {
+                childList: true,
+                subtree: true
+            });
+        }
+
+        createListeners() {
+
             window.addEventListener("mouseup", (e) => {
                 if (e.which === 2 && dog.settings.guiOnMMB) {
                     e.preventDefault()
@@ -1489,119 +1531,5 @@ world2Screen(pos, width, height, yOffset = 0) {
 };
 
 window[dogStr] = new Dogeware();
-
-function onPageLoad() {
-    window.instructionHolder.style.display = "block";
-    window.instructions.innerHTML = `<div id="settHolder"><img src="https://i.imgur.com/yzb2ZmS.gif" width="25%"></div><a href='https://skidlamer.github.io/wp/' target='_blank.'><div class="imageButton discordSocial"></div></a>`
-    window.request = (url, type, opt = {}) => fetch(url, opt).then(response => response.ok ? response[type]() : null);
-    window.Module = {
-        onRuntimeInitialized: function() {
-            function e(e) {
-                window.instructionHolder.style.display = "block";
-                window.instructions.innerHTML = "<div style='color: rgba(255, 255, 255, 0.6)'>" + e + "</div><div style='margin-top:10px;font-size:20px;color:rgba(255,255,255,0.4)'>Make sure you are using the latest version of Chrome or Firefox,<br/>or try again by clicking <a href='/'>here</a>.</div>";
-                window.instructionHolder.style.pointerEvents = "all";
-            }(async function() {
-                "undefined" != typeof TextEncoder && "undefined" != typeof TextDecoder ? await window.Module.initialize(window.Module) : e("Your browser is not supported.")
-            })().catch(err => {
-                e("Failed to load game.");
-                throw new Error(err);
-            })
-        },
-        gameJS: null,
-        token: null,
-    };
-
-    window.UTF8ToString = function(ptr, maxBytesToRead) {
-        let UTF8Decoder = typeof TextDecoder !== "undefined" ? new TextDecoder("utf8") : undefined;
-        let UTF8ArrayToString = (heap, idx, maxBytesToRead) => {
-            var endIdx = idx + maxBytesToRead;
-            var endPtr = idx;
-            while (heap[endPtr] && !(endPtr >= endIdx)) ++endPtr;
-            if (endPtr - idx > 16 && heap.subarray && UTF8Decoder) {
-                return UTF8Decoder.decode(heap.subarray(idx, endPtr))
-            } else {
-                var str = "";
-                while (idx < endPtr) {
-                    var u0 = heap[idx++];
-                    if (!(u0 & 128)) {
-                        str += String.fromCharCode(u0);
-                        continue
-                    }
-                    var u1 = heap[idx++] & 63;
-                    if ((u0 & 224) == 192) {
-                        str += String.fromCharCode((u0 & 31) << 6 | u1);
-                        continue
-                    }
-                    var u2 = heap[idx++] & 63;
-                    if ((u0 & 240) == 224) {
-                        u0 = (u0 & 15) << 12 | u1 << 6 | u2
-                    } else {
-                        u0 = (u0 & 7) << 18 | u1 << 12 | u2 << 6 | heap[idx++] & 63
-                    }
-                    if (u0 < 65536) {
-                        str += String.f38e5romCharCode(u0)
-                    } else {
-                        var ch = u0 - 65536;
-                        str += String.fromCharCode(55296 | ch >> 10, 56320 | ch & 1023)
-                    }
-                }
-            }
-            return str
-        }
-
-        let string = ptr ? UTF8ArrayToString(window.Module.HEAPU8, ptr, maxBytesToRead) : "";
-        //console.log(string);
-        if (string.startsWith("WP_fetchMMToken")) {
-            console.log(string);
-            // window.Module.token = string.split(",")[1];
-            // console.log("token");
-            // return void 0;
-        }
-        if (string.includes("CLEAN_WINDOW")) string = "";
-        if (string.length > 1e6) {
-            if (!window.Module.gameJS) {
-                window.Module.gameJS = string;
-                console.log("1stSTR");
-                return void 0;
-            } else {
-                window.Module.gameJS += string;
-                console.log("2ndSTR");
-                return void 0;
-            }
-        }
-        if (string.length == 40) {
-            window.Module.token = string;
-            console.log(string.length, " Token: ", string);
-            return void 0;
-        }
-        return string;
-    }
-
-    window._debugTimeStart = Date.now();
-    window.request("/pkg/loader.wasm","arrayBuffer",{cache: "no-store"}).then(body => {
-        window.Module.wasmBinary = body;
-        window.request("/pkg/loader.js","text",{cache: "no-store"}).then(body => {
-            body = body.replace(/function UTF8ToString.*?}function/, "function");
-            new Function(body)();
-            window.initWASM(window.Module);
-        })
-    });
-}
-
-let observer = new MutationObserver(mutations => {
-    for (let mutation of mutations) {
-        for (let node of mutation.addedNodes) {
-            if (node.tagName === 'SCRIPT' && node.type === "text/javascript" && node.innerHTML.startsWith("*!", 1)) {
-                node.innerHTML = onPageLoad.toString() + "\nonPageLoad();";
-                observer.disconnect();
-            }
-        }
-    }
-});
-
-observer.observe(document, {
-    childList: true,
-    subtree: true
-});
 
 })([...Array(8)].map(_ => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ' [~~(Math.random() * 52)]).join(''));
