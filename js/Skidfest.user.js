@@ -668,7 +668,9 @@
         }
 
         onLoad() {
-            this.iframe();
+            this.waitFor(_=>document.documentElement instanceof window.HTMLElement).then(_=>{
+                this.iframe();
+            })
             this.createObservers();
             this.waitFor(_=>this.head, 1e4, _=> { this.head = document.head||document.getElementsByTagName('head')[0] }).then(head => {
                 if (!head) location.reload();
