@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Krunker  Dogeware - by The Gaming Gurus
 // @description   The most advanced krunker cheat
-// @version       2.25
+// @version       2.26
 // @author        SkidLamer - From The Gaming Gurus
 // @supportURL    https://discord.gg/upA3nap6Ug
 // @homepage      https://skidlamer.github.io/
@@ -68,10 +68,10 @@
                 hideNewsConsole: false,
                 hideCookieButton: false,
                 chams: false,
+                chamsCol: 1,
                 wireframe: false,
-                chamsc: 0,
                 customCSS: "",
-                selfChams: false,
+                teamChams: false,
                 autoNuke: false,
                 chamsInterval: 500,
                 preventMeleeThrowing: false,
@@ -89,6 +89,21 @@
                 nameTags: false,
                 frame: 0
             });
+            this.gaybow = 0;
+            this.colors = {
+                White: "#FFFFFF",
+                Black: "#000000",
+                Purple: "#9400D3",
+                Pink: "#FF1493",
+                Blue: "#1E90FF",
+                DarkBlue: "#0000FF",
+                Aqua: "#00FFFF",
+                Green: "#008000",
+                Lime: "#7FFF00",
+                Orange: "#FF8C00",
+                Yellow: "#FFFF00",
+                Red: "#FF0000",
+            }
             this.vars = {};
             this.GUI = {};
             try {
@@ -260,7 +275,11 @@
                 wallbangs: {
                     regex: /!(\w+)\['transparent']/,
                     patch: `${dogStr}.settings.wallbangs?!$1.penetrable : !$1.transparent`
-                }
+                },
+                thirdPerson: {
+                    regex: /(\w+)\[\'config\'\]\[\'thirdPerson\'\]/g,
+                    patch: `${dogStr}.settings.thirdPerson`
+                },
             };
             let script = this.gameJS;
             for (let name in entries) {
@@ -1074,6 +1093,7 @@
                 const hDiff = ~~(screenR.y - screenH.y)
                 const bWidth = ~~(hDiff * 0.6)
                 const font = this.settings.espFontSize + "px GameFont"
+                const enemy = this.me.team === null || player.team !== this.me.team;
 
                 if (!this.containsPoint(player.pos)) {
                     continue
@@ -1091,27 +1111,29 @@
                             value: true,
                             writable: false
                         });
-                    } else obj.traverse((child) => {
+                    } else {
                         let chamsEnabled = this.settings.chams;
-                        if (child && child.type == "Mesh" && child.material) {
-                            child.material.depthTest = chamsEnabled ? false : true;
-                            if (this.isDefined(child.material.fog)) child.material.fog = chamsEnabled ? false : true;
-                            if (this.isDefined(child.material.emissive)) {
-                                const modes=[null,{r:1},{g:1},{b:1},{g:1,b:1},{r:1,b:1},{r:1,g:1}];
-                                if (this.settings.chamsc === 7) {
-                                    // epilepsy
-                                    child.material.emissive = modes[1 + Math.floor(Math.random() * 6)]
-                                } else if (this.settings.chamsc === 8) {
-                                    // rgb
-                                    const cur = ~~((Date.now() % (this.settings.chamsInterval * 6)) / this.settings.chamsInterval)
-                                    child.material.emissive = modes[cur + 1]
-                                } else {
-                                    child.material.emissive = modes[this.settings.chamsc]
+                        if (dog.gaybow >= 360) dog.gaybow = 0; else dog.gaybow++;
+                        obj.traverse(child => {
+                            if (child && child.type == "Mesh" && this.isDefined(child.material)) {
+                                if (!child.hasOwnProperty(dogStr)) {
+                                    child[dogStr] = child.material;
+                                } else if (child.hasOwnProperty(dogStr)) {
+                                    Object.defineProperty(child, 'material', {
+                                        get(){
+                                            return !chamsEnabled||(!enemy && !dog.settings.teamChams) ? this[dogStr] : new dog.three.MeshBasicMaterial({
+                                                color: new dog.three.Color(dog.settings.chamsCol == 12 ? `hsl(${dog.gaybow},100%, 50%)` : Object.values(dog.colors)[dog.settings.chamsCol]),
+                                                depthTest: false,
+                                                transparent: true,
+                                                fog: false,
+                                                wireframe: dog.settings.wireframe
+                                            })
+                                        }
+                                    });
                                 }
                             }
-                            child.material.wireframe = this.settings.wireframe ? true : false
-                        }
-                    })
+                        })
+                    }
                 }
 
                 if (this.settings.esp > 1) {
@@ -1251,6 +1273,7 @@
                         break
 
                     default:
+                        console.log("SET ", setting, " ", value);
                         dog.settings[setting] = value
                 }
                 localStorage.kro_setngss_json = JSON.stringify(dog.settings);
@@ -1293,7 +1316,8 @@
     select: (name, settingName, options, description = "", needsRestart = false) => {
         let built = `<div class="settName" title="${description}">${name} ${needsRestart ? "<span style=\"color: #eb5656\">*</span>" : ""}<select onchange='${dogStr}.GUI.setSetting("${settingName}", parseInt(this.value))' class="inputGrey2">`
         for (const option in options) {
-            if (options.hasOwnProperty(option)) built += `<option value="${options[option]}" ${dog.settings[settingName] == options[option]?"selected":""}>${option}</option>,`
+            if (options.hasOwnProperty(option))
+                built += `<option value="${options[option]}" ${dog.settings[settingName] == options[option]?"selected":""}>${option}</option>,`
         }
         return built + "</select></div>"
     },
@@ -1410,18 +1434,22 @@
         builder.checkbox("Mark aimbot target", "markTarget", "Shows who is the aimbot targetting at the time, useful for aim assist/aim correction")
         builder.checkbox("Draw FOV box", "drawFovbox", "Draws the FOV box from aimbot settings")
         builder.checkbox("Chams", "chams")
-        builder.select("Chams colour", "chamsc", {
-            "None": 0,
-            "Red": 1,
-            "Green": 2,
-            "Blue": 3,
-            "Cyan": 4,
-            "Pink": 5,
-            "Yellow": 6,
-            "RGB": 8,
-            "Epilepsy": 7,
+        builder.select("Chams colour", "chamsCol", {
+            White: 0,
+            Black: 1,
+            Purple: 2,
+            Pink: 3,
+            Blue: 4,
+            DarkBlue: 5,
+            Aqua: 6,
+            Green: 7,
+            Lime: 8,
+            Orange: 9,
+            Yellow: 10,
+            Red: 11,
+            Gaybow: 12,
         })
-        builder.checkbox("Self chams", "selfChams", "Makes your weapon affected by chams")
+        builder.checkbox("Friendly chams", "teamChams", "Show Chams for friendly players")
         builder.checkbox("Wireframe", "wireframe")
         builder.slider("RGB interval", "chamsInterval", 50, 1000, 50, "How fast will the RGB chams change colour")
     })
