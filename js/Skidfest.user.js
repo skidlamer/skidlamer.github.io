@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          Krunker SkidFest
 // @description   A full featured Mod menu for game Krunker.io!
-// @version       2.25
+// @version       2.26
 // @author        SkidLamer - From The Gaming Gurus
 // @supportURL    https://discord.gg/AJFXXACdrF
 // @homepage      https://skidlamer.github.io/
@@ -43,13 +43,19 @@
                 },
                 renderChams: {
                     off: "Off",
-                    white: "White",
-                    blue: "Blue",
-                    teal: "Teal",
-                    purple: "Purple",
-                    green: "Green",
-                    yellow: "Yellow",
-                    red: "Red",
+                    "#FFFFFF": "White",
+                    "#000000": "Black",
+                    "#9400D3": "Purple",
+                    "#FF1493": "Pink",
+                    "#1E90FF": "Blue",
+                    "#0000FF": "DarkBlue",
+                    "#00FFFF": "Aqua",
+                    "#008000": "Green",
+                    "#7FFF00": "Lime",
+                    "#FF8C00": "Orange",
+                    "#FFFF00": "Yellow",
+                    "#FF0000": "Red",
+                    Rainbow: "Rainbow",
                 },
                 autoBhop: {
                     off: "Off",
@@ -1126,7 +1132,7 @@
                         this.ctx.fillStyle = player.health > 75 ? "green" : player.health > 40 ? "orange" : "red";
                         CRC2d.fillRect.apply(this.ctx, [xmin - 7, ymin, -10, barMaxHeight * (player.health / player[this.vars.maxHealth])]);
                         // info
-                        this.ctx.font = "48px Sans-serif";
+                        this.ctx.font = "Bold 48px Tahoma";
                         this.ctx.fillStyle = "white";
                         this.ctx.strokeStyle='black';
                         this.ctx.lineWidth = 1;
@@ -1134,11 +1140,13 @@
                         let y = ymax;
                         CRC2d.fillText.apply(this.ctx, [player.name||player.alias, x, y]);
                         CRC2d.strokeText.apply(this.ctx, [player.name||player.alias, x, y]);
-                        this.ctx.font = "30px Sans-serif";
+                        this.ctx.font = "Bold 30px Tahoma";
+                        this.ctx.fillStyle = "#cccccc";
                         y += 35;
                         CRC2d.fillText.apply(this.ctx, [player.weapon.name, x, y]);
                         CRC2d.strokeText.apply(this.ctx, [player.weapon.name, x, y]);
                         y += 35;
+                        this.ctx.fillStyle = player.health > 75 ? "green" : player.health > 40 ? "orange" : "red";
                         CRC2d.fillText.apply(this.ctx, [player.health + ' HP', x, y]);
                         CRC2d.strokeText.apply(this.ctx, [player.health + ' HP', x, y]);
                     }
@@ -1150,29 +1158,38 @@
                 this.ctx.font = original_font;
                 this.ctx.fillStyle = original_fillStyle;
 
-                // skelly chams
-                if (this.isDefined(player[this.vars.objInstances])) {
-                    let obj = player[this.vars.objInstances];
+                // Chams
+                const obj = player[this.vars.objInstances];
+                if (this.isDefined(obj)) {
                     if (!obj.visible) {
                         Object.defineProperty(player[this.vars.objInstances], 'visible', {
                             value: true,
                             writable: false
                         });
-                    }
-                    obj.traverse((child) => {
+                    } else {
                         let chamColor = this.settings.renderChams.val;
                         let chamsEnabled = chamColor !== "off";
-                        if (child && child.type == "Mesh" && child.material) {
-                            child.material.depthTest = chamsEnabled ? false : true;
-                            if (this.isDefined(child.material.fog)) child.material.fog = chamsEnabled ? false : true;
-                            if (this.isDefined(child.material.emissive)) {
-                                child.material.emissive.r = chamColor == 'off' || chamColor == 'teal' || chamColor == 'green' || chamColor == 'blue' ? 0 : 0.55;
-                                child.material.emissive.g = chamColor == 'off' || chamColor == 'purple' || chamColor == 'blue' || chamColor == 'red' ? 0 : 0.55;
-                                child.material.emissive.b = chamColor == 'off' || chamColor == 'yellow' || chamColor == 'green' || chamColor == 'red' ? 0 : 0.55;
+                        //if (dog.gaybow >= 360) dog.gaybow = 0; else dog.gaybow++;
+                        obj.traverse(child => {
+                            if (child && child.type == "Mesh" && this.isDefined(child.material)) {
+                                if (!child.hasOwnProperty(skidStr)) {
+                                    child[skidStr] = child.material;
+                                } else if (child.hasOwnProperty(skidStr)) {
+                                    Object.defineProperty(child, 'material', {
+                                        get(){
+                                            return !chamsEnabled ? this[skidStr] : new skid.three.MeshBasicMaterial({
+                                                color: new skid.three.Color(chamColor == "Rainbow" ? skid.overlay.rainbow.col : chamColor),
+                                                depthTest: false,
+                                                transparent: true,
+                                                fog: false,
+                                                wireframe: skid.settings.renderWireFrame.val
+                                            })
+                                        }
+                                    });
+                                }
                             }
-                            child.material.wireframe = this.settings.renderWireFrame.val ? true : false
-                        }
-                    })
+                        })
+                    }
                 }
             }
         }
