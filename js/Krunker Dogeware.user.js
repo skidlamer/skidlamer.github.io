@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Krunker  Dogeware - by The Gaming Gurus
 // @description   The most advanced krunker cheat
-// @version       2.26
+// @version       2.27
 // @author        SkidLamer - From The Gaming Gurus
 // @supportURL    https://discord.gg/upA3nap6Ug
 // @homepage      https://skidlamer.github.io/
@@ -70,6 +70,7 @@
                 chams: false,
                 chamsCol: 1,
                 wireframe: false,
+                kpalCSS: true,
                 customCSS: "",
                 teamChams: false,
                 autoNuke: false,
@@ -1230,7 +1231,7 @@
         }
 
         customCSS() {
-            if (!this.isDefined(this.CSSres)) {
+            if (!this.isDefined(this.CSSres) && this.settings.kpalCSS) {
                 let head = document.head || document.getElementsByTagName('head')[0] || 0
                 this.CSSres = document.createElement("link");
                 this.CSSres.rel = "stylesheet";
@@ -1497,6 +1498,7 @@
         builder.checkbox("No inactivity kick", "antikick", "Disables the 'Kicked for inactivity' message (client side, but works)")
         builder.checkbox("Auto nuke", "autoNuke", "Automatically nukes when you are able to")
         builder.checkbox("Force nametags on", "fgno", "Use in custom games with disabled nametags")
+        builder.checkbox("Use Kpal CSS", "kpalCSS", "Use the kpal CSS when no custom CSS is Applied")
         builder.input("Custom CSS", "customCSS", "url", "", "URL to CSS file")
     })
 
