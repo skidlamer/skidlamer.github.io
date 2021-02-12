@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          Krunker SkidFest
 // @description   A full featured Mod menu for game Krunker.io!
-// @version       2.26
+// @version       2.27
 // @author        SkidLamer - From The Gaming Gurus
 // @supportURL    https://discord.gg/AJFXXACdrF
 // @homepage      https://skidlamer.github.io/
@@ -231,10 +231,8 @@
                     val: true,
                     html: () => this.generateSetting("checkbox", "showSkidBtn", this),
                     set: (value, init) => {
-                        let button = document.getElementById("mainButton");
-                        if (!button) {
-                            button = this.createButton("5k1D", "https://i.imgur.com/1tWAEJx.gif", this.toggleMenu, value)
-                        } else button.style.display = value ? "inherit" : "none";
+                        let button = document.getElementById("mainButton") || this.createButton("5k1D", "https://i.imgur.com/1tWAEJx.gif", this.toggleMenu, value)
+                        button.style.display = value ? "inherit" : "none";
                     }
                 },
                 hideAdverts: {
@@ -600,11 +598,12 @@
 
         createButton(name, iconURL, fn, visible) {
             visible = visible ? "inherit":"none";
-            let menu = document.querySelector("#menuItemContainer");
-            let icon = this.createElement("div",{"class":"menuItemIcon", "style":`background-image:url("${iconURL}");display:inherit;`});
-            let title= this.createElement("div",{"class":"menuItemTitle", "style":`display:inherit;`}, name);
-            let host = this.createElement("div",{"id":"mainButton", "class":"menuItem", "onmouseenter":"playTick()", "onclick":"showWindow(12)", "style":`display:${visible};`},[icon, title]);
-            if (menu) menu.append(host)
+            this.waitFor(_=>document.querySelector("#menuItemContainer")).then(menu => {
+                let icon = this.createElement("div",{"class":"menuItemIcon", "style":`background-image:url("${iconURL}");display:inherit;`});
+                let title= this.createElement("div",{"class":"menuItemTitle", "style":`display:inherit;`}, name);
+                let host = this.createElement("div",{"id":"mainButton", "class":"menuItem", "onmouseenter":"playTick()", "onclick":"showWindow(12)", "style":`display:${visible};`},[icon, title]);
+                if (menu) menu.append(host)
+            })
         }
 
         objectHas(obj, arr) {
