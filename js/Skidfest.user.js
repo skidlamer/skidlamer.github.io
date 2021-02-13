@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          Krunker SkidFest
 // @description   A full featured Mod menu for game Krunker.io!
-// @version       2.27
+// @version       2.28
 // @author        SkidLamer - From The Gaming Gurus
 // @supportURL    https://discord.gg/AJFXXACdrF
 // @homepage      https://skidlamer.github.io/
@@ -231,8 +231,9 @@
                     val: true,
                     html: () => this.generateSetting("checkbox", "showSkidBtn", this),
                     set: (value, init) => {
-                        let button = document.getElementById("mainButton") || this.createButton("5k1D", "https://i.imgur.com/1tWAEJx.gif", this.toggleMenu, value)
-                        button.style.display = value ? "inherit" : "none";
+                        let button = document.getElementById("mainButton");
+                        if (!this.isDefined(button)) this.createButton("5k1D", "https://i.imgur.com/1tWAEJx.gif", this.toggleMenu, value)
+                        else button.style.display = value ? "inherit" : "none";
                     }
                 },
                 hideAdverts: {
@@ -487,25 +488,18 @@
                 },
             };
 
-            // Inject Html
-            let waitForWindows = setInterval(_ => {
-                if (window.windows) {
-                    const menu = window.windows[11];
-                    menu.header = "Settings";
-                    menu.gen = _ => {
-                        var tmpHTML = `<div style='text-align:center'> <a onclick='window.open("https://skidlamer.github.io/")' class='menuLink'>SkidFest Settings</center></a> <hr> </div>`;
-                        for (const key in this.settings) {
-                            if (this.settings[key].pre) tmpHTML += this.settings[key].pre;
-                            tmpHTML += "<div class='settName' id='" + key + "_div' style='display:" + (this.settings[key].hide ? 'none' : 'block') + "'>" + this.settings[key].name +
-                                " " + this.settings[key].html() + "</div>";
-                        }
-                        tmpHTML += `<br><hr><a onclick='${skidStr}.resetSettings()' class='menuLink'>Reset Settings</a> | <a onclick='${skidStr}.saveScript()' class='menuLink'>Save GameScript</a>`
-                        return tmpHTML;
-                    };
-                    clearInterval(waitForWindows);
-                    //this.createButton("5k1D", "https://i.imgur.com/1tWAEJx.gif", this.toggleMenu)
+            const menu = window.windows[11];
+            menu.header = "Settings";
+            menu.gen = _ => {
+                var tmpHTML = `<div style='text-align:center'> <a onclick='window.open("https://skidlamer.github.io/")' class='menuLink'>SkidFest Settings</center></a> <hr> </div>`;
+                for (const key in this.settings) {
+                    if (this.settings[key].pre) tmpHTML += this.settings[key].pre;
+                    tmpHTML += "<div class='settName' id='" + key + "_div' style='display:" + (this.settings[key].hide ? 'none' : 'block') + "'>" + this.settings[key].name +
+                        " " + this.settings[key].html() + "</div>";
                 }
-            }, 100);
+                tmpHTML += `<br><hr><a onclick='${skidStr}.resetSettings()' class='menuLink'>Reset Settings</a> | <a onclick='${skidStr}.saveScript()' class='menuLink'>Save GameScript</a>`
+                return tmpHTML;
+            };
 
             // setupSettings
             for (const key in this.settings) {
@@ -682,7 +676,9 @@
                 Object.entries(this.css).forEach(entry => {
                     this.css[entry[0]] = this.createElement("style", entry[1]);
                 })
-                this.createSettings();
+                this.waitFor(_=>window.windows, 3e5).then(_ => {
+                    this.createSettings();
+                })
             })
 
             this.waitFor(_=>this.token).then(_ => {
