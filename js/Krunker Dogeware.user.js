@@ -3,7 +3,7 @@
 // @description   The most advanced krunker cheat
 // @version       2.27
 // @author        SkidLamer - From The Gaming Gurus
-// @supportURL    https://discord.gg/upA3nap6Ug
+// @supportURL    https://discord.gg/5QZsF7nq9s
 // @homepage      https://skidlamer.github.io/
 // @iconURL       https://i.imgur.com/MqW6Ufx.png
 // @namespace     https://greasyfork.org/users/704479

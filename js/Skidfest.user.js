@@ -3,7 +3,7 @@
 // @description   A full featured Mod menu for game Krunker.io!
 // @version       2.28
 // @author        SkidLamer - From The Gaming Gurus
-// @supportURL    https://discord.gg/AJFXXACdrF
+// @supportURL    https://discord.gg/5QZsF7nq9s
 // @homepage      https://skidlamer.github.io/
 // @match         *://krunker.io/*
 // @exclude       *://krunker.io/editor*
