@@ -1,13 +1,14 @@
 // ==UserScript==
-// @name         [NEW 2021] EggFest - OP Shell Shockers Aimbot - ESP - Modmenu - By The Gaming Gurus (shellshock.io)
+// @name         [NEWEST 2021] EggFest - OP Shell Shockers Aimbot - ESP - Modmenu - By The Gaming Gurus (shellshock.io)
 // @namespace    The Gaming Gurus Has Cracked It Again EggFest For The Win
-// @version      0.1
-// @description  A Full Featured Shell Shockers Cheat with all the yolk
+// @version      0.2
+// @description  A Full Featured Shell Shockers Cheat with all the sauce
 // @author       SkidLamer - The Gaming Gurus
 // @homepage     https://skidlamer.github.io/wp
 // @supportURL   https://skidlamer.github.io/wp
 // @match        https://shellshock.io/*
 // @iconURL      https://i.imgur.com/PYnAlDq.png
+// @require      https://cdn.babylonjs.com/babylon.js
 // @run-at       document-start
 // @grant        none
 // ==/UserScript==
@@ -22,20 +23,19 @@
 
 (function(egg, eggStr) {
     'use strict';
-
     function Log() {
         this.info = (str, args = []) => this.log('info', str, args);
         this.warn = (str, args = []) => this.log('warn', str, args);
         this.error = (str, args = []) => this.log('error', str, args);
         this.log = (level, str, args) => {
-            let color = [];
+            let colour = [];
             switch(level) {
-                case 'info':color=["#07a1d5", "#6e07d5"];break;
-                case 'error':color=["#d50707", "#d53a07"];break;
-                case 'warn':color=["#d56e07", "#d5d507"];break;
+                case 'info':colour=["#07a1d5", "#6e07d5"];break;
+                case 'error':colour=["#d50707", "#d53a07"];break;
+                case 'warn':colour=["#d56e07", "#d5d507"];break;
             }
             console.log('%c '.concat('[ ', level.toUpperCase(), ' ] '), [
-                `background: linear-gradient(${color[0]}, ${color[1]})`
+                `background: linear-gradient(${colour[0]}, ${colour[1]})`
                 , 'border: 1px solid #3E0E02'
                 , 'color: white'
                 , 'display: block'
@@ -58,27 +58,34 @@
                 "Fake Streak": false,
                 "Unlock Skins": true,
                 "Aimbot": "off",
-                "Is On Screen": true,
                 "Line Of Sight": true,
+                "Aim Offset": -0.2,
                 "Auto Reload": false,
                 "Auto Swap": false,
                 "Auto BHop": "off",
                 "BHop Interval": 100,
                 "Egg Reveal": true,
                 "3d Boxes": true,
-                "Enemy Color":'#ff0000ff',
-                "Friend Color":'#0000ffff',
+                "Enemy Colour":'#ff0000',
+                "Friend Colour":'#0000ff',
                 "Names Tags": true,
                 "Chams": 0,
+                "forceWireframe": false,
+                "forcePointsCloud": false,
+                "forceShowBoundingBoxes": false,
+                "particlesEnabled": true,
+                "shadowsEnabled": true,
+                "spritesEnabled": true,
             });
+            this.swapOrReload = "reload";
             this.downKeys = new Set();
             this.mouse = {
                 left:0,middle:0,right:0
             }
             this.mainPatches = {
-                players: {regex: /(\w+)\[\w+.id\]=\w+,\w+\(\)/, patch: `$&;${eggStr}.players=$1`},
+                playerList: {regex: /(\w+)\[\w+.id\]=\w+,\w+\(\)/, patch: `$&;${eggStr}.playerList=$1`},
                 renderer: {regex: /this.canvas=document/, patch: `${eggStr}.renderer=this;$&`},
-                onTick: {regex: /(render\(\))(}\)\)}var.*?document.createElement\("DIV"\))/, patch: `$1,${eggStr}.onTick()$2`},
+               // onRender: {regex: /(render\(\))(}\)\)}var.*?document.createElement\("DIV"\))/, patch: `$1,${eggStr}.onRender()$2`},
                 utils: {regex: /(init:function\(\w+\){)(.+?playerCollisionMesh)/, patch: `$1${eggStr}.utils=this;$2`},
                 codec: {regex: /(idx:0,init:function\(\w+\){)/, patch: `$&${eggStr}.codec=this;`},
                 buffer: {regex: /var \w+=this\.bufferPool\.retrieve\(\);/, patch: `${eggStr}.buffer=this;$&`},
@@ -114,7 +121,7 @@
                 ].join(';')} }`,
             };
 
-            this.players = [];
+            this.playerList = [];
             this.renderer = null;
             this.utils = null;
             this.codec = null;
@@ -204,8 +211,12 @@
                         "Auto Shoot": 'autoShoot',
                     },
                 });
-                folder.addInput(this.config, "Is On Screen");
                 folder.addInput(this.config, "Line Of Sight");
+                folder.addInput(this.config, "Aim Offset", {
+                    min: -1.0,
+                    max: 1.0,
+                    step: 0.1,
+                });
                 folder.addInput(this.config, "Auto Reload");
                 folder.addInput(this.config, "Auto Swap");
 
@@ -224,8 +235,8 @@
                         "Wire": 1,
                     },
                 });
-                folder.addInput(this.config, "Enemy Color");
-                folder.addInput(this.config, "Friend Color");
+                folder.addInput(this.config, "Enemy Colour");
+                folder.addInput(this.config, "Friend Colour");
             })(pane.addFolder({
                 title: 'Rendering',
                 expanded: true,
@@ -233,6 +244,10 @@
 
             // Developer
             (folder => {
+                ["forceWireframe", "forcePointsCloud", "forceShowBoundingBoxes", "particlesEnabled", "shadowsEnabled", "spritesEnabled"].map(val=>{
+                    folder.addInput(this.config, val);
+                });
+
                 folder.addButton({
                     title: 'Save Game Script',
                 }).on('click', () => {
@@ -288,133 +303,169 @@
                         },
                     })
                 })
+                this.waitFor(_=>ext.inGame).then(_=>{
+                    log.info("Game Started");
+                    this.waitFor(_=>this.playerList).then(_=>{
+                        this.waitFor(_=>this.me, Infinity, _=> { this.me = this.playerList.filter(player =>("ws" in player))[0] }).then(me=>{
+                            this.me.scene.onBeforeRenderObservable.add(this.render);
+
+                           // this.waitFor(_=> this.eggShell, Infinity, _=> { this.eggShell = this.me.scene.getMaterialByID("eggShell") }).then(eggShell=>{
+                            //   eggShell.disableDepthWrite = true;
+                           // });
+
+                            //if (this.me.scene.getMeshByID("eggShell")) alert()
+
+                            //this.me.scene.getMeshByName("eggShell");
+                            //this.me.scene.debugLayer.show();
+                            //let foo = this.me.scene.getBoundingBoxRenderer();
+                            //console.dir(foo)
+                           // alert()
+                           // let alternate = true;
+                           // foo.onBeforeBoxRenderingObservable.add(() => {
+                             //   foo.frontColor = alternate ? new window.BABYLON.Color3(255,0, 0) : new window.BABYLON.Color3(0, 255, 0);
+                             //   alternate = !alternate;
+                            //})
+
+
+                            const tickRate = 1000 / 60; let then = Date.now();
+                            const tick = _=> {
+                                window.requestAnimationFrame(tick);
+                                if (this.me && !this.me.isDead()) {
+                                    if (!this.isDefined(this.cam)) this.cam = this.getCameraByID("camera");
+                                    this.players = this.playerList.filter(entity => entity.uniqueId != this.me.uniqueId && !entity.isDead() && entity.actor);
+                                    const target = this.players.filter(entity => !this.me.team || this.me.team != entity.team).sort((p1, p2) => window.BABYLON.Vector3.Distance(this.me, p1) - window.BABYLON.Vector3.Distance(this.me, p2)).shift();
+                                    if (this.config.Aimbot != "off" && target) {
+                                        let boxInfo = target.actor.bodyMesh.getBoundingInfo();
+                                        if (boxInfo && boxInfo.isCompletelyInFrustum(this.me.scene.frustumPlanes)) {
+                                            let hitPos = this.rayCollidesWithPlayer(this.me.actor.eye.getAbsolutePosition(), this.cam.forwardRay.direction.scaleInPlace(window.BABYLON.Vector3.Distance(this.me, target)), target)
+                                            if (hitPos) this.aimBot(target);
+                                        }
+                                    }
+                                    if (this.config["Auto BHop"] != "off") this.autoBhop();
+                                    if (this.config["Auto Reload"]) this.autoReload();
+                                    if (this.config["Auto Swap"]) this.autoSwap();
+                                    let now = Date.now();
+                                    let elapsed = now - then;
+                                    if (elapsed > tickRate) {
+                                        then = now - (elapsed % tickRate);
+                                       // this.render(players);
+                                        //this.me.update();
+                                    }
+                                }
+                            }; tick();
+                            this.me.scoreKill = new Proxy(this.me.scoreKill, {
+                                apply(target, that, args) {
+                                    let value = Reflect.apply(...arguments);
+                                    if (egg.config["Fake Streak"]) {
+                                        for (let i = 0; i < 3; i++) that.beginShellStreak(i);
+                                    }
+                                    return value;
+                                }
+                            })
+                            this.me.die = new Proxy(this.me.die, {
+                                apply(target, that, args) {
+                                    that.score = 0;
+                                    if (!egg.config["Fake Streak"]) that.streak = 0;
+                                    that.deaths++;
+                                    that.totalDeaths++;
+                                    that.hp = 0;
+                                    that.playing = false;
+                                    that.removeFromPlay();
+                                }
+                            })
+                        })
+                    })
+                })
             })
         }
 
-        onTick() {
-            if (!this.isDefined(this.me)) {
-                this.me = this.players.filter(player =>("ws" in player))[0];
-
-                this.me.scoreKill = new Proxy(this.me.scoreKill, {
-                    apply(target, that, args) {
-                        let value = Reflect.apply(...arguments);
-                        if (egg.config["Fake Streak"]) {
-                            for (let i = 0; i < 3; i++) that.beginShellStreak(i);
-                        }
-                        return value;
+        render() {
+            for (let i = 0, l = egg.players.length; i < l; i++) {
+                let actor, player = egg.players[i];
+                if (actor = player.actor) {
+                    //if (!actor.eggMesh) {
+                       // actor.eggMesh = actor.bodyMesh.clone("eggMesh");
+                        //actor.eggMesh.position.z += 10;
+                    //}
+                    let hostile = !egg.me.team || egg.me.team != player.team;
+                    let boxInfo = actor.bodyMesh.getBoundingInfo();
+                    let boxRender = egg.me.scene.getBoundingBoxRenderer();
+                    let enemyColour = window.BABYLON.Color3.FromHexString(egg.config["Enemy Colour"]);
+                    let friendColour = window.BABYLON.Color3.FromHexString(egg.config["Friend Colour"]);
+                    let renderingGroupId = egg.config["Egg Reveal"] && hostile ? 1 : 0;
+                    for (let meshes = actor.mesh.getChildMeshes(), i = 0; i < meshes.length; i++) {
+                        meshes[i].setRenderingGroupId(renderingGroupId);
+                        meshes[i].disableDepthWrite = true;
+                        meshes[i]._fogEnabled = false;
                     }
-                })
-
-                this.me.die = new Proxy(this.me.die, {
-                    apply(target, that, args) {
-                        that.score = 0;
-                        if (!egg.config["Fake Streak"]) that.streak = 0;
-                        that.deaths++;
-                        that.totalDeaths++;
-                        that.hp = 0;
-                        that.playing = false;
-                        that.removeFromPlay();
-                    }
-                })
-
-            } else {
-
-                // Auto Reload
-                if (this.config["Auto Reload"] && 0 == this.me.weapon.ammo.rounds && 0 != this.me.weapon.ammo.store) this.me.reload();
-
-                // Auto Swap
-                if (this.config["Auto Swap"] && 0 == this.me.weapon.ammo.rounds) this.me.reload(), this.me.swapWeapon(0 == this.me.weaponIdx ? 1 : 0);
-
-                // Auto bHop
-                 if (this.config["Auto BHop"] != "off" && this.me.canJump()) {
-                    setTimeout(() => {
-                        if (this.config["Auto BHop"] == "autojump" || this.isKeyDown("Space")) this.me.jump();
-                    }, this.config["BHop Interval"]||0);
-                }
-
-                // Player List
-                if (!this.isDefined(this.cam)) this.cam = this.getCameraByID("camera");
-                var target = this.players.filter(player => {
-
-                    var boxInfo = player.actor.bodyMesh.getBoundingInfo();
-                    var isNotMe = player.uniqueId != this.me.uniqueId;
-                    var isHostile = !this.me.team || this.me.team != player.team;
-                    var canSee = boxInfo && boxInfo.isCompletelyInFrustum(this.me.scene.frustumPlanes);
-
-                    // Rendering Stuff
-                    if (player && isNotMe && !player.isDead()) {
-
-                        let ecl = this.config["Enemy Color"].length;
-                        let enemyColor = ecl == 9 ? window.BABYLON.Color4.FromHexString(this.config["Enemy Color"]) : window.BABYLON.Color4();
-                        let friendColor = ecl == 9 ? window.BABYLON.Color4.FromHexString(this.config["Friend Color"]) : window.BABYLON.Color4();
-                        let enemyColor3 = window.BABYLON.Color3.FromHexString(ecl == 9 ? this.config["Enemy Color"].slice(0, -2) : ecl == 7 ? this.config["Enemy Color"] : "#FFFFFF");
-                        let friendColor3 = window.BABYLON.Color3.FromHexString(ecl == 9 ? this.config["Friend Color"].slice(0, -2) : ecl == 7 ? this.config["Friend Color"] : "#FFFFFF");
-                        let boundingBoxRenderer = this.me.scene.getBoundingBoxRenderer();
-                        boundingBoxRenderer.frontColor = enemyColor3
-                        boundingBoxRenderer.backColor = enemyColor3
-                        player.actor.bodyMesh.showBoundingBox = this.config["3d Boxes"] && isHostile;
-
-                        // See the Eggs mesh through walls
-                        const value = { value:this.config["Egg Reveal"] && isHostile ? 1 : 0, configurable: true }
-                        this.define(player.actor.bodyMesh, "renderOutline", { value:true, configurable: true });
-                        this.define(player.actor.bodyMesh, "outlineColor", { value: isHostile ? enemyColor : friendColor, configurable: true });
-                        this.define(player.actor.mesh, "renderingGroupId", value);
-                        this.define(player.actor.bodyMesh, "renderingGroupId", value);
-                        this.define(player.actor.eye, "renderingGroupId", value);
-                        this.define(player.actor.foreBone, "renderingGroupId", value);
-                        this.define(player.actor.gripBone, "renderingGroupId", value);
-                        this.define(player.actor.gunContainer, "renderingGroupId", value);
-                        this.define(player.actor.hands, "renderingGroupId", value);
-                        this.define(player.actor.hat, "renderingGroupId", value);
-                        this.define(player.actor.head, "renderingGroupId", value);
-
-                        if (player.actor.bodyMesh.material) {
-                            Object.defineProperties(player.actor.bodyMesh.material, {
-                                fogEnabled: {
-                                    value:!this.config["Egg Reveal"], configurable: true
-                                },
-                                disableDepthWrite: {
-                                    value:true, configurable: true
-                                },
-                                fillMode: {
-                                    value: this.config.Chams, configurable: true
-                                }
-                            })
-                        }
-                    }
-
-                    return player && isNotMe && isHostile && !player.isDead() && (this.config["Is On Screen"] && canSee || !this.config["Is On Screen"])
-                }).sort((p1, p2) => window.BABYLON.Vector3.Distance(this.me, p1) - window.BABYLON.Vector3.Distance(this.me, p2)).shift()
-                // Auto Aim
-                if (target) {
-
-                    if (this.config.Aimbot != "off") {
-                        if (this.cam) {
-                            if (this.utils.ray.origin.copyFrom(this.me.actor.eye.getAbsolutePosition()), this.utils.ray.direction.copyFrom(this.cam.forwardRay.direction.scaleInPlace(1e3)), this.utils.ray.length = Infinity, target.actor) {
-                                let hitPos = this.utils.rayCollidesWithPlayerHelper(this.utils.ray, target);
-                                let didHit = (this.config["Line Of Sight"]&&hitPos||!this.config["Line Of Sight"] && !this.me.reloadCountdown && this.me.weapon.ammo.rounds);
-                                switch(this.config.Aimbot) {
-                                    case "onKeyDown":
-                                        if (didHit && this.me.actor.scope) {
-                                            this.setPitchYaw(target);
-                                        }
-                                        break;
-                                    case "autoAim":
-                                        if (didHit) this.setPitchYaw(target);
-                                        break;
-                                    case "autoShoot":
-                                        if (didHit) {
-                                            this.setPitchYaw(target);
-                                            this.me.actor.scopeIn();
-                                            this.me.pullTrigger();
-                                            this.me.actor.scopeOut();
-                                        }
-                                        break;
-                                }
+                    actor.bodyMesh.outlineColor = hostile ? enemyColour.toColor4() : friendColour.toColor4();
+                    actor.bodyMesh.renderOutline = true;
+                    if (actor.bodyMesh.material) {
+                        Object.defineProperties(actor.bodyMesh.material, {
+                            fogEnabled: {
+                                value:false, configurable: false
+                            },
+                            disableDepthWrite: {
+                                value:false, configurable: false
+                            },
+                            fillMode: {
+                                value: egg.config.Chams, configurable: true
                             }
-                        }
+                        })
                     }
+
+                    // Show 3d Box for enemies
+                    boxRender.backColor = enemyColour
+                    boxRender.frontColor = enemyColour
+                    actor.bodyMesh.showBoundingBox = egg.config["3d Boxes"] && hostile;
+                    actor.bodyMesh.renderingGroupId = egg.config["Egg Reveal"] && hostile ? 1 : 0;
                 }
+            }
+
+            if (egg.isDefined(egg.me.scene)) {
+                ["forceWireframe", "forcePointsCloud", "forceShowBoundingBoxes", "particlesEnabled", "shadowsEnabled", "spritesEnabled"].map(val => {
+                    egg.me.scene[val] = egg.config[val]
+                });
+            }
+        }
+
+        autoBhop() {
+            setTimeout(() => {
+                if (this.config["Auto BHop"] == "autojump" || this.isKeyDown("Space")) this.me.jump();
+            }, this.config["BHop Interval"]||0);
+        }
+
+        autoSwap() {
+            if (0 == this.me.weapon.ammo.rounds) {
+                let thisSlot = this.me.weaponIdx;
+                let otherSlot = thisSlot ? 0 : 1;
+                if (1 < this.me.weapons[otherSlot].ammo.rounds) {
+                    this.me.swapWeapon(otherSlot);
+                    //this.me.weapons[thisSlot].actor.reload();
+                }
+            }
+        }
+
+        autoReload() {
+             if (0 == this.me.weapon.ammo.rounds && 0 != this.me.weapon.ammo.store) this.me.reload();
+        }
+
+        aimBot(target) {
+            switch(this.config.Aimbot) {
+                case "onKeyDown":
+                    if (this.me.actor.scope) {
+                        this.setPitchYaw(target);
+                    }
+                    break;
+                case "autoAim":
+                    this.setPitchYaw(target);
+                    break;
+                case "autoShoot":
+                    this.setPitchYaw(target);
+                    this.me.actor.scopeIn();
+                    this.me.pullTrigger();
+                    this.me.actor.scopeOut();
+                    break;
             }
         }
 
@@ -479,6 +530,8 @@
                         if (egg.guiDiv.style.display=="inherit") {
                             egg.guiDiv.style.display="none";
                             window.canvas.requestPointerLock();
+                            window.vueApp.ui.showScreen = window.vueApp.ui.screens.game;
+                            window.vueApp.game.isGameOwner = true;
                         }
                         else if (egg.guiDiv.style.display=="none") {
                             egg.guiDiv.style.display="inherit";
@@ -616,6 +669,17 @@
             });
         };
 
+        once(func) {
+            let ran = false, memo;
+            return function() {
+                if (ran) return memo;
+                ran = true;
+                memo = func.apply(this, arguments);
+                func = null;
+                return memo;
+            };
+        };
+
         isType(item, type) {
             return typeof item === type;
         }
@@ -651,13 +715,37 @@
             }
         }
 
-        setPitchYaw(target, yOffset = 0) {
-            let delta = new window.BABYLON.Vector3((this.me.x - target.x), (this.me.y - target.y + yOffset), (this.me.z - target.z));
+        rayCollidesWithPlayer(startPos, direction, player) {
+            if (!this.config["Line Of Sight"]) return !0x0;
+            else {
+                if (this.utils.ray.origin.copyFrom(startPos), this.utils.ray.direction.copyFrom(direction), this.utils.ray.length = Infinity, player.actor) {
+                    let hitPos = this.utils.rayCollidesWithPlayerHelper(this.utils.ray, player);
+
+                    if (hitPos) {
+                        //if (!this.isDefined(this.utils.rayHelper)) {
+                            //this.utils.rayHelper = new window.BABYLON.RayHelper(this.utils.ray);
+                        //} else {
+                            //this.utils.rayHelper.attachToMesh(this.me.actor.eye, direction, startPos, 1e3);
+                            //this.utils.rayHelper.show(this.me.scene);
+                        //}
+
+                        return hitPos//this.utils.pointCollidesWithMap(hitPos, !0)
+                        //&& !this.utils.meshCollidesWithMap(this.utils.playerCollisionMesh, hitPos)
+                    }
+                }
+            }
+            return null;
+        }
+
+        setPitchYaw(target) {
+            let coord = new window.BABYLON.Vector3(target.x, target.y + this.config["Aim Offset"], target.z)
+            let delta = new window.BABYLON.Vector3(this.me.x, this.me.y, this.me.z).subtract(coord);
+            let hypot = Math.sqrt(delta.x * delta.x + delta.z * delta.z);
             let angle = -Math.PI/2 - Math.atan2(delta.z, delta.x);
             if (angle < 0) angle += Math.PI * 2;
             else if (angle - Math.PI * 2 > 0) angle -= Math.PI * 2;
+            this.me.pitch = Math.atan2(delta.y, hypot);
             this.me.yaw = angle;
-            this.me.pitch = Math.atan2(delta.y, Math.sqrt(delta.x * delta.x + delta.z * delta.z));
         }
     }
     window[eggStr] = new Egg();
