@@ -1,15 +1,15 @@
 // ==UserScript==
-// @name         [NEWEST 2021] EggFest - OP Shell Shockers Aimbot - ESP - Modmenu - By The Gaming Gurus (shellshock.io)
-// @namespace    The Gaming Gurus Has Cracked It Again EggFest For The Win
-// @version      0.2
-// @description  A Full Featured Shell Shockers Cheat with all the sauce
-// @author       SkidLamer - The Gaming Gurus
-// @homepage     https://skidlamer.github.io/wp
-// @supportURL   https://skidlamer.github.io/wp
-// @match        https://shellshock.io/*
-// @iconURL      https://i.imgur.com/PYnAlDq.png
-// @run-at       document-start
-// @grant        none
+// @name EggFest - OP Shell Shockers shellshock.io Aimbot - ESP - Modmenu - By The Gaming Gurus 2021
+// @namespace The Gaming Gurus Has Cracked It Again EggFest For The Win
+// @version 0.2
+// @description A Full Featured Shell Shockers Cheat with all the sauce
+// @author SkidLamer - The Gaming Gurus
+// @homepage https://skidlamer.github.io/wp
+// @supportURL https://skidlamer.github.io/wp
+// @match https://shellshock.io/*
+// @iconURL https://i.imgur.com/PYnAlDq.png
+// @run-at document-start
+// @grant none
 // ==/UserScript==
 
 /*
