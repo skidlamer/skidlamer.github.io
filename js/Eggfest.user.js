@@ -8,7 +8,6 @@
 // @supportURL   https://skidlamer.github.io/wp
 // @match        https://shellshock.io/*
 // @iconURL      https://i.imgur.com/PYnAlDq.png
-// @require      https://cdn.babylonjs.com/babylon.js
 // @run-at       document-start
 // @grant        none
 // ==/UserScript==
