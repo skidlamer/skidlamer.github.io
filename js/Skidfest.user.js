@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name          Krunker SkidFest
 // @description   A full featured Mod menu for game Krunker.io!
-// @version       2.28
+// @version       2.29
 // @author        SkidLamer - From The Gaming Gurus
-// @supportURL    https://discord.gg/5QZsF7nq9s
+// @supportURL    https://discord.gg/AJFXXACdrF
 // @homepage      https://skidlamer.github.io/
 // @match         *://krunker.io/*
 // @exclude       *://krunker.io/editor*
@@ -19,6 +19,33 @@
 /* eslint-disable no-caller, no-undef, no-loop-func */
 
 (function(skidStr, CRC2d, skid) {
+
+    function Log() {
+        this.info = (str, args = []) => this.log('info', str, args);
+        this.warn = (str, args = []) => this.log('warn', str, args);
+        this.error = (str, args = []) => this.log('error', str, args);
+        this.log = (level, str, args) => {
+            let colour = [];
+            switch(level) {
+                case 'info':colour=["#07a1d5", "#6e07d5"];break;
+                case 'error':colour=["#d50707", "#d53a07"];break;
+                case 'warn':colour=["#d56e07", "#d5d507"];break;
+            }
+            console.log('%c '.concat('[ ', level.toUpperCase(), ' ] '), [
+                `background: linear-gradient(${colour[0]}, ${colour[1]})`
+                , 'border: 1px solid #3E0E02'
+                , 'color: white'
+                , 'display: block'
+                , 'text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3)'
+                , 'box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4) inset, 0 5px 3px -5px rgba(0, 0, 0, 0.5), 0 -13px 5px -10px rgba(255, 255, 255, 0.4) inset'
+                , 'line-height: 12px'
+                , 'text-align: center'
+                , 'font-weight: bold'
+            ].join(';'))
+            if (args.length) console.log(str, args);
+            else console.log(str);
+        }
+    } var log = new Log();
 
     class Skid {
         constructor() {
@@ -137,7 +164,7 @@
                 this.onLoad();
             }
             catch(e) {
-                console.error(e);
+                log.error(e);
                 console.trace(e.stack);
             }
         }
@@ -187,14 +214,14 @@
                     if (doWhile && doWhile instanceof Function) doWhile();
                     if (timeout_ms % 1e4 < freq) console.log("waiting for: ", test);
                     if ((timeout_ms -= freq) < 0) {
-                        console.log( "Timeout : ", test );
+                        log.error( "Timeout : ", test );
                         resolve(false);
                         return;
                     }
                     await sleep(freq);
                     result = typeof test === "string" ? Function(test)() : test();
                 }
-                console.log("Passed : ", test);
+                log.info("Passed : ", test);
                 resolve(result);
             });
         };
@@ -209,18 +236,19 @@
         }
 
         async fetchScript() {
-            const data = await this.request("https://krunker.io/social.html", "text");
-            const buffer = await this.request("https://krunker.io/pkg/krunker." + /\w.exports="(\w+)"/.exec(data)[1] + ".vries", "arrayBuffer");
-            const array = Array.from(new Uint8Array(buffer));
-            const xor = array[0] ^ '!'.charCodeAt(0);
-            return array.map((code) => String.fromCharCode(code ^ xor)).join('');
+           // const data = await this.request("https://krunker.io/social.html", "text");
+           // const buffer = await this.request("https://krunker.io/pkg/krunker." + /\w.exports="(\w+)"/.exec(data)[1] + ".vries", "arrayBuffer");
+           // const array = Array.from(new Uint8Array(buffer));
+           // const xor = array[0] ^ '!'.charCodeAt(0);
+           // return array.map((code) => String.fromCharCode(code ^ xor)).join('');
+            return new Promise((erect, fostersFlop)=>erect(this.gameJS));
         }
 
         createSettings() {
             this.displayStyle = (el, val) => {
                 this.waitFor(_=>window[el], 5e3).then(node => {
                     if (node) node.style.display = val ? "none" : "inherit";
-                    else console.error(el, " was not found in the window object");
+                    else log.error(el, " was not found in the window object");
                 })
             }
             this.settings = {
@@ -704,7 +732,7 @@
                         let exp = this.exports[rootKey].exports;
                         for (let name in toFind) {
                             if (this.objectHas(exp, toFind[name])) {
-                                console.log("Found Export ", name);
+                                log.info("Found Export ", name);
                                 delete toFind[name];
                                 this[name] = exp;
                             }
@@ -876,7 +904,7 @@
                 xDire: { regex: /this\['(\w+)']=Math\['lerpAngle']\(this\['xDir2']/, index: 1 },
                 yDire: { regex: /this\['(\w+)']=Math\['lerpAngle']\(this\['yDir2']/, index: 1 },
                 //xVel: { regex: /this\['x']\+=this\['(\w+)']\*\w+\['map']\['config']\['speedX']/, index: 1 },
-                yVel: { regex: /this\['y']\+=this\['(\w+)']\*\w+\['map']\['config']\['speedY']/, index: 1 },
+                yVel: { regex: /this\['(\w+)']=this\['\w+'],this\['visible']/, index: 1 },
                 //zVel: { regex: /this\['z']\+=this\['(\w+)']\*\w+\['map']\['config']\['speedZ']/, index: 1 },
 
                 // Patches
@@ -906,7 +934,7 @@
                         alert("Failed to Find " + name);
                     } else {
                         object.val = found[object.index];
-                        console.log ("Found ", name, ":", object.val);
+                        log.info ("Found ", name, ":", object.val);
                     }
                     Object.defineProperty(skid.vars, name, {
                         configurable: false,
@@ -914,8 +942,8 @@
                     });
                 } else if (found) {
                     script = script.replace(object.regex, object.patch);
-                    console.log ("Patched ", name);
-                } else alert("Failed to Patch " + name);
+                    log.info ("Patched ", name);
+                } else log.error("Failed to Patch " + name);
             }
             return script;
         }
@@ -945,7 +973,7 @@
                     if (string.includes("generate-token")) skid.generated = true;
                     else if (string.length == 40||skid.generated) {
                         skid.token = string;
-                        console.log("Token ", string);
+                        log.info("Token ", string);
                         document.documentElement.removeChild(iframe);
                     }
                     return string;
