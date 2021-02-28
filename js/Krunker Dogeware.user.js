@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Krunker  Dogeware - by The Gaming Gurus
 // @description   The most advanced krunker cheat
-// @version       2.27
+// @version       2.28
 // @author        SkidLamer - From The Gaming Gurus
 // @supportURL    https://discord.gg/5QZsF7nq9s
 // @homepage      https://skidlamer.github.io/
@@ -229,7 +229,7 @@
                 },
                 //xVel: { regex: /this\['x']\+=this\['(\w+)']\*\w+\['map']\['config']\['speedX']/, index: 1 },
                 yVel: {
-                    regex: /this\['y']\+=this\['(\w+)']\*\w+\['map']\['config']\['speedY']/,
+                    regex: /this\['(\w+)']=this\['\w+'],this\['visible']/,
                     index: 1
                 },
                 //zVel: { regex: /this\['z']\+=this\['(\w+)']\*\w+\['map']\['config']\['speedZ']/, index: 1 },
@@ -240,14 +240,11 @@
                 },
                 //frustum: {regex: /(;const (\w+)=this\['frustum']\['containsPoint'];.*?return)!0x1/, patch: "$1 $2"},
                 //videoAds: {regex: /!function\(\){var \w+=document\['createElement']\('script'\);.*?}\(\);/, patch: ""},
-                anticheat1: {
-                    regex: /(\[]instanceof Array;).*?(var)/,
-                    patch: "$1 $2"
-                },
-                anticheat2: {
-                    regex: /windows\['length'\]>\d+.*?0x25/,
-                    patch: "0x25"
-                },
+                anticheat1:{regex: /&&\w+\(\),window\['utilities']&&\(\w+\(null,null,null,!0x0\),\w+\(\)\)/, patch: ""},
+                anticheat2:{regex: /(\[]instanceof Array;).*?(var)/, patch: "$1 $2"},
+                anticheat3:{regex: /windows\['length'\]>\d+.*?0x25/, patch: `0x25`},
+                anticheat4:{regex: /(,\w+=)!\(!menuItemContainer\['innerHTML']\['includes'].*?;/, patch: `$1false;`},
+
                 writeable: {
                     regex: /'writeable':!0x1/g,
                     patch: "writeable:true"
@@ -416,6 +413,9 @@
                   $localSkins = Symbol("localSkins");
 
             Object.defineProperties(Object.prototype, {
+                isFaceIT: {
+                    get() { return true }
+                },
                 canvas: {
                     set(val) {
                         this._value = val;

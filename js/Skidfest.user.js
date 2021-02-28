@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          Krunker SkidFest
 // @description   A full featured Mod menu for game Krunker.io!
-// @version       2.29
+// @version       2.30
 // @author        SkidLamer - From The Gaming Gurus
 // @supportURL    https://discord.gg/AJFXXACdrF
 // @homepage      https://skidlamer.github.io/
@@ -153,7 +153,7 @@
             };
             this.css = {
                 noTextShadows: `*, .button.small, .bigShadowT { text-shadow: none !important; }`,
-                hideAdverts: `#aMerger, #endAMerger { display: none !important }`,
+                hideAdverts: `#aHolder, #aMerger, #aContainer, .endAHolder, #endAMerger, #endAContainer { display: none !important; }`,
                 hideSocials: `.headerBarRight > .verticalSeparator, .imageButton { display: none }`,
                 cookieButton: `#onetrust-consent-sdk { display: none !important }`,
                 newsHolder: `#newsHolder { display: none !important }`,
@@ -264,6 +264,8 @@
                         else button.style.display = value ? "inherit" : "none";
                     }
                 },
+                /*
+                HAVE YOUR ADS SYDNEY IT"S ONLY FAIR
                 hideAdverts: {
                     name: "Hide Advertisments",
                     val: true,
@@ -272,7 +274,7 @@
                         if (value) this.head.appendChild(this.css.hideAdverts)
                         else if (!init) this.css.hideAdverts.remove()
                     }
-                },
+                },*/
                 hideStreams: {
                     name: "Hide Streams",
                     val: false,
@@ -918,6 +920,7 @@
                 anticheat1:{regex: /&&\w+\(\),window\['utilities']&&\(\w+\(null,null,null,!0x0\),\w+\(\)\)/, patch: ""},
                 anticheat2:{regex: /(\[]instanceof Array;).*?(var)/, patch: "$1 $2"},
                 anticheat3:{regex: /windows\['length'\]>\d+.*?0x25/, patch: `0x25`},
+                anticheat4:{regex: /(,\w+=)!\(!menuItemContainer\['innerHTML']\['includes'].*?;/, patch: `$1false;`},
                 commandline:{regex: /Object\['defineProperty']\(console.*?\),/, patch: ""},
                 writeable:{regex: /'writeable':!0x1/g, patch: "writeable:true"},
                 configurable:{regex: /'configurable':!0x1/g, patch: "configurable:true"},
