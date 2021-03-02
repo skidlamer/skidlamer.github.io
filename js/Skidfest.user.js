@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name          Krunker SkidFest
 // @description   A full featured Mod menu for game Krunker.io!
-// @version       2.30
+// @version       2.31
 // @author        SkidLamer - From The Gaming Gurus
-// @supportURL    https://discord.gg/AJFXXACdrF
+// @supportURL    https://skidlamer.github.io/wp
 // @homepage      https://skidlamer.github.io/
 // @match         *://krunker.io/*
 // @exclude       *://krunker.io/editor*
@@ -17,6 +17,11 @@
 
 /* eslint-env es6 */
 /* eslint-disable no-caller, no-undef, no-loop-func */
+
+// Donations Accepted
+// BTC:  3CsDVq96KgmyPjktUe1YgVSurJVe7LT53G
+// ETH:  0x5dbF713F95F7777c84e6EFF5080e2f0e0724E8b1
+// ETC:  0xF59BEbe25ECe2ac3373477B5067E07F2284C70f3
 
 (function(skidStr, CRC2d, skid) {
 
@@ -205,7 +210,7 @@
             return "https://crossorigin.me/" + url;
         }
 
-        async waitFor(test, timeout_ms = 2e4, doWhile = null) {
+        async waitFor(test, timeout_ms = Infinity, doWhile = null) {
             let sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
             return new Promise(async (resolve, reject) => {
                 if (typeof timeout_ms != "number") reject("Timeout argument not a number in waitFor(selector, timeout_ms)");
@@ -712,6 +717,7 @@
             })
 
             this.waitFor(_=>this.token).then(_ => {
+                //this.saveScript();
                 if (!this.token) location.reload();
                 const loader = new Function("WP_fetchMMToken", "Module", this.gamePatch());
                 loader(new Promise(res=>res(this.token)), { csv: async () => 0 });
@@ -920,7 +926,9 @@
                 anticheat1:{regex: /&&\w+\(\),window\['utilities']&&\(\w+\(null,null,null,!0x0\),\w+\(\)\)/, patch: ""},
                 anticheat2:{regex: /(\[]instanceof Array;).*?(var)/, patch: "$1 $2"},
                 anticheat3:{regex: /windows\['length'\]>\d+.*?0x25/, patch: `0x25`},
-                anticheat4:{regex: /(,\w+=)!\(!menuItemContainer\['innerHTML']\['includes'].*?;/, patch: `$1false;`},
+                anticheat4:{regex: /(\w+\=)\(!menuItemContainer\['innerHTML']\['includes'].*?\);/, patch: `$1false;`},
+                //dafuck:{regex: /else{if\('\w+'!==\w+\){if\('';.*?}}\)/, patch: ")"},
+               // dafunk:{regex: /\(\w+\)\)(\w+=new \w+\(\)\['parse)/, patch: "$1"},
                 commandline:{regex: /Object\['defineProperty']\(console.*?\),/, patch: ""},
                 writeable:{regex: /'writeable':!0x1/g, patch: "writeable:true"},
                 configurable:{regex: /'configurable':!0x1/g, patch: "configurable:true"},
@@ -961,18 +969,36 @@
             const ifrWin = iframe.contentWindow;
             const ifrDoc = iframe.contentDocument?iframe.contentDocument:iframe.contentWindow.document;
 
+            //let request = new XMLHttpRequest();
+			//request.open('GET', 'https://skidlamer.github.io/krunker/game_v3.6.8.js', false);
+			//request.send(null);
+			//if (request.status == 200) {
+			//	skid.gameJS = request.responseText;
+			//}
+
+            let skidneySplizy = 0;
+
             ifrWin.TextDecoder.prototype.decode = new Proxy(window.TextDecoder.prototype.decode, {
                 apply: function(target, that, args) {
                     let string = Reflect.apply(...arguments);
-                    if (string.length > 1e6) {
+                    if (string.length > 5e4) {
+                        log.warn("skidneySplizy = " + skidneySplizy);
+                        if (skidneySplizy == 0) {
+                            skid.gameJS = string;
+                        } else {
+                            skid.gameJS += string;
+                        } skidneySplizy ++;
+                        //console.log(string.length)
+                        /*
                         if (!skid.gameJS) {
                             skid.gameJS = string;
                             console.log("1stSTR");
                         } else {
-                            skid.gameJS += string;
+                           skid.gameJS += string;
                             console.log("2ndSTR");
                         }
-                    }
+                        */
+                    } //else //console.log(string.length)
                     if (string.includes("generate-token")) skid.generated = true;
                     else if (string.length == 40||skid.generated) {
                         skid.token = string;

@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name Krunker  Dogeware - by The Gaming Gurus
 // @description   The most advanced krunker cheat
-// @version       2.28
+// @version       2.29
 // @author        SkidLamer - From The Gaming Gurus
-// @supportURL    https://discord.gg/5QZsF7nq9s
+// @supportURL    https://skidlamer.github.io/wp
 // @homepage      https://skidlamer.github.io/
 // @iconURL       https://i.imgur.com/MqW6Ufx.png
 // @namespace     https://greasyfork.org/users/704479
@@ -18,7 +18,39 @@
 /* eslint-env es6 */
 /* eslint-disable curly, no-undef, no-loop-func, no-return-assign, no-sequences */
 
+// Donations Accepted
+// BTC:  3CsDVq96KgmyPjktUe1YgVSurJVe7LT53G
+// ETH:  0x5dbF713F95F7777c84e6EFF5080e2f0e0724E8b1
+// ETC:  0xF59BEbe25ECe2ac3373477B5067E07F2284C70f3
+
 (function(dogStr, dog) {
+
+    function Log() {
+        this.info = (str, args = []) => this.log('info', str, args);
+        this.warn = (str, args = []) => this.log('warn', str, args);
+        this.error = (str, args = []) => this.log('error', str, args);
+        this.log = (level, str, args) => {
+            let colour = [];
+            switch(level) {
+                case 'info':colour=["#07a1d5", "#6e07d5"];break;
+                case 'error':colour=["#d50707", "#d53a07"];break;
+                case 'warn':colour=["#d56e07", "#d5d507"];break;
+            }
+            console.log('%c '.concat('[ ', level.toUpperCase(), ' ] '), [
+                `background: linear-gradient(${colour[0]}, ${colour[1]})`
+                , 'border: 1px solid #3E0E02'
+                , 'color: white'
+                , 'display: block'
+                , 'text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3)'
+                , 'box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4) inset, 0 5px 3px -5px rgba(0, 0, 0, 0.5), 0 -13px 5px -10px rgba(255, 255, 255, 0.4) inset'
+                , 'line-height: 12px'
+                , 'text-align: center'
+                , 'font-weight: bold'
+            ].join(';'))
+            if (args.length) console.log(str, args);
+            else console.log(str);
+        }
+    } var log = new Log();
 
     class Dogeware {
         constructor() {
@@ -243,7 +275,7 @@
                 anticheat1:{regex: /&&\w+\(\),window\['utilities']&&\(\w+\(null,null,null,!0x0\),\w+\(\)\)/, patch: ""},
                 anticheat2:{regex: /(\[]instanceof Array;).*?(var)/, patch: "$1 $2"},
                 anticheat3:{regex: /windows\['length'\]>\d+.*?0x25/, patch: `0x25`},
-                anticheat4:{regex: /(,\w+=)!\(!menuItemContainer\['innerHTML']\['includes'].*?;/, patch: `$1false;`},
+                anticheat4:{regex: /(\w+\=)\(!menuItemContainer\['innerHTML']\['includes'].*?\);/, patch: `$1false;`},
 
                 writeable: {
                     regex: /'writeable':!0x1/g,
@@ -561,18 +593,29 @@
             const ifrWin = iframe.contentWindow;
             const ifrDoc = iframe.contentDocument?iframe.contentDocument:iframe.contentWindow.document;
 
+            let skidneySplizy = 0;
+
             ifrWin.TextDecoder.prototype.decode = new Proxy(window.TextDecoder.prototype.decode, {
                 apply: function(target, that, args) {
                     let string = Reflect.apply(...arguments);
-                    if (string.length > 1e6) {
+                    if (string.length > 5e4) {
+                        log.warn("skidneySplizy = " + skidneySplizy);
+                        if (skidneySplizy == 0) {
+                            dog.gameJS = string;
+                        } else {
+                            dog.gameJS += string;
+                        } skidneySplizy ++;
+                        //console.log(string.length)
+                        /*
                         if (!dog.gameJS) {
                             dog.gameJS = string;
                             console.log("1stSTR");
                         } else {
-                            dog.gameJS += string;
+                           dog.gameJS += string;
                             console.log("2ndSTR");
                         }
-                    }
+                        */
+                    } //else //console.log(string.length)
                     if (string.includes("generate-token")) dog.generated = true;
                     else if (string.length == 40||dog.generated) {
                         dog.token = string;
