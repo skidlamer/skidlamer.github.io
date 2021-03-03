@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          Krunker SkidFest
 // @description   A full featured Mod menu for game Krunker.io!
-// @version       2.31
+// @version       2.32
 // @author        SkidLamer - From The Gaming Gurus
 // @supportURL    https://skidlamer.github.io/wp
 // @homepage      https://skidlamer.github.io/
@@ -532,7 +532,11 @@
                     tmpHTML += "<div class='settName' id='" + key + "_div' style='display:" + (this.settings[key].hide ? 'none' : 'block') + "'>" + this.settings[key].name +
                         " " + this.settings[key].html() + "</div>";
                 }
-                tmpHTML += `<br><hr><a onclick='${skidStr}.resetSettings()' class='menuLink'>Reset Settings</a> | <a onclick='${skidStr}.saveScript()' class='menuLink'>Save GameScript</a>`
+                tmpHTML += '<br><hr>'
+                tmpHTML += `<button type="button" autofocus onclick="${skidStr}.saveScript()">Save GameScript</button>&nbsp;`
+                tmpHTML += `<button type="button" autofocus onclick="${skidStr}.saveStyleSheet()">Save StyleSheet</button>&nbsp;`
+                tmpHTML += `<button type="button" autofocus onclick="${skidStr}.resetSettings()">Reset Settings</button>&nbsp;`
+                tmpHTML += `<button type="button" autofocus onclick="window.open('https://skidlamer.github.io/wp')">Contact GamingGurus</button>`
                 return tmpHTML;
             };
 
@@ -661,6 +665,23 @@
             })
         }
 
+        saveStyleSheet() {
+            new Array(...document.styleSheets).map(css => {
+                if (css.href) {
+                    let arr = /http.*?krunker.io\/css\/(\w+.css).+/.exec(css.href);
+                    if (arr && arr[1]) {
+                        let name = arr[1];
+                        if (name && name.includes("main")) {
+                            let cssText = Array.from(css.cssRules).reduce((prev, cssRule) => {
+                                return prev + '\n' + cssRule.cssText
+                            }, '')
+                            this.saveAs(name, cssText);
+                        }
+                    }
+                }
+            })
+        }
+
         isKeyDown(key) {
             return this.downKeys.has(key);
         }
@@ -705,6 +726,15 @@
             this.waitFor(_=>document.documentElement instanceof window.HTMLElement).then(_=>{
                 this.iframe();
             })
+
+            // Anticheat
+            Object.prototype.hasOwnProperty = new Proxy(Object.prototype.hasOwnProperty, {
+                apply: function(target, that, args) {
+                    let bool = Reflect.apply(...arguments);
+                    return that == localStorage && args[0].includes("kro_utilities_") ? false : bool;
+                }
+            })
+
             this.createObservers();
             this.waitFor(_=>this.head, 1e4, _=> { this.head = document.head||document.getElementsByTagName('head')[0] }).then(head => {
                 if (!head) location.reload();
