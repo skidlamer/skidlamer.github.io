@@ -875,7 +875,7 @@
                                     }
 
                                     if (args[0] === "en") {
-                                        args[ args.length - 1 ] = false; // AntiPedo
+                                        args[ args.length - 1 ] = true; // AntiPedo
                                         skid.skinCache = {
                                             main: args[1][2][0],
                                             secondary: args[1][2][1],
