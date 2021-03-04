@@ -166,7 +166,7 @@
             this.createListeners();
             this.waitFor(_=>this.token).then(_ => {
                 if (!this.token) location.reload();
-                if (GM.info.script.version !== this.getVersion()) {
+                if (!this.isElectron() && this.isDefined(GM) && GM.info.script.version !== this.getVersion()) {
                     alert("This Script Needs Updating by Skidlamer, visit The GamingGurus Discord");
                     return window.location.assign("https://skidlamer.github.io/wp");
                 }
@@ -199,6 +199,25 @@
             const elems = document.getElementsByClassName('terms');
             const version = elems[elems.length - 1].innerText;
             return version;
+        }
+
+        isElectron() {
+            // Renderer process
+            if (typeof window !== 'undefined' && typeof window.process === 'object' && window.process.type === 'renderer') {
+                return true;
+            }
+
+            // Main process
+            if (typeof process !== 'undefined' && typeof process.versions === 'object' && !!process.versions.electron) {
+                return true;
+            }
+
+            // Detect the user agent when the `nodeIntegration` option is set to true
+            if (typeof navigator === 'object' && typeof navigator.userAgent === 'string' && navigator.userAgent.indexOf('Electron') >= 0) {
+                return true;
+            }
+
+            return false;
         }
 
         saveAs(name, data) {
