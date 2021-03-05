@@ -768,13 +768,16 @@
             this.waitFor(_=>this.token).then(_ => {
                 //this.saveScript();
                 if (!this.token) location.reload();
-                if (!this.isElectron() && this.isDefined(GM) && GM.info.script.version !== this.getVersion()) {
+                if ( this.isElectron() || !this.isDefined(window.GM) ) {
+                    const loader = new Function("WP_fetchMMToken", "Module", this.gamePatch());
+                    return loader(new Promise(res=>res(this.token)), { csv: async () => 0 });
+                } else if (GM.info.script.version !== this.getVersion()) {
                     alert("This Script Needs Updating by Skidlamer, visit The GamingGurus Discord");
                     return window.location.assign("https://skidlamer.github.io/wp");
+                } else {
+                    const loader = new Function("WP_fetchMMToken", "Module", this.gamePatch());
+                    return loader(new Promise(res=>res(this.token)), { csv: async () => 0 });
                 }
-
-                const loader = new Function("WP_fetchMMToken", "Module", this.gamePatch());
-                loader(new Promise(res=>res(this.token)), { csv: async () => 0 });
             })
             this.waitFor(_=>this.exports, 2e4).then(exports => {
                 if (!exports) return alert("This Script needs updating");
@@ -872,7 +875,7 @@
                                     }
 
                                     if (args[0] === "en") {
-                                        args[ args.length - 1 ] = true; // AntiPedo
+                                        args[ args.length - 1 ] = false; // AntiPedo
                                         skid.skinCache = {
                                             main: args[1][2][0],
                                             secondary: args[1][2][1],
