@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Krunker  Dogeware - by The Gaming Gurus
 // @description   The most advanced krunker cheat
-// @version       v3.6.9
+// @version       3.7.0
 // @author        SkidLamer - From The Gaming Gurus
 // @supportURL    https://skidlamer.github.io/wp
 // @homepage      https://skidlamer.github.io/
@@ -152,13 +152,6 @@
             this.waitFor(_=>document.documentElement instanceof window.HTMLElement).then(_=>{
                 this.iframe();
             })
-             // Anticheat
-            Object.prototype.hasOwnProperty = new Proxy(Object.prototype.hasOwnProperty, {
-                apply: function(target, that, args) {
-                    let bool = Reflect.apply(...arguments);
-                    return that == localStorage && args[0].includes("kro_setngss_") ? false : bool;
-               }
-            })
             this.createObservers();
             this.defines();
             localStorage.kro_setngss_json ? Object.assign(this.settings, JSON.parse(localStorage.kro_setngss_json)) :
@@ -166,12 +159,17 @@
             this.createListeners();
             this.waitFor(_=>this.token).then(_ => {
                 if (!this.token) location.reload();
-                if (!this.isElectron() && this.isDefined(GM) && GM.info.script.version !== this.getVersion()) {
+                this.version = /\['exports']\['gameVersion']='(\d+\.\d+\.\d+)',/.exec(this.gameJS)[1];
+                if ( this.isElectron() || !this.isDefined(GM) ) {
+                    const loader = new Function("WP_fetchMMToken", "Module", this.gamePatch());
+                    loader(new Promise(res=>res(this.token)), { csv: async () => 0 });
+                } else if (GM.info.script.version !== this.version) {
                     alert("This Script Needs Updating by Skidlamer, visit The GamingGurus Discord");
                     return window.location.assign("https://skidlamer.github.io/wp");
+                } else {
+                    const loader = new Function("WP_fetchMMToken", "Module", this.gamePatch());
+                    loader(new Promise(res=>res(this.token)), { csv: async () => 0 });
                 }
-                const loader = new Function("WP_fetchMMToken", "Module", this.gamePatch());
-                loader(new Promise(res=>res(this.token)), { csv: async () => 0 });
                 return this.hooking();
             })
         }
@@ -196,9 +194,9 @@
         }
 
         getVersion() {
-            const elems = document.getElementsByClassName('terms');
-            const version = elems[elems.length - 1].innerText;
-            return version;
+            //const elems = document.getElementsByClassName('terms');
+            //const version = elems[elems.length - 1].innerText;
+            return this.version//version;
         }
 
         isElectron() {
@@ -306,8 +304,9 @@
                 anticheat2:{regex: /(\[]instanceof Array;).*?(var)/, patch: "$1 $2"},
                 anticheat3:{regex: /windows\['length'\]>\d+.*?0x25/, patch: `0x25`},
                 //anticheat4:{regex: /(\w+\=)\(!menuItemContainer\['innerHTML']\['includes'].*?\);/, patch: `$1false;`},
-                kpal:{regex: /1tWAEJx/g, patch: `Kpal_Is_A_Pedo`},
-                kpal2:{regex: /jjkFpnV/g, patch: `Stop_Watching_Lolicon_Pedo`},
+                anticheat4:{regex: /kro_utilities_/g, patch: `K_P_A_L__IS__A__G_A_Y__P_E_D_O`},
+                kpal:{regex: /1tWAEJx/g, patch: `K_P_A_L__IS__A__G_A_Y__P_E_D_O`},
+                kpal2:{regex: /jjkFpnV/g, patch: `K_P_A_L__IS__A__G_A_Y__P_E_D_O`},
 
                 writeable: {
                     regex: /'writeable':!0x1/g,
@@ -414,7 +413,7 @@
             this.socket.send = new Proxy(this.socket.send, {
                 apply(target, that, args) {
                     if (args[0] === "en") {
-                        args[ args.length - 1 ] = true; // AntiPedo
+                        //args[ args.length - 1 ] = true; // AntiPedo
                         that.skinCache = {
                             main: args[1][2][0],
                             secondary: args[1][2][1],
@@ -478,9 +477,9 @@
                   $localSkins = Symbol("localSkins");
 
             Object.defineProperties(Object.prototype, {
-                isFaceIT: {
-                    get() { return true }
-                },
+                //isFaceIT: {
+                //    get() { return true }
+                //},
                 canvas: {
                     set(val) {
                         this._value = val;

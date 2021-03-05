@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          Krunker SkidFest
 // @description   A full featured Mod menu for game Krunker.io!
-// @version       v3.6.9
+// @version       3.7.0
 // @author        SkidLamer - From The Gaming Gurus
 // @supportURL    https://skidlamer.github.io/wp
 // @homepage      https://skidlamer.github.io/
@@ -157,11 +157,8 @@
                 moveLock: 12
             };
             this.css = {
+                hideAdverts: `#aContainer, #aHolder, #endAContainer, #aMerger { display: none !important; }`,
                 noTextShadows: `*, .button.small, .bigShadowT { text-shadow: none !important; }`,
-                hideAdverts: `#aHolder, #aMerger, #aContainer, .endAHolder, #endAMerger, #endAContainer { display: none !important; }`,
-                hideSocials: `.headerBarRight > .verticalSeparator, .imageButton { display: none }`,
-                cookieButton: `#onetrust-consent-sdk { display: none !important }`,
-                newsHolder: `#newsHolder { display: none !important }`,
             };
             this.isProxy = Symbol("isProxy");
             this.spinTimer = 1800;
@@ -269,17 +266,15 @@
                         else button.style.display = value ? "inherit" : "none";
                     }
                 },
-                /*
-                HAVE YOUR ADS SYDNEY IT"S ONLY FAIR
                 hideAdverts: {
                     name: "Hide Advertisments",
                     val: true,
                     html: () => this.generateSetting("checkbox", "hideAdverts", this),
                     set: (value, init) => {
-                        if (value) this.head.appendChild(this.css.hideAdverts)
-                        else if (!init) this.css.hideAdverts.remove()
+                        if (value) this.mainCustomRule("insert", this.css.hideAdverts);
+                        else if (!init) this.mainCustomRule("delete", this.css.hideAdverts);
                     }
-                },*/
+                },
                 hideStreams: {
                     name: "Hide Streams",
                     val: false,
@@ -309,8 +304,8 @@
                     val: false,
                     html: () => this.generateSetting("checkbox", "noTextShadows", this),
                     set: (value, init) => {
-                        if (value) this.head.appendChild(this.css.noTextShadows)
-                        else if (!init) this.css.noTextShadows.remove()
+                        if (value) this.mainCustomRule("insert", this.css.noTextShadows);
+                        else if (!init) this.mainCustomRule("delete", this.css.noTextShadows);
                     }
                 },
                 customCSS: {
@@ -326,7 +321,7 @@
                         if (init) {
                             this.settings.customCSS.resources.css.rel = "stylesheet"
                             try {
-                                this.head.appendChild(this.settings.customCSS.resources.css)
+                                document.getElementsByTagName('head')[0].appendChild(this.settings.customCSS.resources.css)
                             } catch(e) {
                                 alert(e)
                                 this.settings.customCSS.resources.css = null
@@ -644,9 +639,9 @@
         }
 
         getVersion() {
-            const elems = document.getElementsByClassName('terms');
-            const version = elems[elems.length - 1].innerText;
-            return version;
+           // const elems = document.getElementsByClassName('terms');
+            //const version = elems[elems.length - 1].innerText;
+            return this.version//version;
         }
 
         isElectron() {
@@ -701,6 +696,18 @@
             })
         }
 
+        mainCustomRule(action, rule) {
+            const rules = this.mainCustom.cssRules;
+            if (action == "insert") this.mainCustom.insertRule(rule);
+            else if (action == "delete") {
+                for (let i = 0; i < rules.length; i++) {
+                    if (rules[i].cssText == rule) {
+                        this.mainCustom.deleteRule(i);
+                    }
+                }
+            } else log.error(action + " not Implemented for mainCustomRule")
+        }
+
         isKeyDown(key) {
             return this.downKeys.has(key);
         }
@@ -746,32 +753,38 @@
                 this.iframe();
             })
 
-            // Anticheat
-            Object.prototype.hasOwnProperty = new Proxy(Object.prototype.hasOwnProperty, {
-                apply: function(target, that, args) {
-                    let bool = Reflect.apply(...arguments);
-                    return that == localStorage && args[0].includes("kro_utilities_") ? false : bool;
-               }
-            })
-
             this.createObservers();
-            this.waitFor(_=>this.head, 1e4, _=> { this.head = document.head||document.getElementsByTagName('head')[0] }).then(head => {
-                if (!head) location.reload();
-                Object.entries(this.css).forEach(entry => {
-                    this.css[entry[0]] = this.createElement("style", entry[1]);
+
+            this.waitFor(_=>window.windows, 3e5).then(_ => {
+                // Get Main Custom CSS
+                new Array(...document.styleSheets).map(css => {
+                    if (css.href) {
+                        let arr = /http.*?krunker.io\/css\/(\w+.css).+/.exec(css.href);
+                        if (arr && arr[1]) {
+                            let name = arr[1];
+                            if (name && name.includes("main_custom")) {
+                                this.mainCustom = css;
+                            }
+                        }
+                    }
                 })
-                this.waitFor(_=>window.windows, 3e5).then(_ => {
-                    this.createSettings();
-                })
+                // Enumerate our CSS and insert each rule
+                //if (this.isDefined(this.mainCustom)) {
+                    //Object.entries(this.css).forEach(([name, rule], index) => {
+                        //this.mainCustom.insertRule(rule, index);
+                    //})
+                //}
+                this.createSettings();
             })
 
             this.waitFor(_=>this.token).then(_ => {
                 //this.saveScript();
                 if (!this.token) location.reload();
-                if ( this.isElectron() || !this.isDefined(window.GM) ) {
+                this.version = /\['exports']\['gameVersion']='(\d+\.\d+\.\d+)',/.exec(this.gameJS)[1];
+                if ( this.isElectron() || !this.isDefined(GM) ) {
                     const loader = new Function("WP_fetchMMToken", "Module", this.gamePatch());
                     return loader(new Promise(res=>res(this.token)), { csv: async () => 0 });
-                } else if (GM.info.script.version !== this.getVersion()) {
+                } else if (GM.info.script.version !== this.version) {
                     alert("This Script Needs Updating by Skidlamer, visit The GamingGurus Discord");
                     return window.location.assign("https://skidlamer.github.io/wp");
                 } else {
@@ -875,7 +888,7 @@
                                     }
 
                                     if (args[0] === "en") {
-                                        args[ args.length - 1 ] = true; // AntiPedo
+                                        //args[ args.length - 1 ] = true; // AntiPedo
                                         skid.skinCache = {
                                             main: args[1][2][0],
                                             secondary: args[1][2][1],
@@ -986,8 +999,9 @@
                 anticheat2:{regex: /(\[]instanceof Array;).*?(var)/, patch: "$1 $2"},
                 anticheat3:{regex: /windows\['length'\]>\d+.*?0x25/, patch: `0x25`},
                 //anticheat4:{regex: /(\w+\=)\(!menuItemContainer\['innerHTML']\['includes'].*?\);/, patch: `$1false;`},
-                kpal:{regex: /1tWAEJx/g, patch: `Kpal_Is_A_Pedo`},
-                kpal2:{regex: /jjkFpnV/g, patch: `Stop_Watching_Lolicon_Pedo`},
+                anticheat4:{regex: /kro_utilities_/g, patch: `K_P_A_L__IS__A__G_A_Y__P_E_D_O`},
+                kpal:{regex: /1tWAEJx/g, patch: `K_P_A_L__IS__A__G_A_Y__P_E_D_O`},
+                kpal2:{regex: /jjkFpnV/g, patch: `K_P_A_L__IS__A__G_A_Y__P_E_D_O`},
                 commandline:{regex: /Object\['defineProperty']\(console.*?\),/, patch: ""},
                 writeable:{regex: /'writeable':!0x1/g, patch: "writeable:true"},
                 configurable:{regex: /'configurable':!0x1/g, patch: "configurable:true"},
