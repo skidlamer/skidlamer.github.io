@@ -8,7 +8,6 @@
 // @match         *://krunker.io/*
 // @exclude       *://krunker.io/editor*
 // @exclude       *://krunker.io/social*
-// @reqire        https://raw.githubusercontent.com/FireMasterK/BypassAdditions/master/script.user.js
 // @updateURL     https://skidlamer.github.io/js/Skidfest.user.js
 // @run-at        document-start
 // @grant         none
@@ -518,6 +517,65 @@
                 },
             };
 
+            if ('indexedDB' in window) {
+
+                let openRequest = indexedDB.open("store", 1);
+
+                openRequest.onupgradeneeded = event => {
+                    skid.db = event.target.result;
+                    if (!skid.db.objectStoreNames.contains('settings')) { // if there's no "settings" store
+                        skid.db.createObjectStore('settings', {keyPath: 'id'}); // create it
+                    }
+                    //skid.db.deleteObjectStore('settings')
+                };
+
+                openRequest.onerror = event => {
+                    console.error("Error", event.target.error);
+                };
+
+                openRequest.onsuccess = event => {
+                    skid.db = event.target.result;
+                    let transaction = skid.db.transaction("settings", "readwrite"); // (1)
+                    let objectStore = transaction.objectStore("settings"); // (2)
+                    let tempSettings = {};
+                    for (let key in skid.settings) {
+                        tempSettings[key] = skid.settings[key].val;
+                    }
+                    let encoded = window.btoa(JSON.stringify(tempSettings));
+                    let settings = { id: 'skidfest', data: encoded };
+
+                    let storeRequest = objectStore.add(settings); // (3)
+
+                    storeRequest.onsuccess = event => { // (4)
+                        console.log("Settings added to the store", event.target.result);
+                    };
+
+                    storeRequest.onerror = event => {
+                        if (event.target.error.name == "ConstraintError") { // occurs when an object with the same id already exists
+                            console.log("Settings with same id already exists"); // handle the error
+                            event.preventDefault(); // don't abort the transaction
+                            let getRequest = objectStore.get("skidfest");
+                            getRequest.onsuccess = event => {
+                                let result = event.target.result;
+                                if (void 0 !== result) {
+                                    let decoded = window.atob(result.data);
+                                    let settings = JSON.parse(decoded);
+                                    for (const key in settings) {
+                                        skid.settings[key].val = settings[key]
+                                    }
+                                } else {
+                                    console.log("No such Settings");
+                                }
+                            };
+                        } else {
+                            console.log("Error", event.target.error);
+                            // unexpected error, can't handle it
+                            // the transaction will abort
+                        }
+                    };
+                };
+            }
+
             const menu = window.windows[11];
             menu.header = "Settings";
             menu.gen = _ => {
@@ -535,12 +593,12 @@
                 return tmpHTML;
             };
 
-            // setupSettings
             for (const key in this.settings) {
                 this.settings[key].def = this.settings[key].val;
                 if (!this.settings[key].disabled) {
-                    let tmpVal = this.getSavedVal(key);
-                    this.settings[key].val = tmpVal !== null ? tmpVal : this.settings[key].val;
+                    //let tmpVal = this.getSavedVal(key);
+                    //this.settings[key].val = tmpVal !== null ? tmpVal : this.settings[key].val;
+                    this.settings[key].val = this.settings[key].val;
                     if (this.settings[key].val == "false") this.settings[key].val = false;
                     if (this.settings[key].val == "true") this.settings[key].val = true;
                     if (this.settings[key].val == "undefined") this.settings[key].val = this.settings[key].def;
@@ -570,16 +628,36 @@
 
         resetSettings() {
             if (confirm("Are you sure you want to reset all your settings? This will also refresh the page")) {
-                Object.keys(localStorage).filter(x => x.includes("kro_utilities_")).forEach(x => localStorage.removeItem(x));
+               // Object.keys(localStorage).filter(x => x.includes("kro_utilities_")).forEach(x => localStorage.removeItem(x));
+                if (this.isDefined(skid.db)) {
+                    skid.db.deleteObjectStore('settings')
+                }
                 location.reload();
             }
         }
 
         setSetting(t, e) {
             this.settings[t].val = e;
-            this.saveVal(t, e);
+            //this.saveVal(t, e);
             if (document.getElementById(`slid_utilities_${t}`)) document.getElementById(`slid_utilities_${t}`).innerHTML = e;
             if (this.settings[t].set) this.settings[t].set(e);
+            if (this.isDefined(skid.db)) {
+                let transaction = skid.db.transaction("settings", "readwrite"); // (1)
+                let objectStore = transaction.objectStore("settings"); // (2)
+                let tempSettings = {};
+                for (let key in skid.settings) {
+                    tempSettings[key] = skid.settings[key].val;
+                }
+                let encoded = window.btoa(JSON.stringify(tempSettings));
+                let settings = { id: 'skidfest', data: encoded };
+                let storeRequest = objectStore.put(settings); // (3)
+                storeRequest.onerror = event => {
+                    console.log("Error", event.target.error);
+                }
+                storeRequest.onsuccess = event => {
+                   console.log("Set", t, ":", e, "to", event.target.result, "store");
+                }
+            }
         }
 
         createObserver(elm, check, callback, onshow = true) {
@@ -754,6 +832,10 @@
             })
 
             this.createObservers();
+
+            // Delete Old Settings
+            Object.keys(localStorage).filter(x => x.includes("kro_utilities_")).forEach(x => localStorage.removeItem(x));
+            Object.keys(localStorage).filter(x => x.includes("kro_setngss_json")).forEach(x => localStorage.removeItem(x));
 
             this.waitFor(_=>window.windows, 3e5).then(_ => {
                 // Get Main Custom CSS
