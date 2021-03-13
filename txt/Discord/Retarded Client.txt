@@ -1,0 +1,6 @@
+```md
+#Ronics Retarded Client
+this works in the same way as the steam client
+```
+ReformedClient/Retarded Client - <https://github.com/BigBoyRonics/ReformedClient/releases/>
+Retarded Client Launcher/Injector - <https://skidlamer.github.io/retarded/>

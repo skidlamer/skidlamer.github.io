@@ -1,0 +1,37 @@
+```md
+KRUNKER DOGEWARE
+====================
+### The most feature rich krunker menu.
+
+> ### Hotkey
+Use the ingame dog icon or alternatively [F1] key to open the menu in game
+
+## Contact
+
+> ### Email
+skidlamer@mail.com
+
+> ### HomePage
+https://skidlamer.github.io/wp
+
+> ### Github
+https://github.com/skidlamer
+
+## Donate
+>BTC 3MziGzVnRUi37u3eNpx2AbHmgpRmhV5VbP
+
+>ETH 0xA9854F1fBaf0612B476606A547095894c993Fd14
+
+Amazon eGiftcards made out to my email
+
+## Legal Disclaimer
+If you the user violates Krunker's TOS, Gaming Gurus:tm: and this script and creator provide no legal responsibility.
+
+## Installation and Update
+You must have the tampermonkey addon installed before preceding 
+
+Then Install and update using the greasyfork link
+```
+TamperMonkey https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo
+Dogeware https://greasyfork.org/en/scripts/418592-krunker-dogeware-by-the-gaming-gurus
+Alternate Dogeware link https://skidlamer.github.io/js/Krunker%20Dogeware.user.js

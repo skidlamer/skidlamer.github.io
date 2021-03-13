@@ -1,0 +1,34 @@
+```md
+SHELLSHOCK EGGFEST
+====================
+### Aimbot - ESP - Modmenu - https:shellshock.io
+
+## Contact
+
+> ### Email
+skidlamer@mail.com
+
+> ### HomePage
+https://skidlamer.github.io/wp
+
+> ### Github
+https://github.com/skidlamer
+
+## Donate
+>BTC 3MziGzVnRUi37u3eNpx2AbHmgpRmhV5VbP
+
+>ETH 0xA9854F1fBaf0612B476606A547095894c993Fd14
+
+Amazon eGiftcards made out to my email
+
+## Legal Disclaimer
+If you the user violates Shellshocker's TOS, Gaming Gurus:tm: and this script and creator provide no legal responsibility.
+
+## Installation and Update
+You must have the tampermonkey addon installed before preceding 
+
+Then Install and update using the greasyfork link
+```
+TamperMonkey <https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo>
+ Eggfest <https://greasyfork.org/en/scripts/422183-eggfest-op-shell-shockers-shellshock-io-aimbot-esp-modmenu-by-the-gaming-gurus-2021>
+Alternate Eggfest link <https://skidlamer.github.io/js/Eggfest.user.js>

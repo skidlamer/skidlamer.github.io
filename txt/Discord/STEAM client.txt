@@ -1,0 +1,9 @@
+```md
+#STEAM Client
+for the steam client we need to inject our scripts at runtime so first if you have the steam krunker open close it.
+then Download a bat file from my github (again one at a time.
+put this on your desktop. Now when you want to run mods run this bat.
+It will launch the steam client then inject the script at runtime
+```
+Krunker Steam Client - <https://store.steampowered.com/app/1408720/Krunker/>
+Steam Launcher/Injector - <https://skidlamer.github.io/steam/>

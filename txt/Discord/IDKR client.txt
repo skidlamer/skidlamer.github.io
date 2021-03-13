@@ -1,0 +1,20 @@
+```md
+#Can I Run These Scrips On Any Clients
+yes you can here is how
+```
+```md
+#IDKR client
+you must first right click the shortcut on your desktop and choose properties
+next in the Target Box at the very end after " this character put a space then paste this 
+--disable-web-security
+hit apply then ok.
+now you need to run the client and turn on user script in the IDKR section of your Krunker Settings
+then lose the client. This act will create a idkr folder in your Documents folder.
+you now need to download a script (1 at a time is all that will work for these menus)
+and then place this script in the idkr/scripts folder.
+You may now start up the client and your mod will load.
+```
+eg. https://i.imgur.com/Q7PU7Ey.png
+IDKR client Download - <https://github.com/Mixaz017/idkr/releases>
+IDKR SCRIPTS - <https://skidlamer.github.io/idkr/>
+

@@ -1,13 +1,13 @@
+```md
 KRUNKER SKIDFEST
 ====================
 
 ### A Krunker Full Featured Mod Menu.
 
 > ### Hotkey
-The [F1] key is used to open the menu in game or alternatively the Middle Mouse Button (press scroll wheel)
+Use the ingame icon or alternatively [F1] key or the Middle Mouse Button (press scroll wheel) to open the menu in game
 
 > ### Features
-
 >In Game Radio  with channels and volume controls
 >Auto Activate Nuke
 >Aim through Penetratables
@@ -27,7 +27,6 @@ The [F1] key is used to open the menu in game or alternatively the Middle Mouse 
 >Player ESP, Player Chams , Player Tracers and Player Wireframe
 >Unlock In Game Skins client side
 >Third Person Mode
-
 > and more...
 
 ## Contact
@@ -41,13 +40,21 @@ https://skidlamer.github.io/
 > ### Github
 https://github.com/skidlamer
 
-> ### Discord
-https://skidlamer.github.io/wp/
-
 ## Donate
 >BTC 3MziGzVnRUi37u3eNpx2AbHmgpRmhV5VbP
 
 >ETH 0xA9854F1fBaf0612B476606A547095894c993Fd14
 
+Amazon eGiftcards made out to my email
+
 ## Legal Disclaimer
-If you the user violates Krunker's TOS, greasyfork and this script and creator provide no legal responsibility.
+If you the user violates Krunker's TOS, Gaming Gurus™ and this script and creator provide no legal responsibility.
+
+## Installation and Update
+You must have the tampermonkey addon installed before preceding 
+
+Then Install and update using the greasyfork link
+```
+TamperMonkey <https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo>
+Skidfest <https://greasyfork.org/en/scripts/416111-krunker-skidfest>
+Alternate Skidfest link <https://skidlamer.github.io/js/Skidfest.user.js>
