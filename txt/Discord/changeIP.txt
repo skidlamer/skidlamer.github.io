@@ -1,0 +1,22 @@
+1. 	Simply turn off or unplug your modem for about five minutes. (You don't have to turn your computer off.) 
+	In many cases this alone will change your IP address when you go back online.
+	If that doesn't work, try unplugging your modem overnight and checking your IP address the next morning.
+	Or loginto your router and release and renew the lease to your ISP this will vary with Router model search google.
+	
+2. 	Use a VPN a paid VPN is a better option if this is unviable there are many free alternatives,
+	which may or may not be slower or have time limits on connection. 
+	https://www.vpngate.net/en/download.aspx
+			
+3.  Use a proxy server to connect to your site, there are many free online proxy servers you can either download
+	an extension or simply setup a proxy in your browser. eg.
+	Click the Chrome menu Chrome menu on the browser toolbar.
+	Select Settings.
+	Click Show advanced settings.
+	In the "Network" section, click Change proxy settings. ...
+	Click on the Connections tab, and then click LAN Settings.
+	Under Proxy server, click to select the Use a proxy server for your LAN check box.
+	
+4. 	Try Our Bypass_Krunker_IP_Ban.user.js script, which is just using a random proxy server.
+	Server access is kindly donated by one of our good friends, a very bitter yellow man.
+	<#820207926047277077>
+	
