@@ -9,7 +9,19 @@
 				return;
 			}
 			var payload = JSON.parse(e.data);
-			localStorage.setItem(payload.key, JSON.stringify(payload.data));
+			switch(payload.method) {
+				case 'set':
+					localStorage.setItem(payload.key, JSON.stringify(payload.data));
+					break;
+				case 'get':
+					var parent = window.parent;
+					var data = localStorage.getItem(payload.key);
+					parent.postMessage(data, "*");
+					break;
+				case 'remove':
+					localStorage.removeItem(payload.key);
+					break;
+			}
 		};
 	  </script>
    </body>
