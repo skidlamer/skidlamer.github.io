@@ -428,6 +428,11 @@
                     val: false,
                     html: () => this.generateSetting("checkbox", "skinUnlock", this),
                 },
+                fakeDev: {
+                    name: "Fake Developer",
+                    val: false,
+                    html: () => this.generateSetting("checkbox", "fakeDev", this),
+                },
                 //GamePlay
                 disableWpnSnd: {
                     pre: "<br><div class='setHed'>GamePlay</div>",
@@ -958,7 +963,7 @@
                             }
                         })
 
-                        this.waitFor(_=>this.ws.connected === true, 4e4).then(_=> {
+                        this.waitFor(_=>this.ws, Infinity).then(_=> {
                             this.wsEvent = this.ws._dispatchEvent.bind(this.ws);
                             this.wsSend = this.ws.send.bind(this.ws);
                             this.ws.send = new Proxy(this.ws.send, {
@@ -1076,7 +1081,7 @@
                 exports: {regex: /(this\['\w+']\['\w+']\(this\);};},function\(\w+,\w+,(\w+)\){)/, patch: `$1 ${skidStr}.exports=$2.c; ${skidStr}.modules=$2.m;`},
                 inputs: {regex: /(\w+\['\w+']\[\w+\['\w+']\['\w+']\?'\w+':'push']\()(\w+)\),/, patch: `$1${skidStr}.onInput($2)),`},
                 inView: {regex: /&&(\w+\['\w+'])\){(if\(\(\w+=\w+\['\w+']\['\w+']\['\w+'])/, patch: `){if(!$1&&void 0 !== ${skidStr}.nameTags)continue;$2`},
-                ws: {regex: /this\['\w+']=new WebSocket\(\w+\)/, patch: `${skidStr}.ws=$&`},
+                socket: {regex: /this\['\w+']=new WebSocket\(\w+\)/, patch: `${skidStr}.ws=this;$&`},
                 thirdPerson:{regex: /(\w+)\[\'config\'\]\[\'thirdPerson\'\]/g, patch: `void 0 !== ${skidStr}.thirdPerson`},
                 isHacker:{regex: /(window\['\w+']=)!0x0\)/, patch: `$1!0x1)`},
                 fixHowler:{regex: /(Howler\['orientation'](.+?)\)\),)/, patch: ``},
@@ -1170,11 +1175,13 @@
         }
 
         defineProperties() {
+            let values = {updateItems:null}
+
             Object.defineProperties(Object.prototype, {
                 isDev: {
-                    get() { return true },
+                    get() { return skid.settings && skid.settings.fakeDev && skid.settings.fakeDev.val },
                     set(val) { return true }
-                }
+                },
             });
         }
 
