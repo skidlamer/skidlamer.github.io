@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Krunker  Dogeware - by The Gaming Gurus
 // @description   The most advanced krunker cheat
-// @version       3.7.2
+// @version       3.7.3
 // @author        SkidLamer - From The Gaming Gurus
 // @supportURL    https://skidlamer.github.io/wp
 // @homepage      https://skidlamer.github.io/
@@ -64,7 +64,7 @@
                 superSilent: true,
                 AImbot: true,
                 frustumCheck: false,
-                weaponZoom: 1,
+                weaponZoom: 1.0,
                 wallbangs: true,
                 alwaysAim: false,
                 pitchHack: 0,
@@ -1539,7 +1539,7 @@
         builder.checkbox("Skin hack", "skinHack", "Makes you able to use any skin in game, only shows on your side")
         builder.checkbox("Billboard shaders", "animatedBillboards", "Disable if you get fps drops")
         builder.checkbox("Any weapon trail", "alwaysTrail")
-        builder.slider("Weapon Zoom", "weaponZoom", 0, 20, 1, "Weapon Zoom Multiplier Adjust")
+        builder.slider("Weapon Zoom", "weaponZoom", 0, 20, .1, "Weapon Zoom Multiplier Adjust")
     })
 
     tab(3, () => {
