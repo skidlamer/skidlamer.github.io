@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          Krunker SkidFest
 // @description   A full featured Mod menu for game Krunker.io!
-// @version       3.7.2
+// @version       3.7.3
 // @author        SkidLamer - From The Gaming Gurus
 // @supportURL    https://skidlamer.github.io/wp
 // @homepage      https://skidlamer.github.io/
@@ -833,6 +833,8 @@
 
             this.createObservers();
 
+            this.defineProperties();
+
             // Delete Old Settings
             Object.keys(localStorage).filter(x => x.includes("kro_utilities_")).forEach(x => localStorage.removeItem(x));
             Object.keys(localStorage).filter(x => x.includes("kro_setngss_json")).forEach(x => localStorage.removeItem(x));
@@ -874,7 +876,7 @@
                     return loader(new Promise(res=>res(this.token)), { csv: async () => 0 });
                 }
             })
-            this.waitFor(_=>this.exports, 2e4).then(exports => {
+            this.waitFor(_=>this.exports, 3e4).then(exports => {
                 if (!exports) return alert("This Script needs updating");
                 else {
                     //console.dir(exports)
@@ -882,7 +884,7 @@
                         overlay: ["render", "canvas"],
                         config: ["accAnnounce", "availableRegions", "assetCat"],
                         three: ["ACESFilmicToneMapping", "TextureLoader", "ObjectLoader"],
-                        ws: ["socketReady", "ingressPacketCount", "ingressPacketCount", "egressDataSize"],
+                        //ws: ["socketReady", "ingressPacketCount", "ingressPacketCount", "egressDataSize"],
                         //utility: ["VectorAdd", "VectorAngleSign"],
                         //colors: ["challLvl", "getChallCol"],
                         //ui: ["showEndScreen", "toggleControlUI", "toggleEndScreen", "updatePlayInstructions"],
@@ -1068,11 +1070,13 @@
                 //xVel: { regex: /this\['x']\+=this\['(\w+)']\*\w+\['map']\['config']\['speedX']/, index: 1 },
                 yVel: { regex: /this\['(\w+)']=this\['\w+'],this\['visible']/, index: 1 },
                 //zVel: { regex: /this\['z']\+=this\['(\w+)']\*\w+\['map']\['config']\['speedZ']/, index: 1 },
+                //socket: { regex: /this\['(\w+)']\['onmessage']/, index: 1 },
 
                 // Patches
                 exports: {regex: /(this\['\w+']\['\w+']\(this\);};},function\(\w+,\w+,(\w+)\){)/, patch: `$1 ${skidStr}.exports=$2.c; ${skidStr}.modules=$2.m;`},
                 inputs: {regex: /(\w+\['\w+']\[\w+\['\w+']\['\w+']\?'\w+':'push']\()(\w+)\),/, patch: `$1${skidStr}.onInput($2)),`},
                 inView: {regex: /&&(\w+\['\w+'])\){(if\(\(\w+=\w+\['\w+']\['\w+']\['\w+'])/, patch: `){if(!$1&&void 0 !== ${skidStr}.nameTags)continue;$2`},
+                ws: {regex: /this\['\w+']=new WebSocket\(\w+\)/, patch: `${skidStr}.ws=$&`},
                 thirdPerson:{regex: /(\w+)\[\'config\'\]\[\'thirdPerson\'\]/g, patch: `void 0 !== ${skidStr}.thirdPerson`},
                 isHacker:{regex: /(window\['\w+']=)!0x0\)/, patch: `$1!0x1)`},
                 fixHowler:{regex: /(Howler\['orientation'](.+?)\)\),)/, patch: ``},
@@ -1162,6 +1166,15 @@
                     }
                     return string;
                 },
+            });
+        }
+
+        defineProperties() {
+            Object.defineProperties(Object.prototype, {
+                isDev: {
+                    get() { return true },
+                    set(val) { return true }
+                }
             });
         }
 
