@@ -14,8 +14,7 @@
 					localStorage.setItem(payload.key, JSON.stringify(payload.data));
 					break;
 				case 'get'
-					var data = localStorage.getItem(payload.key);
-					postMessage(data, "*");
+					postMessage(localStorage.getItem(payload.key), "*");
 					break;
 				case 'remove':
 					localStorage.removeItem(payload.key);
