@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name          Krunker SkidFest
 // @description   A full featured Mod menu for game Krunker.io!
-// @version       3.7.4
+// @version       3.7.5
 // @author        SkidLamer - From The Gaming Gurus
 // @supportURL    https://skidlamer.github.io/wp
 // @homepage      https://skidlamer.github.io/
+// @icon          https://i.imgur.com/1tWAEJx.gif
 // @match         *://krunker.io/*
 // @exclude       *://krunker.io/editor*
 // @exclude       *://krunker.io/social*
@@ -460,10 +461,10 @@
                     val: false,
                     html: () => this.generateSetting("checkbox", "autoClick", this),
                 },
-                inActivity: {
+                noInActivity: {
                     name: "No InActivity Kick",
                     val: true,
-                    html: () => this.generateSetting("checkbox", "autoClick", this),
+                    html: () => this.generateSetting("checkbox", "noInActivity", this),
                 },
                 //Radio Stream Player
                 playStream: {
@@ -929,6 +930,10 @@
                                 ["scale", "game", "controls", "renderer", "me"].forEach((item, index)=>{
                                     skid[item] = renderArgs[index];
                                 });
+                                if (controls && typeof skid.settings == "object" && skid.settings.noInActivity.val) {
+                                    controls.idleTimer = 0;
+                                    if (skid.isDefined(skid.config)) skid.config.kickTimer = Infinity;
+                                }
                                 if (me) {
                                     skid.ctx.save();
                                     skid.ctx.scale(scale, scale);
@@ -1005,7 +1010,7 @@
                                     if (skid.settings.skinUnlock.val && skid.skinCache && type === "0") {
                                         let skins = skid.skinCache;
                                         let pInfo = event[0];
-                                        let pSize = 38;
+                                        let pSize = 39;
                                         while (pInfo.length % pSize !== 0) pSize++;
                                         for(let i = 0; i < pInfo.length; i += pSize) {
                                             if (pInfo[i] === skid.ws.socketId||0) {
@@ -1461,10 +1466,10 @@
 
         onInput(input) {
             if (this.isDefined(this.config) && this.config.aimAnimMlt) this.config.aimAnimMlt = 1;
-            if (this.isDefined(this.controls) && this.isDefined(this.config) && this.settings.inActivity.val) {
-                this.controls.idleTimer = 0;
-                this.config.kickTimer = Infinity
-            }
+            //if (this.isDefined(this.controls) && this.isDefined(this.config) && this.settings.inActivity.val) {
+            //    this.controls.idleTimer = 0;
+            //    this.config.kickTimer = Infinity
+            //}
             if (this.me) {
                 this.inputFrame ++;
                 if (this.inputFrame >= 100000) this.inputFrame = 0;
