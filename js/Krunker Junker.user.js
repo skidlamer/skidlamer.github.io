@@ -1,11 +1,12 @@
 // ==UserScript==
 // @name         Krunker Junker
-// @version      0.2
+// @version      0.3
 // @homepage     https://skidlamer.github.io/wp
 // @description  Junk in Your Krunk Guaranteed
 // @author       SkidLamer - From The Gaming Gurus
 // @supportURL   https://skidlamer.github.io/wp
 // @updateURL    https://skidlamer.github.io/js/Krunker%20Junker.user.js
+// @downloadURL  https://skidlamer.github.io/js/Krunker%20Junker.user.js
 // @compatible   chrome
 // @match        *://krunker.io/*
 // @exclude      *://krunker.io/editor*
@@ -17,14 +18,20 @@
 // ==/UserScript==
 
 /* eslint-env es6 */
-/* eslint-disable no-caller, no-undef, no-loop-func */
+/* eslint-disable no-caller, no-undef, no-loop-func, no-implicit-globals, no-native-reassign */
 
 // Donations Accepted
 // BTC:  3CsDVq96KgmyPjktUe1YgVSurJVe7LT53G
 // ETH:  0x5dbF713F95F7777c84e6EFF5080e2f0e0724E8b1
 // ETC:  0xF59BEbe25ECe2ac3373477B5067E07F2284C70f3
 
+
 ((scripts, tamper, main) => {
+    //if (this.GM) window = unsafeWindow
+    // @grant        GM.setValue
+    // @grant        GM.getValue
+    // @grant        GM.setClipboard
+    // @grant        unsafeWindow
     const CRC2d = CanvasRenderingContext2D.prototype;
     // UTILS
     const utils = {
@@ -190,7 +197,7 @@
                 noTextShadows: `*, .button.small, .bigShadowT { text-shadow: none !important; }`,
             };
 
-            this.tabs = ['Render','Weapon','Player','GamePlay','Radio'];
+            this.tabs = ['Render','Weapon','Player','GamePlay','Radio','Dev'];
 
             this.downKeys = new Set();
             this.nameTags=undefined;
@@ -296,8 +303,8 @@
                 if (target) {
                     let canSee = this.containsPoint(target[this.vars.objInstances].position);
                     let inCast = this.ray.intersectObjects(this.playerMaps, true).length;
-                    let yDire = (this.getDir(this.me.z, this.me.x, target.z, target.x) || 0);
-                    let xDire = ((this.getXDire(this.me.x, this.me.y, this.me.z, target.x, target.y - target[this.vars.crouchVal] * this.consts.crouchDst + this.me[this.vars.crouchVal] * this.consts.crouchDst + this.settings.aimOffset.val, target.z) || 0) - this.consts.recoilMlt * this.me[this.vars.recoilAnimY])
+                    let yDire = (this.getDir(this.me.z, this.me.x, target.z2, target.x2) || 0);
+                    let xDire = ((this.getXDire(this.me.x, this.me.y, this.me.z, target.x2, target.y2 - target[this.vars.crouchVal] * this.consts.crouchDst + this.me[this.vars.crouchVal] * this.consts.crouchDst + this.settings.aimOffset.val, target.z2) || 0) - this.consts.recoilMlt * this.me[this.vars.recoilAnimY])
                     if (this.me.weapon[this.vars.nAuto] && this.me[this.vars.didShoot]) {
                         input[this.key.shoot] = 0;
                         input[this.key.scope] = 0;
@@ -639,7 +646,7 @@
                     set: (value, init) => {
                         let button = document.getElementById("mainButton");
                         if (!utils.isDefined(button)) utils.createButton("Junk", "https://i.imgur.com/pA5e8hy.png", this.toggleMenu, value)
-                        button.style.display = value ? "inherit" : "none";
+                        utils.waitFor(() => document.getElementById("mainButton")).then(button => { button.style.display = value ? "inherit" : "none" })
                     }
                 },
                 customCSS: {
@@ -869,17 +876,42 @@
                     html: () => this.generateSetting("slider", "audioVolume"),
                     set: (value) => { if (this.settings.playStream.audio) this.settings.playStream.audio.volume = value;}
                 },
+
+                // Dev
+
+               saveGameJsBtn: {
+                    tab: "Dev",
+                    name: "Save Game Script",
+                    val: false,
+                    html: () => this.generateSetting("button", "saveGameJsBtn", { label:"Save", function: `${this.hash}.globalCMD('save gameJS')`}),
+                },
             }
-            let store = localStorage.getItem('cto_bundIe');
-            if (store == null) {
-                let tmpSettings={};
-                for (let key in this.settings) {
-                    tmpSettings[key] = this.settings[key].val;
+
+            async function getSavedSettings() {
+
+                async function getValue(key) {
+                    let value = await GM.getValue(key, "Fuck");
+                    if (value != "Fuck" && value != undefined) {
+                        return value;
+                    } else {
+                        return new Promise((resolve) => {
+                            window.setTimeout(() => resolve(getValue()), 10);
+                        })
+                    }
                 }
-                store = window.btoa(JSON.stringify(tmpSettings));
-                localStorage.setItem('cto_bundIe', store);
+
+                for (let key in main.settings) {
+                    const value = await getValue(key);
+                    main.settings[key].val = value !== null ? value : main.settings[key].val;
+                    main.settings[key].def = main.settings[key].val;
+                    if (main.settings[key].val == "false") main.settings[key].val = false;
+                    if (main.settings[key].val == "true") main.settings[key].val = true;
+                    if (main.settings[key].val == "undefined") main.settings[key].val = main.settings[key].def;
+                    if (main.settings[key].set) main.settings[key].set(main.settings[key].val, true);
+                }
+
             }
-            let decoded =JSON.parse(window.atob(store));
+
             utils.waitFor(() => window.windows).then(() => {
                 let win = window.windows[11]; win.html = "";
                 win.header = utils.genHash(8);
@@ -893,15 +925,19 @@
 
                     return tmpHTML
                 }
-                for (let key in this.settings) {
-                    let tmpVal = decoded ? decoded[key] : null;
-                    this.settings[key].val = tmpVal !== null ? tmpVal : this.settings[key].val;
+                for (const key in this.settings) {
                     this.settings[key].def = this.settings[key].val;
-                    if (this.settings[key].val == "false") this.settings[key].val = false;
-                    if (this.settings[key].val == "true") this.settings[key].val = true;
-                    if (this.settings[key].val == "undefined") this.settings[key].val = this.settings[key].def;
-                    if (this.settings[key].set) this.settings[key].set(this.settings[key].val, true);
+                    if (!this.settings[key].disabled) {
+                        let tmpVal = this.getSavedVal(key);
+                        this.settings[key].val = tmpVal !== null ? tmpVal : this.settings[key].val;
+                        this.settings[key].val = this.settings[key].val;
+                        if (this.settings[key].val == "false") this.settings[key].val = false;
+                        if (this.settings[key].val == "true") this.settings[key].val = true;
+                        if (this.settings[key].val == "undefined") this.settings[key].val = this.settings[key].def;
+                        if (this.settings[key].set) this.settings[key].set(this.settings[key].val, true);
+                    }
                 }
+                //return getSavedSettings();
             })
         }
 
@@ -937,8 +973,17 @@
             return tmpHTML;
         }
 
+        globalCMD(cmd) {
+            alert(cmd)
+            switch(cmd) {
+                case "save gameJS": return utils.saveData("game_" + this.vars.version + ".js", this.gameJS);
+            }
+        }
+
         generateSetting(type, name, extra) {
             switch (type) {
+                case 'button':
+                    return `<input type="button" name="${type}" id="slid_utilities_${name}" class="settingsBtn" onclick="${extra.function}" value="${extra.label}" style="float:right;width:auto"/>`;
                 case 'checkbox':
                     return `<label class="switch"><input type="checkbox" onclick="${this.hash}.setSetting('${name}', this.checked)" ${this.settings[name].val ? 'checked' : ''}><span class="slider"></span></label>`;
                 case 'slider':
@@ -958,14 +1003,22 @@
 
         setSetting(key, value) {
             this.settings[key].val = value;
+            //await GM.setValue(key, value);
+            this.saveVal(key, value);
             if (document.getElementById(`slid_utilities_${key}`)) document.getElementById(`slid_utilities_${key}`).innerHTML = value;
             if (this.settings[key].set) this.settings[key].set(value);
-            let tmpSettings={};
-            for (let key in this.settings) {
-                tmpSettings[key] = this.settings[key].val;
-            }
-            let encoded = window.btoa(JSON.stringify(tmpSettings));
-            localStorage.setItem('cto_bundIe', encoded);
+        }
+
+        saveVal(name, val) {
+            localStorage.setItem("krk_"+name, val);
+        }
+
+        deleteVal(name) {
+            localStorage.removeItem("krk_"+name);
+        }
+
+        getSavedVal(name) {
+            return localStorage.getItem("krk_"+name);
         }
 
         gameHooks() {
@@ -1022,14 +1075,15 @@
                     this.vec2 = new this.three.Vector2(0, 0);
                     this.mesh = new Proxy({}, {
                         get(target, prop){
-                            if(!target[prop])target[prop] = new main.three.MeshBasicMaterial({
-                                transparent: true,
-                                fog: false,
-                                depthTest: false,
-                                color: prop,
-                            });
-
-                            return target[prop];
+                            if(!target[prop]) {
+                                target[prop] = new main.three.MeshBasicMaterial({
+                                    transparent: true,
+                                    fog: false,
+                                    depthTest: false,
+                                    color: prop,
+                                });
+                            }
+                            return target[prop] ;
                         },
                     });
 
@@ -1049,6 +1103,7 @@
                                 if (utils.isDefined(main.config)) main.config.kickTimer = Infinity;
                             }
                             if (me) {
+                                 if (me.active && me.health) controls.update();
                                 /*
                                 if (void 0 == main.me) {
                                     const allSkins = Array.apply(null, Array(5e3)).map((x, i) => {
@@ -1078,7 +1133,7 @@
                             }
                             if (utils.isType(main.settings, 'object')) {
                                 if (main.settings.hasOwnProperty('autoActivateNuke') && main.settings.autoActivateNuke.val) {
-                                    if (this.me && Object.keys(this.me.streaks).length) this.wsSend("k", 0);
+                                    if (main.me && Object.keys(main.me.streaks).length) main.wsSend("k", 0);
                                 }
                                 if (main.settings.hasOwnProperty('autoClick') && main.settings.autoClick.val) {
                                     if (window.endUI.style.display == "none" && window.windowHolder.style.display == "none") controls.toggle(true);
@@ -1111,7 +1166,32 @@
                         return main.settings.skinUnlock.val && this.stats ? this[$localSkins] : this[$origSkins];
                     }
                 },
+                //premiumT: {
+                //    get() {
+                //        console.log(this)
+                //    }
+                //},
+
+                //admin: {'value': 1, configurable: false},
+                //canFeatureMaps: {'value': 1, configurable: false},
+                //canFlag: {'value': 1, configurable: false},
+                //canGlobalKick: {'value': 1, configurable: false},
+                //canSuicide: {'value': 1, configurable: false},
+                //canTeleport: {'value': 1, configurable: false},
+                //canVerify: {'value': 1, configurable: false},
+                //canViewReports: {'value': 1, configurable: false},
+                //developer: {'value': 1, configurable: false},
+                //featured: {'value': 1, configurable: false},
+                //followers: {'value': 10000, configurable: false},
+                //following: {'value': 0, configurable: false},
+                //funds: {'value': 2600532, configurable: false},
+                //moderator: {'value': 1, configurable: false},
+                //premiumT: {'value': 1, configurable: false},
+                //tester: {'value': 1, configurable: false},
+                //virus: {'value': 0, configurable: false},
+                //level: {'value': 100, configurable: false},
             })
+
 
 
             utils.waitFor(() => this.ws).then(() => {
@@ -1143,7 +1223,7 @@
                     apply: function(target, that, [type, ...msg]) {
                         if (type =="init") {
                             let pInfo = msg[0];
-                            if(pInfo[10] && pInfo[10].bill &&  main.settings && main.settings.customBillboard.val.length > 1) {
+                            if(pInfo[10] && pInfo[10].bill && main.settings && main.settings.customBillboard.val.length > 1) {
                                 pInfo[10].bill.txt = main.settings.customBillboard.val;
                             }
                         }
