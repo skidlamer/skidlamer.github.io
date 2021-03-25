@@ -758,9 +758,7 @@
         }
 
         saveScript() {
-            this.fetchScript().then(script => {
-                this.saveAs("game_" + this.getVersion() + ".js", script)
-            })
+            this.saveAs("game_" + this.version + ".js", script)
         }
 
         saveStyleSheet() {
@@ -927,14 +925,15 @@
                             let height = skid.overlay.canvas.height / scale;
                             const renderArgs = [scale, game, controls, renderer, me];
                             if (renderArgs && void 0 !== skid) {
-                                ["scale", "game", "controls", "renderer", "me"].forEach((item, index)=>{
-                                    skid[item] = renderArgs[index];
-                                });
-                                if (controls && typeof skid.settings == "object" && skid.settings.noInActivity.val) {
+                                if (controls && typeof skid.isDefined(skid.settings) && skid.settings.noInActivity.val) {
                                     controls.idleTimer = 0;
                                     if (skid.isDefined(skid.config)) skid.config.kickTimer = Infinity;
                                 }
                                 if (me) {
+                                    if (me.active && me.health) controls.update();
+                                    ["scale", "game", "controls", "renderer", "me"].forEach((item, index)=>{
+                                        skid[item] = renderArgs[index];
+                                    });
                                     skid.ctx.save();
                                     skid.ctx.scale(scale, scale);
                                     //this.ctx.clearRect(0, 0, width, height);
