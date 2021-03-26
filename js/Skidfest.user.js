@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          Krunker SkidFest
 // @description   A full featured Mod menu for game Krunker.io!
-// @version       3.7.5
+// @version       3.7.6
 // @author        SkidLamer - From The Gaming Gurus
 // @supportURL    https://skidlamer.github.io/wp
 // @homepage      https://skidlamer.github.io/
@@ -758,7 +758,7 @@
         }
 
         saveScript() {
-            this.saveAs("game_" + this.version + ".js", script)
+            this.saveAs("game_" + this.version + ".js", this.gameJS)
         }
 
         saveStyleSheet() {
@@ -925,9 +925,9 @@
                             let height = skid.overlay.canvas.height / scale;
                             const renderArgs = [scale, game, controls, renderer, me];
                             if (renderArgs && void 0 !== skid) {
-                                if (controls && typeof skid.isDefined(skid.settings) && skid.settings.noInActivity.val) {
+                                if (controls && typeof skid.settings !== null && skid.settings.noInActivity && skid.settings.noInActivity.val) {
                                     controls.idleTimer = 0;
-                                    if (skid.isDefined(skid.config)) skid.config.kickTimer = Infinity;
+                                    if (skid.config && typeof skid.config === "object") skid.config.kickTimer = Infinity;
                                 }
                                 if (me) {
                                     if (me.active && me.health) controls.update();
