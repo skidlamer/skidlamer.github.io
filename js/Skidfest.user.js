@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          Krunker SkidFest
 // @description   A full featured Mod menu for game Krunker.io!
-// @version       3.7.6
+// @version       3.7.7
 // @author        SkidLamer - From The Gaming Gurus
 // @supportURL    https://skidlamer.github.io/wp
 // @homepage      https://skidlamer.github.io/
@@ -873,8 +873,14 @@
                     const loader = new Function("WP_fetchMMToken", "Module", this.gamePatch());
                     return loader(new Promise(res=>res(this.token)), { csv: async () => 0 });
                 } else if (GM.info.script.version !== this.version) {
-                    alert("This Script Needs Updating by Skidlamer, visit The GamingGurus Discord");
-                    return window.location.assign("https://skidlamer.github.io/wp");
+
+                    if (confirm('This Script Needs Updating by Skidlamer, visit The GamingGurus Discord now?\n\nCancel will attempt to use the script anyway \n(CHANCE OF BAN)')) {
+                        return window.location.assign("https://skidlamer.github.io/wp");
+                    } else {
+                        const loader = new Function("WP_fetchMMToken", "Module", this.gamePatch());
+                        return loader(new Promise(res=>res(this.token)), { csv: async () => 0 });
+                    }
+
                 } else {
                     const loader = new Function("WP_fetchMMToken", "Module", this.gamePatch());
                     return loader(new Promise(res=>res(this.token)), { csv: async () => 0 });
@@ -925,10 +931,6 @@
                             let height = skid.overlay.canvas.height / scale;
                             const renderArgs = [scale, game, controls, renderer, me];
                             if (renderArgs && void 0 !== skid) {
-                                if (controls && typeof skid.settings !== null && skid.settings.noInActivity && skid.settings.noInActivity.val) {
-                                    controls.idleTimer = 0;
-                                    if (skid.config && typeof skid.config === "object") skid.config.kickTimer = Infinity;
-                                }
                                 if (me) {
                                     if (me.active && me.health) controls.update();
                                     ["scale", "game", "controls", "renderer", "me"].forEach((item, index)=>{
@@ -941,8 +943,14 @@
                                     //window.requestAnimationFrame.call(window, renderArgs.callee.caller.bind(this));
                                     skid.ctx.restore();
                                 }
+
                                 if(skid.settings && skid.settings.autoClick.val && window.endUI.style.display == "none" && window.windowHolder.style.display == "none") {
                                     controls.toggle(true);
+                                }
+
+                                if (skid.settings && skid.settings.noInActivity.val && controls) {
+                                    controls.idleTimer = 0;
+                                    if (skid.config && typeof skid.config === "object") skid.config.kickTimer = Infinity;
                                 }
                             }
                         }

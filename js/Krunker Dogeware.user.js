@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Krunker  Dogeware - by The Gaming Gurus
 // @description   The most advanced krunker cheat
-// @version       3.7.6
+// @version       3.7.7
 // @author        SkidLamer - From The Gaming Gurus
 // @supportURL    https://skidlamer.github.io/wp
 // @homepage      https://skidlamer.github.io/
@@ -164,8 +164,15 @@
                     const loader = new Function("WP_fetchMMToken", "Module", this.gamePatch());
                     loader(new Promise(res=>res(this.token)), { csv: async () => 0 });
                 } else if (GM.info.script.version !== this.version) {
-                    alert("This Script Needs Updating by Skidlamer, visit The GamingGurus Discord");
-                    return window.location.assign("https://skidlamer.github.io/wp");
+
+                    if (confirm('This Script Needs Updating by Skidlamer, visit The GamingGurus Discord now?\n\nCancel will attempt to use the script anyway \n(CHANCE OF BAN)')) {
+                        return window.location.assign("https://skidlamer.github.io/wp");
+                    } else {
+                        const loader = new Function("WP_fetchMMToken", "Module", this.gamePatch());
+                        loader(new Promise(res=>res(this.token)), { csv: async () => 0 });
+                        return this.hooking();
+                    }
+
                 } else {
                     const loader = new Function("WP_fetchMMToken", "Module", this.gamePatch());
                     loader(new Promise(res=>res(this.token)), { csv: async () => 0 });
