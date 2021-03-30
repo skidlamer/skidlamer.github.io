@@ -1413,9 +1413,9 @@
             })
             let css = {
                 tabStyle: '.tab { overflow: hidden; border: 1px solid #ccc; background-image: linear-gradient(#2f3136, #f1f1f1, #2f3136); }',
-                btnStyle: '.tab button { background-color: inherit; float: left; border: none; outline: none; cursor: pointer; padding: 14px 16px; transition: 0.3s; font-size: 17px; font-weight:500;color:white;text-shadow: 2px 2px #000;}',
+                btnStyle: '.tab button { background-color: inherit; float: left; border: none; outline: solid; cursor: pointer; padding: 14px 16px; transition: 0.3s; font-size: 17px; font-weight:500;color:black;text-shadow: 2px 2px #FFF;}',
                 btnHoverStyle: '.tab button:hover { background-color: #ddd; }',
-                activeTabStyle: '.tab button.active { background-color: #fbc02d; }',
+                activeTabStyle: '.tab button.active { background-color: #ccc; }',
                 tabContentStyle: '.tabcontent { display: none; padding: 6px 12px; border: 1px solid #ccc; border-top: none; animation: fadeEffect 1s; /* Fading effect takes 1 second */}',
                 zeroToFullOpacity: '@keyframes fadeEffect { from {opacity: 0;} to {opacity: 1;} }',
 
