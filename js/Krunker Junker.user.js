@@ -190,8 +190,6 @@
 
             this.settings = null;
 
-            this.playerMaps = [];
-
             this.css = {
                 hideAdverts: `#aContainer, #aHolder, #endAContainer, #aMerger { display: none !important; }`,
                 noTextShadows: `*, .button.small, .bigShadowT { text-shadow: none !important; }`,
@@ -293,47 +291,91 @@
 
             //Autoaim
             if (this.settings.autoAim.val !== "off") {
-                this.playerMaps.length = 0;
                 this.ray.setFromCamera(this.vec2, this.renderer.fpsCamera);
-                let target = this.game.players.list.filter(enemy => {
+                const playerMaps = []
+                let target = null, targets = this.game.players.list.filter(enemy => {
                     let hostile = undefined !== enemy[this.vars.objInstances] && enemy[this.vars.objInstances] && !enemy[this.vars.isYou] && !this.getIsFriendly(enemy) && enemy.health > 0 && this.getInView(enemy);
-                    if (hostile) this.playerMaps.push( enemy[this.vars.objInstances] );
+                    if (hostile) playerMaps.push( enemy[this.vars.objInstances] );
                     return hostile
-                }).sort((p1, p2) => this.getD3D(this.me.x, this.me.z, p1.x, p1.z) - this.getD3D(this.me.x, this.me.z, p2.x, p2.z)).shift();
+                })
+
+                if (this.settings.fovBoxSize.val !== 'off') {
+                    let scaledWidth = this.ctx.canvas.width / this.scale;
+                    let scaledHeight = this.ctx.canvas.height / this.scale;
+                    for (let i = 0; i < targets.length; i++) {
+                        const t = targets[i];
+                        const sp = this.world2Screen(new this.three.Vector3(t.x, t.y, t.z), scaledWidth, scaledHeight, t.height / 2);
+                        let fovBox = null;
+                        switch (this.settings.fovBoxSize.val) {
+                            case 'large':
+                                fovBox = [scaledWidth / 3, scaledHeight / 4, scaledWidth * (1 / 3), scaledHeight / 2]
+                                break;
+                                // medium
+                            case 'medium':
+                                fovBox = [scaledWidth * 0.4, scaledHeight / 3, scaledWidth * 0.2, scaledHeight / 3]
+                                break
+                                // small
+                            case 'small':
+                                fovBox = [scaledWidth * 0.45, scaledHeight * 0.4, scaledWidth * 0.1, scaledHeight * 0.2]
+                                break
+                        }
+                        if (sp.x >= fovBox[0] && sp.x <= (fovBox[0] + fovBox[2]) && sp.y >= fovBox[1] && sp.y < (fovBox[1] + fovBox[3])) {
+                            target = targets[i]
+                            break
+                        }
+                    }
+                }
+
+                else target = targets.sort((p1, p2) => this.getD3D(this.me.x, this.me.z, p1.x, p1.z) - this.getD3D(this.me.x, this.me.z, p2.x, p2.z)).shift();
+
                 if (target) {
-                    let canSee = this.containsPoint(target[this.vars.objInstances].position);
-                    let inCast = this.ray.intersectObjects(this.playerMaps, true).length;
-                    let yDire = (this.getDir(this.me.z, this.me.x, target.z2, target.x2) || 0);
-                    let xDire = ((this.getXDire(this.me.x, this.me.y, this.me.z, target.x2, target.y2 - target[this.vars.crouchVal] * this.consts.crouchDst + this.me[this.vars.crouchVal] * this.consts.crouchDst + this.settings.aimOffset.val, target.z2) || 0) - this.consts.recoilMlt * this.me[this.vars.recoilAnimY])
+                    let obj = target[this.vars.objInstances];
+                    let pos = obj.position.clone();
+                    let yDire = (this.getDir(this.me.z, this.me.x, pos.z, pos.x) || 0);
+                    let xDire = ((this.getXDire(this.me.x, this.me.y, this.me.z, pos.x, pos.y - target[this.vars.crouchVal] * this.consts.crouchDst + this.me[this.vars.crouchVal] * this.consts.crouchDst + this.settings.aimOffset.val, pos.z) || 0) - this.consts.recoilMlt * this.me[this.vars.recoilAnimY]);
+                    let inCast = this.ray.intersectObjects(playerMaps, true).length//this.ray.intersectObjects(this.game.map.objects, true, obj) == obj;
+
+                    pos.y += this.consts.playerHeight + this.consts.nameOffset - (target[this.vars.crouchVal] * this.consts.crouchDst);
+                    if (target.hatIndex >= 0) pos.y += this.consts.nameOffsetHat;
+                    let dstDiv = Math.max(0.3, (1 - (this.getD3D(this.me.x, this.me.y, this.me.z, pos.x, pos.y, pos.z) / 600)));
+                    let fSize = (20 * dstDiv);
+                    let visible = (fSize >= 1 && this.containsPoint(pos));
+
                     if (this.me.weapon[this.vars.nAuto] && this.me[this.vars.didShoot]) {
                         input[this.key.shoot] = 0;
                         input[this.key.scope] = 0;
                         this.me.inspecting = false;
                         this.me.inspectX = 0;
                     }
-                    else if (!(canSee||inCast) && this.settings.frustrumCheck.val) this.resetLookAt();
+                    else if (!visible && this.settings.frustrumCheck.val) this.resetLookAt();
                     else if (ammoLeft||isMelee) {
-                        input[this.key.scope] = this.settings.autoAim.val === "assist"||this.settings.autoAim.val === "correction"||this.settings.autoAim.val === "trigger" ? this.controls[this.vars.mouseDownR] : 0;
+                        input[this.key.scope] = this.settings.autoAim.val === "assist" || this.settings.autoAim.val === "correction" || this.settings.autoAim.val === "trigger" ? this.controls[this.vars.mouseDownR] : 0;
                         switch (this.settings.autoAim.val) {
                             case "quickScope":
-                                input[this.key.scope] = 1;
+                                input[this.key.scope] = (!visible && this.settings.frustrumCheck.val)?0:1;
                                 if (!this.me[this.vars.aimVal]||this.me.weapon.noAim) {
-                                    if (!this.me.canThrow||!isMelee) input[this.key.shoot] = 1;
+                                    if (!this.me.canThrow||!isMelee) {
+                                        this.lookDir(xDire, yDire);
+                                        input[this.key.shoot] = 1;
+                                    }
                                     input[this.key.ydir] = yDire * 1e3
                                     input[this.key.xdir] = xDire * 1e3
-                                    this.lookDir(xDire, yDire);
                                 }
                                 break;
                             case "assist": case "easyassist":
                                 if (input[this.key.scope] || this.settings.autoAim.val === "easyassist") {
-                                    if (!this.me.aimDir && canSee || this.settings.autoAim.val === "easyassist") {
+                                    if (!this.me.aimDir && visible || this.settings.autoAim.val === "easyassist") {
+                                        if (!this.me.canThrow||!isMelee) {
+                                            this.lookDir(xDire, yDire);
+                                        }
+                                        if (this.settings.autoAim.val === "easyassist") input[this.key.scope] = 1;
                                         input[this.key.ydir] = yDire * 1e3
                                         input[this.key.xdir] = xDire * 1e3
-                                        this.lookDir(xDire, yDire);
                                     }
                                 }
                                 break;
                             case "silent":
+                                input[this.key.scope] = (!visible && this.settings.frustrumCheck.val)?0:1;
                                 if (!this.me[this.vars.aimVal]||this.me.weapon.noAim) {
                                     if (!this.me.canThrow||!isMelee) input[this.key.shoot] = 1;
                                 } else input[this.key.scope] = 1;
@@ -341,7 +383,7 @@
                                 input[this.key.xdir] = xDire * 1e3
                                 break;
                             case "trigger":
-                                if (input[this.key.scope] && canSee && inCast) {
+                                if (input[this.key.scope] && inCast) {
                                     input[this.key.shoot] = 1;
                                     input[this.key.ydir] = yDire * 1e3
                                     input[this.key.xdir] = xDire * 1e3
@@ -523,6 +565,27 @@
                 this.ctx.lineWidth = original_lineWidth;
                 this.ctx.font = original_font;
                 this.ctx.fillStyle = original_fillStyle;
+            }
+
+            if (this.settings.fovBoxSize.val !== 'off') {
+                let fovBox = null;
+                switch (this.settings.fovBoxSize.val) {
+                    case 'large':
+                        fovBox = [scaledWidth / 3, scaledHeight / 4, scaledWidth * (1 / 3), scaledHeight / 2]
+                        break;
+                        // medium
+                    case 'medium':
+                        fovBox = [scaledWidth * 0.4, scaledHeight / 3, scaledWidth * 0.2, scaledHeight / 3]
+                        break
+                        // small
+                    case 'small':
+                        fovBox = [scaledWidth * 0.45, scaledHeight * 0.4, scaledWidth * 0.1, scaledHeight * 0.2]
+                        break
+                }
+                CRC2d.save.apply(this.ctx, []);
+                this.ctx.strokeStyle = "red"
+                this.ctx.strokeRect(...fovBox)
+                CRC2d.restore.apply(this.ctx, []);
             }
         }
 
@@ -725,6 +788,21 @@
                         quickScope: "Quick Scope"
                     }),
                 },
+
+                fovBoxSize: {
+                    tab: "Weapon",
+                    name: "FOV Box Type",
+                    val: "off",
+                    html: () =>
+                    this.generateSetting("select", "fovBoxSize", {
+                        off: "Off",
+                        small: "Small",
+                        medium: "Medium",
+                        large: "Large"
+                    })
+                },
+
+
                 aimOffset: {
                     tab: "Weapon",
                     name: "Aim Offset",
@@ -737,7 +815,7 @@
                 },
                 frustrumCheck: {
                     tab: "Weapon",
-                    name: "Line of Sight Check",
+                    name: "Player Visible Check",
                     val: false,
                     html: () => this.generateSetting("checkbox", "frustrumCheck"),
                 },
@@ -974,9 +1052,10 @@
         }
 
         globalCMD(cmd) {
-            alert(cmd)
-            switch(cmd) {
-                case "save gameJS": return utils.saveData("game_" + this.vars.version + ".js", this.gameJS);
+            if (confirm(cmd)) {
+                switch(cmd) {
+                    case "save gameJS": return utils.saveData("game_" + this.vars.version + ".js", this.gameJS);
+                }
             }
         }
 
@@ -1103,7 +1182,12 @@
                                 if (utils.isDefined(main.config)) main.config.kickTimer = Infinity;
                             }
                             if (me) {
-                                 if (me.active && me.health) controls.update();
+                                if (me.active && me.health) controls.update();
+                                if (me.banned) Object.assign(me, {banned: false});
+                                if (me.isHacker) Object.assign(me, {isHacker: 0});
+                                if (me.kicked) Object.assign(me, {kicked: false});
+                                if (me.kickedByVote) Object.assign(me, {kickedByVote: false});
+                                me.account = Object.assign(me, {premiumT: true});
                                 /*
                                 if (void 0 == main.me) {
                                     const allSkins = Array.apply(null, Array(5e3)).map((x, i) => {
@@ -1329,9 +1413,9 @@
             })
             let css = {
                 tabStyle: '.tab { overflow: hidden; border: 1px solid #ccc; background-image: linear-gradient(#2f3136, #f1f1f1, #2f3136); }',
-                btnStyle: '.tab button { background-color: inherit; float: left; border: none; outline: solid; cursor: pointer; padding: 14px 16px; transition: 0.3s; font-size: 17px; }',
+                btnStyle: '.tab button { background-color: inherit; float: left; border: none; outline: none; cursor: pointer; padding: 14px 16px; transition: 0.3s; font-size: 17px; font-weight:500;color:white;text-shadow: 2px 2px #000;}',
                 btnHoverStyle: '.tab button:hover { background-color: #ddd; }',
-                activeTabStyle: '.tab button.active { background-color: #ccc; }',
+                activeTabStyle: '.tab button.active { background-color: #fbc02d; }',
                 tabContentStyle: '.tabcontent { display: none; padding: 6px 12px; border: 1px solid #ccc; border-top: none; animation: fadeEffect 1s; /* Fading effect takes 1 second */}',
                 zeroToFullOpacity: '@keyframes fadeEffect { from {opacity: 0;} to {opacity: 1;} }',
 
@@ -1439,7 +1523,12 @@
         getCanSee(from, toX, toY, toZ, boxSize) {
             if (!from) return 0;
             boxSize = boxSize||0;
-            for (let obj, dist = this.getD3D(from.x, from.y, from.z, toX, toY, toZ), xDr = this.getDir(from.z, from.x, toZ, toX), yDr = this.getDir(this.getDistance(from.x, from.z, toX, toZ), toY, 0, from.y), dx = 1 / (dist * Math.sin(xDr - Math.PI) * Math.cos(yDr)), dz = 1 / (dist * Math.cos(xDr - Math.PI) * Math.cos(yDr)), dy = 1 / (dist * Math.sin(yDr)), yOffset = from.y + (from.height || 0) - this.consts.cameraHeight, aa = 0; aa < this.game.map.manager.objects.length; ++aa) {
+            for (let obj, dist = this.getD3D(from.x, from.y, from.z, toX, toY, toZ),
+                 xDr = this.getDir(from.z, from.x, toZ, toX),
+                 yDr = this.getDir(this.getDistance(from.x, from.z, toX, toZ), toY, 0, from.y),
+                 dx = 1 / (dist * Math.sin(xDr - Math.PI) * Math.cos(yDr)), dz = 1 / (dist * Math.cos(xDr - Math.PI) * Math.cos(yDr)),
+                 dy = 1 / (dist * Math.sin(yDr)), yOffset = from.y + (from.height || 0) - this.consts.cameraHeight,
+                 aa = 0; aa < this.game.map.manager.objects.length; ++aa) {
                 if (!(obj = this.game.map.manager.objects[aa]).noShoot && obj.active && !obj.transparent && (!this.settings.wallPenetrate.val || (!obj.penetrable || !this.me.weapon.pierce))) {
                     let tmpDst = this.lineInRect(from.x, from.z, yOffset, dx, dz, dy, obj.x - Math.max(0, obj.width - boxSize), obj.z - Math.max(0, obj.length - boxSize), obj.y - Math.max(0, obj.height - boxSize), obj.x + Math.max(0, obj.width - boxSize), obj.z + Math.max(0, obj.length - boxSize), obj.y + Math.max(0, obj.height - boxSize));
                     if (tmpDst && 1 > tmpDst) return tmpDst;
