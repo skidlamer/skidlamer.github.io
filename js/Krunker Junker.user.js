@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Krunker Junker
-// @version      0.3
+// @version      0.4
 // @homepage     https://skidlamer.github.io/wp
 // @description  Junk in Your Krunk Guaranteed
 // @author       SkidLamer - From The Gaming Gurus
@@ -331,15 +331,16 @@
                 if (target) {
                     let obj = target[this.vars.objInstances];
                     let pos = obj.position.clone();
-                    let yDire = (this.getDir(this.me.z, this.me.x, pos.z, pos.x) || 0);
-                    let xDire = ((this.getXDire(this.me.x, this.me.y, this.me.z, pos.x, pos.y - target[this.vars.crouchVal] * this.consts.crouchDst + this.me[this.vars.crouchVal] * this.consts.crouchDst + this.settings.aimOffset.val, pos.z) || 0) - this.consts.recoilMlt * this.me[this.vars.recoilAnimY]);
+                    let yDire = (this.getDir(this.me.z, this.me.x, pos.z||target.z, pos.x||target.x) || 0);
+                    let xDire = ((this.getXDire(this.me.x, this.me.y, this.me.z, pos.x||target.x, pos.y||target.y - target[this.vars.crouchVal] * this.consts.crouchDst + this.me[this.vars.crouchVal] * this.consts.crouchDst + this.settings.aimOffset.val, pos.z||target.z) || 0) - this.consts.recoilMlt * this.me[this.vars.recoilAnimY]);
                     let inCast = this.ray.intersectObjects(playerMaps, true).length//this.ray.intersectObjects(this.game.map.objects, true, obj) == obj;
 
-                    pos.y += this.consts.playerHeight + this.consts.nameOffset - (target[this.vars.crouchVal] * this.consts.crouchDst);
-                    if (target.hatIndex >= 0) pos.y += this.consts.nameOffsetHat;
-                    let dstDiv = Math.max(0.3, (1 - (this.getD3D(this.me.x, this.me.y, this.me.z, pos.x, pos.y, pos.z) / 600)));
+                    let vis = pos.clone();
+                    vis.y += this.consts.playerHeight + this.consts.nameOffset - (target[this.vars.crouchVal] * this.consts.crouchDst);
+                    if (target.hatIndex >= 0) vis.y += this.consts.nameOffsetHat;
+                    let dstDiv = Math.max(0.3, (1 - (this.getD3D(this.me.x, this.me.y, this.me.z, vis.x, vis.y, vis.z) / 600)));
                     let fSize = (20 * dstDiv);
-                    let visible = (fSize >= 1 && this.containsPoint(pos));
+                    let visible = (fSize >= 1 && this.containsPoint(vis));
 
                     if (this.me.weapon[this.vars.nAuto] && this.me[this.vars.didShoot]) {
                         input[this.key.shoot] = 0;
@@ -349,7 +350,7 @@
                     }
                     else if (!visible && this.settings.frustrumCheck.val) this.resetLookAt();
                     else if (ammoLeft||isMelee) {
-                        input[this.key.scope] = this.settings.autoAim.val === "assist" || this.settings.autoAim.val === "correction" || this.settings.autoAim.val === "trigger" ? this.controls[this.vars.mouseDownR] : 0;
+                        //input[this.key.scope] = this.settings.autoAim.val === "assist" || this.settings.autoAim.val === "correction" || this.settings.autoAim.val === "trigger" ? this.controls[this.vars.mouseDownR] : 0;
                         switch (this.settings.autoAim.val) {
                             case "quickScope":
                                 input[this.key.scope] = (!visible && this.settings.frustrumCheck.val)?0:1;
@@ -368,7 +369,7 @@
                                         if (!this.me.canThrow||!isMelee) {
                                             this.lookDir(xDire, yDire);
                                         }
-                                        if (this.settings.autoAim.val === "easyassist") input[this.key.scope] = 1;
+                                        if (this.settings.autoAim.val === "easyassist" && this.controls[this.vars.mouseDownR]) input[this.key.scope] = 1;
                                         input[this.key.ydir] = yDire * 1e3
                                         input[this.key.xdir] = xDire * 1e3
                                     }
