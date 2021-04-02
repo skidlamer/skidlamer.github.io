@@ -21,9 +21,10 @@ https://github.com/skidlamer
 https://skidlamer.github.io/wp/
 
 ## Donate
->BTC 3MziGzVnRUi37u3eNpx2AbHmgpRmhV5VbP
-
->ETH 0xA9854F1fBaf0612B476606A547095894c993Fd14
+>BTC 3CsDVq96KgmyPjktUe1YgVSurJVe7LT53G
+>ETH 0x5dbF713F95F7777c84e6EFF5080e2f0e0724E8b1
+>ETC 0xF59BEbe25ECe2ac3373477B5067E07F2284C70f3
+>Amazon Giftcard - skidlamer@mail.com
 
 ## Legal Disclaimer
 If you the user violates Krunker's TOS, greasyfork and this script and creator provide no legal responsibility.
