@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EggFest - OP Shell Shockers shellshock.io Aimbot - ESP - Modmenu - By The Gaming Gurus 2021
 // @namespace    The Gaming Gurus Has Cracked It Again EggFest For The Win
-// @version      0.2
+// @version      0.3
 // @description  A Full Featured Shell Shockers Cheat with all the sauce
 // @author       SkidLamer - The Gaming Gurus
 // @homepage     https://skidlamer.github.io/wp
@@ -89,6 +89,8 @@
                 codec: {regex: /(idx:0,init:function\(\w+\){)/, patch: `$&${eggStr}.codec=this;`},
                 buffer: {regex: /var \w+=this\.bufferPool\.retrieve\(\);/, patch: `${eggStr}.buffer=this;$&`},
                 parsedUrl: {regex: /const \w+=parsedUrl.query.debug;/, patch: `var parsedUrl=parsedUrl||{query:{degug:true}};$&`},
+                map: {regex: /vueApp.showSpinner\("building_map".*?(\w+).sun\?/, patch: `${eggStr}.map=$1;$&`},
+                mapMeshes: {regex: /(\("map meshes loaded"\);)(\w+).push/, patch: `$1${eggStr}.mapMeshes=$2;$2.push`},
             }
 
             this.css = {
@@ -120,6 +122,7 @@
                 ].join(';')} }`,
             };
 
+            this.map = null;
             this.playerList = [];
             this.renderer = null;
             this.utils = null;
@@ -144,16 +147,14 @@
             this.waitFor(_=>window.WebFont).then(webfont=>{ webfont.load({ google: { families: ['Roboto+Mono:400,500,700'] } }) });
 
             // Add CSS
-            window.onload = () => {
-                Object.entries(egg.css).forEach(([name, rule]) => {
-                    let css = document.createElement('style');
-                    css.type = 'text/css';
-                    if (css.styleSheet) css.styleSheet.cssText = rule; // Support for IE
-                    else css.appendChild(document.createTextNode(rule)); // Support for the rest
-                    rule = css;
-                    document.getElementsByTagName("head")[0].appendChild(css);
+            window.addEventListener('load', (event) => {
+                console.log('page is fully loaded');
+                var head = document.head || document.getElementsByTagName('head')[0], style = document.createElement('style'); head.appendChild(style);
+                style.type = 'text/css';
+                Object.entries(egg.css).forEach(([name, rule], index) => {
+                    style.appendChild(document.createTextNode(rule));
                 })
-            };
+            });
 
             // GUI
             this.waitFor(_=>document.getElementById("pausePopup")).then(ui=>{
@@ -336,12 +337,14 @@
                                     if (this.config.Aimbot != "off" && target) {
                                         let boxInfo = target.actor.bodyMesh.getBoundingInfo();
                                         if (boxInfo && boxInfo.isCompletelyInFrustum(this.me.scene.frustumPlanes)) {
+                                        //if (this.isMeshVisible(target.actor.mesh, 0.31)) {
                                             let hitPos = this.rayCollidesWithPlayer(this.me.actor.eye.getAbsolutePosition(), this.cam.forwardRay.direction.scaleInPlace(window.BABYLON.Vector3.Distance(this.me, target)), target)
                                             if (hitPos) this.aimBot(target);
+                                            //this.aimBot(target);
                                         }
                                     }
                                     if (this.config["Auto BHop"] != "off") this.autoBhop();
-                                    if (this.config["Auto Reload"]) this.autoReload();
+                                    if (this.config["Auto Reload"]) { this.me.weapon.collectAmmo(); this.autoReload(); }
                                     if (this.config["Auto Swap"]) this.autoSwap();
                                     let now = Date.now();
                                     let elapsed = now - then;
@@ -356,7 +359,9 @@
                                 apply(target, that, args) {
                                     let value = Reflect.apply(...arguments);
                                     if (egg.config["Fake Streak"]) {
-                                        for (let i = 0; i < 3; i++) that.beginShellStreak(i);
+                                        for (let i = 0; i < 3; i++) {
+                                            if (that) that.beginShellStreak(i);
+                                        }
                                     }
                                     return value;
                                 }
@@ -713,6 +718,46 @@
                 }
             }
         }
+
+        isMeshVisible (mesh, offset) {
+
+            let oy = offset || mesh.getBoundingInfo().boundingBox.center.z;
+
+            let dx = mesh.position.x - this.cam.globalPosition.x;
+            let dy = (mesh.position.y + oy) - this.cam.globalPosition.y;
+            let dz = mesh.position.z - this.cam.globalPosition.z;
+            let distance = Math.length3(dx, dy, dz);
+
+            let dv = Math.normalize3({ x: dx, y: dy, z: dz }, 3);
+            let x = this.cam.globalPosition.x;
+            let y = this.cam.globalPosition.y;
+            let z = this.cam.globalPosition.z;
+
+            let collisions = 0;
+
+            for (let i = 0; i < distance - 3; i += 3) {
+                x += dv.x;
+                y += dv.y;
+                z += dv.z;
+
+                if (x < 0 || x >= this.map.width || z < 0 || z >= this.map.depth || y < 0 || y >= this.map.height) {
+                    break;
+                }
+                let cell = this.map.data[Math.floor(x)][Math.floor(y)][Math.floor(z)];
+
+                if (cell.idx) {
+                    let m = this.mapMeshes[cell.idx];
+                    if (m.colliderType == 'full' && !m.softness) {
+                        collisions++;
+                        if (collisions == 2) {
+                            return false;
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+
 
         rayCollidesWithPlayer(startPos, direction, player) {
             if (!this.config["Line Of Sight"]) return !0x0;
