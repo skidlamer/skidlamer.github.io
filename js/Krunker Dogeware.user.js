@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Krunker  Dogeware - by The Gaming Gurus
 // @description   The most advanced krunker cheat
-// @version       3.8.0
+// @version       3.8.1
 // @author        SkidLamer - From The Gaming Gurus
 // @supportURL    https://skidlamer.github.io/wp
 // @homepage      https://skidlamer.github.io/
@@ -772,17 +772,17 @@
                 //AUTO BHOP
                 if (this.settings.bhop) {
                     if (this.state.pressedKeys.has("Space") || this.settings.bhop % 2) {
-                        this.controls.keys[this.controls.binds.jumpKey.val] ^= 1;
-                        if (this.controls.keys[this.controls.binds.jumpKey.val]) {
-                            this.controls.didPressed[this.controls.binds.jumpKey.val] = 1;
+                        this.controls.keys[this.controls.binds.jump.val] ^= 1;
+                        if (this.controls.keys[this.controls.binds.jump.val]) {
+                            this.controls.didPressed[this.controls.binds.jump.val] = 1;
                         }
                         if (this.state.pressedKeys.has("Space") || this.settings.bhop == 3) {
                             if (this.me[this.vars.yVel] < -0.03 && this.me.canSlide) {
                                 setTimeout(() => {
-                                    this.controls.keys[this.controls.binds.crouchKey.val] = 0;
+                                    this.controls.keys[this.controls.binds.crouch.val] = 0;
                                 }, this.me.slideTimer || 325);
-                                this.controls.keys[this.controls.binds.crouchKey.val] = 1;
-                                this.controls.didPressed[this.controls.binds.crouchKey.val] = 1;
+                                this.controls.keys[this.controls.binds.crouch.val] = 1;
+                                this.controls.didPressed[this.controls.binds.crouch.val] = 1;
                             }
                         }
                     }

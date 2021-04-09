@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          Krunker SkidFest
 // @description   A full featured Mod menu for game Krunker.io!
-// @version       3.8.0
+// @version       3.8.1
 // @author        SkidLamer - From The Gaming Gurus
 // @supportURL    https://skidlamer.github.io/wp
 // @homepage      https://skidlamer.github.io/
@@ -1516,17 +1516,17 @@
                 let autoBhop = this.settings.autoBhop.val;
                 if (autoBhop !== "off") {
                     if (this.isKeyDown("Space") || autoBhop == "autoJump" || autoBhop == "autoSlide") {
-                        this.controls.keys[this.controls.binds.jumpKey.val] ^= 1;
-                        if (this.controls.keys[this.controls.binds.jumpKey.val]) {
-                            this.controls.didPressed[this.controls.binds.jumpKey.val] = 1;
+                        this.controls.keys[this.controls.binds.jump.val] ^= 1;
+                        if (this.controls.keys[this.controls.binds.jump.val]) {
+                            this.controls.didPressed[this.controls.binds.jump.val] = 1;
                         }
                         if (this.isKeyDown("Space") || autoBhop == "autoSlide") {
                             if (this.me[this.vars.yVel] < -0.03 && this.me.canSlide) {
                                 setTimeout(() => {
-                                    this.controls.keys[this.controls.binds.crouchKey.val] = 0;
+                                    this.controls.keys[this.controls.binds.crouch.val] = 0;
                                 }, this.me.slideTimer||325);
-                                this.controls.keys[this.controls.binds.crouchKey.val] = 1;
-                                this.controls.didPressed[this.controls.binds.crouchKey.val] = 1;
+                                this.controls.keys[this.controls.binds.crouch.val] = 1;
+                                this.controls.didPressed[this.controls.binds.crouch.val] = 1;
                             }
                         }
                     }

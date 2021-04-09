@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Krunker Junker
-// @version      0.4
+// @version      0.5
 // @homepage     https://skidlamer.github.io/wp
 // @description  Junk in Your Krunk Guaranteed
 // @author       SkidLamer - From The Gaming Gurus
@@ -274,17 +274,17 @@
             //Auto Bhop
             if (this.settings.autoBhop.val && this.settings.autoBhop.val !== "off") {
                 if (this.downKeys.has("Space") || this.settings.autoBhop.val == "autoJump" || this.settings.autoBhop.val == "autoSlide") {
-                    this.controls.keys[this.controls.binds.jumpKey.val] ^= 1;
-                    if (this.controls.keys[this.controls.binds.jumpKey.val]) {
-                        this.controls.didPressed[this.controls.binds.jumpKey.val] = 1;
+                    this.controls.keys[this.controls.binds.jump.val] ^= 1;
+                    if (this.controls.keys[this.controls.binds.jump.val]) {
+                        this.controls.didPressed[this.controls.binds.jump.val] = 1;
                     }
                     if (this.downKeys.has("Space") || this.settings.autoBhop.val == "autoSlide") {
                         if (this.me[this.vars.yVel] < -0.03 && this.me.canSlide) {
                             setTimeout(() => {
-                                this.controls.keys[this.controls.binds.crouchKey.val] = 0;
+                                this.controls.keys[this.controls.binds.crouch.val] = 0;
                             }, this.me.slideTimer||325);
-                            this.controls.keys[this.controls.binds.crouchKey.val] = 1;
-                            this.controls.didPressed[this.controls.binds.crouchKey.val] = 1;
+                            this.controls.keys[this.controls.binds.crouch.val] = 1;
+                            this.controls.didPressed[this.controls.binds.crouch.val] = 1;
                         }
                     }
                 }
@@ -406,6 +406,8 @@
                     this.resetLookAt();
                 }
             }
+
+            //this.me[this.vars.procInputs](input, this.game, true);
 
             return input;
         }
@@ -1235,8 +1237,8 @@
             Object.defineProperties(Object.prototype, {
                 skins: {
                     set(fn) {
-                        console.log(this.toString())
-                        console.log(this)
+                        //console.log(this.toString())
+                        //console.log(this)
                         this[$origSkins] = fn;
                         if (void 0 == this[$localSkins] || !this[$localSkins].length) {
                             this[$localSkins] = Array.apply(null, Array(5e3)).map((x, i) => {
@@ -1329,6 +1331,18 @@
                                 }
                             }
                         }
+                        if (type=="3") {
+                            if (msg[0][4]) {
+                                msg[0][4].wId=0;
+                                msg[0][4].hs=true;
+                                 msg[0][4].dst=Infinity
+                                msg[0][4].wb=true;
+                            }
+
+                        }//else console.log(msg);
+
+                        // if (['dick'].some(text => type == text)) {} else console.log(type, ...msg);
+
                         return target.apply(that, [type, ...msg]);
                     }
                 })
@@ -1342,7 +1356,7 @@
                 spectating: { regex: /\['team']:window\['(\w+)']/, index: 1 },
                 //inView: { regex: /\]\)continue;if\(!\w+\['(.+?)\']\)continue;/, index: 1 },
                 //canSee: { regex: /\w+\['(\w+)']\(\w+,\w+\['x'],\w+\['y'],\w+\['z']\)\)&&/, index: 1 },
-                //procInputs: { regex: /this\['(\w+)']=function\((\w+),(\w+),\w+,\w+\){(this)\['recon']/, index: 1 },
+                procInputs: { regex: /this\['(\w+)']=function\((\w+),(\w+),\w+,\w+\){(this)\['recon']/, index: 1 },
                 aimVal: { regex: /this\['(\w+)']-=0x1\/\(this\['weapon']\['\w+']\/\w+\)/, index: 1 },
                 pchObjc: { regex: /0x0,this\['(\w+)']=new \w+\['Object3D']\(\),this/, index: 1 },
                 didShoot: { regex: /--,\w+\['(\w+)']=!0x0/, index: 1 },
