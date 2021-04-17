@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Krunker Junker
-// @version      0.5
+// @version      0.6
 // @homepage     https://skidlamer.github.io/wp
 // @description  Junk in Your Krunk Guaranteed
 // @author       SkidLamer - From The Gaming Gurus
@@ -332,8 +332,8 @@
                 if (target) {
                     let obj = target[this.vars.objInstances];
                     let pos = obj.position.clone();
-                    let yDire = (this.getDir(this.me.z, this.me.x, pos.z||target.z, pos.x||target.x) || 0);
-                    let xDire = ((this.getXDire(this.me.x, this.me.y, this.me.z, pos.x||target.x, pos.y||target.y - target[this.vars.crouchVal] * this.consts.crouchDst + this.me[this.vars.crouchVal] * this.consts.crouchDst + this.settings.aimOffset.val, pos.z||target.z) || 0) - this.consts.recoilMlt * this.me[this.vars.recoilAnimY]);
+                    let yDire = (this.getDir(this.me.z, this.me.x, pos.z||target.z, pos.x||target.x) || 0) * 1000;
+                    let xDire = ((this.getXDire(this.me.x, this.me.y, this.me.z, pos.x||target.x, pos.y||target.y - target[this.vars.crouchVal] * this.consts.crouchDst + this.me[this.vars.crouchVal] * this.consts.crouchDst + this.settings.aimOffset.val, pos.z||target.z) || 0) - this.consts.recoilMlt * this.me[this.vars.recoilAnimY]) * 1000;
                     let inCast = this.ray.intersectObjects(playerMaps, true).length//this.ray.intersectObjects(this.game.map.objects, true, obj) == obj;
 
                     let vis = pos.clone();
@@ -360,8 +360,8 @@
                                         this.lookDir(xDire, yDire);
                                         input[this.key.shoot] = 1;
                                     }
-                                    input[this.key.ydir] = yDire * 1e3
-                                    input[this.key.xdir] = xDire * 1e3
+                                    input[this.key.ydir] = yDire
+                                    input[this.key.xdir] = xDire
                                 }
                                 break;
                             case "assist": case "easyassist":
@@ -371,8 +371,8 @@
                                             this.lookDir(xDire, yDire);
                                         }
                                         if (this.settings.autoAim.val === "easyassist" && this.controls[this.vars.mouseDownR]) input[this.key.scope] = 1;
-                                        input[this.key.ydir] = yDire * 1e3
-                                        input[this.key.xdir] = xDire * 1e3
+                                        input[this.key.ydir] = yDire
+                                        input[this.key.xdir] = xDire
                                     }
                                 }
                                 break;
@@ -381,20 +381,20 @@
                                 if (!this.me[this.vars.aimVal]||this.me.weapon.noAim) {
                                     if (!this.me.canThrow||!isMelee) input[this.key.shoot] = 1;
                                 } else input[this.key.scope] = 1;
-                                input[this.key.ydir] = yDire * 1e3
-                                input[this.key.xdir] = xDire * 1e3
+                                input[this.key.ydir] = yDire
+                                input[this.key.xdir] = xDire
                                 break;
                             case "trigger":
                                 if (input[this.key.scope] && inCast) {
                                     input[this.key.shoot] = 1;
-                                    input[this.key.ydir] = yDire * 1e3
-                                    input[this.key.xdir] = xDire * 1e3
+                                    input[this.key.ydir] = yDire
+                                    input[this.key.xdir] = xDire
                                 }
                                 break;
                             case "correction":
                                 if (input[this.key.shoot] == 1) {
-                                    input[this.key.ydir] = yDire * 1e3
-                                    input[this.key.xdir] = xDire * 1e3
+                                    input[this.key.ydir] = yDire
+                                    input[this.key.xdir] = xDire
                                 }
                                 break;
                             default:
@@ -1569,6 +1569,8 @@
         }
 
         lookDir(xDire, yDire) {
+            xDire = xDire / 1000
+            yDire = yDire / 1000
             this.controls.object.rotation.y = yDire
             this.controls[this.vars.pchObjc].rotation.x = xDire;
             this.controls[this.vars.pchObjc].rotation.x = Math.max(-this.consts.halfPI, Math.min(this.consts.halfPI, this.controls[this.vars.pchObjc].rotation.x));
