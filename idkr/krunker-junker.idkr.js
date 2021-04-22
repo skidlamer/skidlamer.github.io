@@ -1358,7 +1358,7 @@ const injector = {
                         isHacker:{regex: /(window\['\w+']=)!0x0\)/, patch: `$1!0x1)`},
                         respawnT:{regex: /'\w+':0x3e8\*/g, patch: `'respawnT':0x0*`},
                         anticheat1:{regex: /&&\w+\(\),window\['utilities']&&\(\w+\(null,null,null,!0x0\),\w+\(\)\)/, patch: ""},
-                        anticheat2:{regex: /(\[]instanceof Array;).*?(var)/, patch: "$1 $2"},
+                        //anticheat2:{regex: /(\[]instanceof Array;).*?(var)/, patch: "$1 $2"},
                         anticheat3:{regex: /windows\['length'\]>\d+.*?0x25/, patch: `0x25`},
                         commandline:{regex: /Object\['defineProperty']\(console.*?\),/, patch: ""},
                     }))(new Promise(res=>res(this.token)), { csv: async () => 0 });
