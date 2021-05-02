@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Krunker  Dogeware - by The Gaming Gurus
 // @description   The most advanced krunker cheat
-// @version       3.8.3
+// @version       3.8.4
 // @author        SkidLamer - From The Gaming Gurus
 // @supportURL    https://skidlamer.github.io/wp
 // @homepage      https://skidlamer.github.io/
@@ -18,7 +18,7 @@
 /* eslint-env es6 */
 /* eslint-disable curly, no-undef, no-loop-func, no-return-assign, no-sequences */
 
-// Donations Accepted
+// Donations Expected $$$$$$$$$$$$$$$$$$$$$
 // BTC:  3CsDVq96KgmyPjktUe1YgVSurJVe7LT53G
 // ETH:  0x5dbF713F95F7777c84e6EFF5080e2f0e0724E8b1
 // ETC:  0xF59BEbe25ECe2ac3373477B5067E07F2284C70f3
@@ -56,9 +56,9 @@
     class Dogeware {
         constructor() {
             dog = this;
-            this.token = null;
-            this.gameJS = null;
-            this.generated = false;
+            //this.token = null;
+            //this.gameJS = null;
+            //this.generated = false;
             console.dir(this);
             this.settings = Object.assign({}, {
                 aimbot: 1,
@@ -138,7 +138,8 @@
                 Yellow: "#FFFF00",
                 Red: "#FF0000",
             }
-            this.vars = {};
+            //this.vars = {};
+            this.isProxy = Symbol("isProxy");
             this.GUI = {};
             try {
                 this.onLoad();
@@ -150,14 +151,16 @@
 
         onLoad() {
 
-            this.waitFor(_=>document.documentElement instanceof window.HTMLElement).then(_=>{
-                this.iframe();
-            })
-            this.createObservers();
+            //this.waitFor(_=>document.documentElement instanceof window.HTMLElement).then(_=>{
+            //    this.iframe();
+            //})
+            //this.createObservers();
             this.defines();
             localStorage.kro_setngss_json ? Object.assign(this.settings, JSON.parse(localStorage.kro_setngss_json)) :
             localStorage.kro_setngss_json = JSON.stringify(this.settings);
             this.createListeners();
+            this.hooking();
+            /*
             this.waitFor(_=>this.token).then(_ => {
                 if (!this.token) location.reload();
                 this.version = /\['exports']\['gameVersion']='(\d+\.\d+\.\d+)',/.exec(this.gameJS)[1];
@@ -179,7 +182,7 @@
                     loader(new Promise(res=>res(this.token)), { csv: async () => 0 });
                 }
                 return this.hooking();
-            })
+            })*/
         }
 
         isType(item, type) {
@@ -244,6 +247,7 @@
             })
         }
 
+        /*
         gamePatch() {
             let entries = {
                 inView: {
@@ -374,6 +378,7 @@
             }
             return script;
         }
+        */
 
         async fetchScript() {
             const data = await this.request("https://krunker.io/social.html", "text");
@@ -416,8 +421,6 @@
         async hooking() {
             await this.waitFor(_ => this.isDefined(this.socket))
             if (!this.isDefined(this.socket)) location.assign(location.origin);
-            this.wsEvent = this.socket._dispatchEvent.bind(this.socket);
-            this.wsSend = this.socket.send.bind(this.socket);
             this.socket.send = new Proxy(this.socket.send, {
                 apply(target, that, args) {
                     if (args[0] === "en") {
@@ -470,6 +473,24 @@
                         dog.ctx.scale(dog.scale, dog.scale);
                         dog.render();
                         dog.ctx.restore();
+
+                        if (!dog.me.procInputs[dog.isProxy]) {
+                            dog.me.procInputs = new Proxy(dog.me.procInputs, {
+                                apply: function(target, that, [input, game, recon, lock]) {
+                                    if (that) dog.inputs(input);
+                                    return target.apply(that, [input, game, recon, lock]);
+                                },
+                                get: function(target, key) {
+                                    return key === dog.isProxy ? true : Reflect.get(target, key);
+                                },
+                            })
+                        }
+                        // Wallbangs
+                        dog.game.map.manager.objects.filter(x => {
+                            return x.penetrable
+                        }).map((obj, index, array) => {
+                            obj.transparent=dog.settings.wallbangs;
+                        });
                     }
                 }
             })
@@ -549,7 +570,7 @@
                         return this._ulc
                     },
                     set(v) {
-                        //dog.config = this
+                        dog.config = this
                         // Increase the rate in which inView is updated to every frame, making aimbot way more responsive
                         Object.defineProperty(this, "nameVisRate", {
                             value: 0,
@@ -606,7 +627,32 @@
                         this._kickTimer = v
                     }
                 },
-            })
+                cnBSeen: {
+                    set (val) {
+                        this.inView = val;
+                    },
+                    get() {
+                        let isEnemy =!dog.isDefined(dog.me)|| !dog.me.team||dog.me.team !=this.team;
+                        return this.inView||isEnemy&&dog.state.nameTags;
+                    }
+                },
+                events: {
+                    set (val) {
+                        if (this.ahNum ===0) {
+                            dog.wsSend = this.send.bind(this);
+                            dog.wsEvent = this._dispatchEvent.bind(this);
+                            dog.socket = this;
+                        }
+                        this._events = val;
+                    },
+                    get() {
+                        return this._events;
+                    }
+                },
+                thirdPerson: {
+                    get() {return dog.settings.thirdPerson}
+                },
+            });
 
             // disable audioparam errors
             Object.keys(AudioParam.prototype).forEach(name => {
@@ -777,7 +823,7 @@
                             this.controls.didPressed[this.controls.binds.jump.val] = 1;
                         }
                         if (this.state.pressedKeys.has("Space") || this.settings.bhop == 3) {
-                            if (this.me[this.vars.yVel] < -0.03 && this.me.canSlide) {
+                            if (this.me.yVel < -0.03 && this.me.canSlide) {
                                 setTimeout(() => {
                                     this.controls.keys[this.controls.binds.crouch.val] = 0;
                                 }, this.me.slideTimer || 325);
@@ -816,7 +862,7 @@
                 //}
 
                 // AUTO RELOAD
-                if (this.settings.autoReload && this.me[this.vars.ammos][this.me[this.vars.weaponIndex]] === 0) {
+                if (this.settings.autoReload && this.me.ammos[this.me.weaponIndex] === 0) {
                     input[key.reload] = 1
                 }
 
@@ -872,7 +918,7 @@
                     this.controls.target = null
 
                     // Finds all the visible enemies
-                    let targets = this.game.players.list.filter(enemy => !enemy.isYTMP && enemy.hasOwnProperty('npos') && (!this.settings.frustumCheck || this.containsPoint(enemy.npos)) && ((this.me.team === null || enemy.team !== this.me.team) && enemy.health > 0 && enemy[this.vars.inView])).sort((e, e2) => this.getDistance(this.me.x, this.me.z, e.npos.x, e.npos.z) - this.getDistance(this.me.x, this.me.z, e2.npos.x, e2.npos.z));
+                    let targets = this.game.players.list.filter(enemy => !enemy.isYTMP && enemy.hasOwnProperty('npos') && (!this.settings.frustumCheck || this.containsPoint(enemy.npos)) && ((this.me.team === null || enemy.team !== this.me.team) && enemy.health > 0 && enemy.inView)).sort((e, e2) => this.getDistance(this.me.x, this.me.z, e.npos.x, e.npos.z) - this.getDistance(this.me.x, this.me.z, e2.npos.x, e2.npos.z));
                     let target = targets[0];
 
                     // If there's a fov box, pick an enemy inside it instead (if there is)
@@ -921,7 +967,7 @@
                         this.state.bindAimbotOn &&
                         (!this.settings.aimbotRange || this.getDistance3D(this.me.x, this.me.y, this.me.z, target.x, target.y, target.z) < this.settings.aimbotRange) &&
                         (!this.settings.rangeCheck || this.getDistance3D(this.me.x, this.me.y, this.me.z, target.x, target.y, target.z) <= this.me.weapon.range) &&
-                        !this.me[this.vars.reloadTimer]) {
+                        !this.me.reloadTimer) {
 
                         if (this.settings.awtv) {
                             input[key.scope] = 1
@@ -930,8 +976,8 @@
 
                         const yDire = (this.getDir(this.me.z, this.me.x, target.npos.z, target.npos.x) || 0) * 1000
                         const xDire = isAiTarget ?
-                              ((this.getXDir(this.me.x, this.me.y, this.me.z, target.npos.x, target.npos.y - target.dat.mSize / 2, target.npos.z) || 0) - (0.3 * this.me[this.vars.recoilAnimY])) * 1000 :
-                        ((this.getXDir(this.me.x, this.me.y, this.me.z, target.npos.x, target.npos.y - target[this.vars.crouchVal] * 3 + this.me[this.vars.crouchVal] * 3 + this.settings.aimOffset, target.npos.z) || 0) - (0.3 * this.me[this.vars.recoilAnimY])) * 1000
+                              ((this.getXDir(this.me.x, this.me.y, this.me.z, target.npos.x, target.npos.y - target.dat.mSize / 2, target.npos.z) || 0) - (0.3 * this.me.recoilAnimY)) * 1000 :
+                        ((this.getXDir(this.me.x, this.me.y, this.me.z, target.npos.x, target.npos.y - target.crouchVal * 3 + this.me.crouchVal * 3 + this.settings.aimOffset, target.npos.z) || 0) - (0.3 * this.me.recoilAnimY)) * 1000
 
                         // aimbot tweak
                         if (this.settings.forceUnsilent) {
@@ -962,7 +1008,7 @@
                                 if ([2, 10].some(n => n == this.settings.aimbot) || (this.settings.aimbot === 1 && this.me.weapon.id)) {
                                     !this.me.weapon.melee && (input[key.scope] = 1)
                                 }
-                                if (this.me[this.vars.didShoot]) {
+                                if (this.me.didShoot) {
                                     input[key.shoot] = 0
                                     this.state.quickscopeCanShoot = false
                                     setTimeout(() => {
@@ -976,7 +1022,7 @@
                                         input[key.ydir] = yDire
                                         input[key.xdir] = xDire
                                     }
-                                    if ((this.settings.aimbot !== 9 && (!this.me[this.vars.aimVal] || this.me.weapon.noAim || this.me.weapon.melee)) ||
+                                    if ((this.settings.aimbot !== 9 && (!this.me.aimVal || this.me.weapon.noAim || this.me.weapon.melee)) ||
                                         (this.settings.aimbot === 9 && isShooting)) {
                                         input[key.ydir] = yDire
                                         input[key.xdir] = xDire
@@ -1041,7 +1087,7 @@
                                         input[key.xdir] = xDire
                                         input[key.ydir] = yDire
                                     }
-                                    if (this.me[this.vars.didShoot]) {
+                                    if (this.me.didShoot) {
                                         input[key.shoot] = 0
                                         this.state.quickscopeCanShoot = false
                                         setTimeout(() => {
@@ -1063,7 +1109,7 @@
                                     !this.game.players ||
                                     !this.game.players.list.length ||
                                     !input[key.scope] ||
-                                    this.me[this.vars.aimVal]) {
+                                    this.me.aimVal) {
                                     break
                                 }
                                 // Only create these once for performance
@@ -1074,15 +1120,15 @@
                                 const playerMaps = []
                                 for (let i = 0; i < this.game.players.list.length; i++) {
                                     let p = this.game.players.list[i]
-                                    if (!p || !p[this.vars.objInstances] || p.isYTMP || !(this.me.team === null || p.team !== this.me.team) || !p[this.vars.inView]) {
+                                    if (!p || !p.objInstances || p.isYTMP || !(this.me.team === null || p.team !== this.me.team) || !p.inView) {
                                         continue
                                     }
-                                    playerMaps.push(p[this.vars.objInstances])
+                                    playerMaps.push(p.objInstances)
                                 }
                                 const raycaster = this.state.raycaster
                                 raycaster.setFromCamera(this.state.mid, this.renderer.camera)
                                 if (raycaster.intersectObjects(playerMaps, true).length) {
-                                    input[key.shoot] = this.me[this.vars.didShoot] ? 0 : 1
+                                    input[key.shoot] = this.me.didShoot ? 0 : 1
                                 }
                             }
                                 break
@@ -1192,10 +1238,10 @@
                 }
 
                 // Chams
-                const obj = player[this.vars.objInstances];
+                const obj = player.objInstances;
                 if (this.isDefined(obj)) {
                     if (!obj.visible) {
-                        Object.defineProperty(player[this.vars.objInstances], 'visible', {
+                        Object.defineProperty(player.objInstances, 'visible', {
                             value: true,
                             writable: false
                         });
@@ -1251,7 +1297,7 @@
 
                     rect((screenH.x - bWidth / 2) - 7, ~~screenH.y - 1, 0, 0, 4, hDiff + 2, "#000000", false)
                     rect((screenH.x - bWidth / 2) - 7, ~~screenH.y - 1, 0, 0, 4, hDiff + 2, "#44FF44", true)
-                    rect((screenH.x - bWidth / 2) - 7, ~~screenH.y - 1, 0, 0, 4, ~~((player[this.vars.maxHealth] - player.health) / player[this.vars.maxHealth] * (hDiff + 2)), "#000000", true)
+                    rect((screenH.x - bWidth / 2) - 7, ~~screenH.y - 1, 0, 0, 4, ~~((player.maxHealth - player.health) / player.maxHealth * (hDiff + 2)), "#000000", true)
                     this.ctx.save()
                     this.ctx.lineWidth = 4
                     this.ctx.translate(~~(screenH.x - bWidth / 2), ~~screenH.y)

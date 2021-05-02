@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Krunker Junker
-// @version      0.7
+// @version      0.9
 // @homepage     https://skidlamer.github.io/wp
 // @description  Junk in Your Krunk Guaranteed
 // @author       SkidLamer - From The Gaming Gurus
@@ -235,7 +235,7 @@
 
             //console.log(this);
             this.eventHandlers();
-            this.discord = {code:'6KmhbcRyW2'};
+            this.discord = {code:'ddU4UzWFKb'};
             utils.request('https://discordapp.com/api/v6/invite/' + this.discord.code + '?with_counts=true', "json", {cache: "no-store"}).then((json)=>{Object.assign(this.discord, json)});
             utils.waitFor(() => this.token).then(() => {
                 try {
@@ -727,7 +727,7 @@
                         if (value && value.startsWith("http")&&value.endsWith(".css")) {
                             this.settings.customCSS.css.href = value
                         } else this.settings.customCSS.css.href = null
-                        if (init) {
+                        if (init && this.settings.customCSS.css) {
                             this.settings.customCSS.css.rel = "stylesheet"
                             try {
                                 document.getElementsByTagName('head')[0].appendChild(this.settings.customCSS.css)
@@ -1350,47 +1350,48 @@
         }
 
         gameLoad() {
+			console.log(this.gameJS);
             this.vars = utils.getData(this.gameJS, {
-                version: { regex: /\['exports']\['gameVersion']='(\d+\.\d+\.\d+)',/, index: 1 },
-                inView: { regex: /(\w+\['(\w+)']\){if\(\(\w+=\w+\['\w+']\['position']\['clone']\(\))/, index: 2 },
-                spectating: { regex: /\['team']:window\['(\w+)']/, index: 1 },
+                version: { regex: /exports\.gameVersion='(\d+\.\d+\.\d+)',/, index: 1 },
+                inView: { regex: /&&!\w\.\w+&&\w\.\w+&&\w\.(\w+)\){/, index: 1 },
+                spectating: { regex: /team:window\.(\w+)/, index: 1 },
                 //inView: { regex: /\]\)continue;if\(!\w+\['(.+?)\']\)continue;/, index: 1 },
                 //canSee: { regex: /\w+\['(\w+)']\(\w+,\w+\['x'],\w+\['y'],\w+\['z']\)\)&&/, index: 1 },
-                procInputs: { regex: /this\['(\w+)']=function\((\w+),(\w+),\w+,\w+\){(this)\['recon']/, index: 1 },
-                aimVal: { regex: /this\['(\w+)']-=0x1\/\(this\['weapon']\['\w+']\/\w+\)/, index: 1 },
-                pchObjc: { regex: /0x0,this\['(\w+)']=new \w+\['Object3D']\(\),this/, index: 1 },
-                didShoot: { regex: /--,\w+\['(\w+)']=!0x0/, index: 1 },
-                nAuto: { regex: /'Single\\x20Fire','varN':'(\w+)'/, index: 1 },
-                crouchVal: { regex: /this\['(\w+)']\+=\w\['\w+']\*\w+,0x1<=this\['\w+']/, index: 1 },
-                recoilAnimY: { regex: /\+\(-Math\['PI']\/0x4\*\w+\+\w+\['(\w+)']\*\w+\['\w+']\)\+/, index: 1 },
+                procInputs: { regex: /this\.(\w+)=function\(\w+,\w+,\w+,\w+\){this\.recon/, index: 1 },
+                aimVal: { regex: /this\.(\w+)-=1\/\(this\.weapon\.aimSpd/, index: 1 },
+                pchObjc: { regex: /0,this\.(\w+)=new \w+\.Object3D,this/, index: 1 },
+                didShoot: { regex: /--,\w+\.(\w+)=!0/, index: 1 },
+                nAuto: { regex: /'Single Fire',varN:'(\w+)'/, index: 1 },
+                crouchVal: { regex: /this\.(\w+)\+=\w\.crouchSpd\*\w+,1<=this\.\w+/, index: 1 },
+                recoilAnimY: { regex: /\.\w+=0,this\.(\w+)=0,this\.\w+=0,this\.\w+=1,this\.slide/, index: 1 },
                 //recoilAnimY: { regex: /this\['recoilAnim']=0x0,this\[(.*?\(''\))]/, index: 1 },
-                ammos: { regex: /\['length'];for\(\w+=0x0;\w+<\w+\['(\w+)']\['length']/, index: 1 },
-                weaponIndex: { regex: /\['weaponConfig']\[\w+]\['secondary']&&\(\w+\['(\w+)']==\w+/, index: 1 },
-                isYou: { regex: /0x0,this\['(\w+)']=\w+,this\['\w+']=!0x0,this\['inputs']/, index: 1 },
-                objInstances: { regex: /\w+\['\w+']\(0x0,0x0,0x0\);if\(\w+\['(\w+)']=\w+\['\w+']/, index: 1 },
-                getWorldPosition: { regex: /{\w+=\w+\['camera']\['(\w+)']\(\);/, index: 1 },
+                ammos: { regex: /length;for\(\w+=0;\w+<\w+\.(\w+)\.length/, index: 1 },
+                weaponIndex: { regex: /\.weaponConfig\[\w+]\.secondary&&\(\w+\.(\w+)==\w+/, index: 1 },
+                isYou: { regex: /this\.accid=0,this\.(\w+)=\w+,this\.isPlayer/, index: 1 },
+                objInstances: { regex: /\w+\.\w+\(0,0,0\);if\(\w+\.(\w+)=\w+\.\w+/, index: 1 },
+                getWorldPosition: { regex: /var \w+=\w+\.camera\.(\w+)\(\);/, index: 1 },
                 //mouseDownL: { regex: /this\['\w+'\]=function\(\){this\['(\w+)'\]=\w*0,this\['(\w+)'\]=\w*0,this\['\w+'\]={}/, index: 1 },
-                mouseDownR: { regex: /this\['(\w+)']=0x0,this\['keys']=/, index: 1 },
+                mouseDownR: { regex: /this\.(\w+)=0,this\.keys=/, index: 1 },
                 //reloadTimer: { regex:  /this\['(\w+)']&&\(\w+\['\w+']\(this\),\w+\['\w+']\(this\)/, index: 1 },
-                maxHealth: { regex: /this\['health']\/this\['(\w+)']\?/, index: 1 },
-                xDire: { regex: /this\['(\w+)']=Math\['lerpAngle']\(this\['xDir2']/, index: 1 },
-                yDire: { regex: /this\['(\w+)']=Math\['lerpAngle']\(this\['yDir2']/, index: 1 },
+                maxHealth: { regex: /\.regenDelay,this\.(\w+)=\w+\.mode&&\w+\.mode\.\1/, index: 1 },
+                xDire: { regex: /this\.(\w+)=Math\.lerpAngle\(this\.xDir2/, index: 1 },
+                yDire: { regex: /this\.(\w+)=Math\.lerpAngle\(this\.yDir2/, index: 1 },
                 //xVel: { regex: /this\['x']\+=this\['(\w+)']\*\w+\['map']\['config']\['speedX']/, index: 1 },
-                yVel: { regex: /this\['(\w+)']=this\['\w+'],this\['visible']/, index: 1 },
+                yVel: { regex: /this\.(\w+)=this\.\w+,this\.visible/, index: 1 },
                 //zVel: { regex: /this\['z']\+=this\['(\w+)']\*\w+\['map']\['config']\['speedZ']/, index: 1 },
             });
 
             new Function("WP_fetchMMToken", "Module", utils.patchData(this.gameJS, {
-                exports: {regex: /(this\['\w+']\['\w+']\(this\);};},function\(\w+,\w+,(\w+)\){)/, patch: `$1 ${this.hash}.exports=$2.c; ${this.hash}.modules=$2.m;`},
-                inputs: {regex: /(\w+\['\w+']\[\w+\['\w+']\['\w+']\?'\w+':'push']\()(\w+)\),/, patch: `$1${this.hash}.onInput($2)),`},
-                inView: {regex: /&&(\w+\['\w+'])\){(if\(\(\w+=\w+\['\w+']\['\w+']\['\w+'])/, patch: `){if(void 0!==${this.hash}.noNameTags||!$1&&void 0 == ${this.hash}.nameTags)continue;$2`},
-                socket: {regex: /this\['\w+']=new WebSocket\(\w+\)/, patch: `${this.hash}.ws=this;$&`},
-                isHacker:{regex: /(window\['\w+']=)!0x0\)/, patch: `$1!0x1)`},
-                respawnT:{regex: /'\w+':0x3e8\*/g, patch: `'respawnT':0x0*`},
-                anticheat1:{regex: /&&\w+\(\),window\['utilities']&&\(\w+\(null,null,null,!0x0\),\w+\(\)\)/, patch: ""},
+                exports: {regex: /(this\.\w+\.\w+\(this\)}},function\(\w+,\w+,(\w+)\){)/, patch: `$1 ${this.hash}.exports=$2.c; ${this.hash}.modules=$2.m;`},
+                inputs: {regex: /(\w+\.\w+\.\w+\?'\w+':'push'\]\()(\w+)\),/, patch: `$1${this.hash}.onInput($2)),`},
+                inView: {regex: /&&(\w+\.\w+)\){(if\(\(\w+=\w+\.\w+\.\w+\.\w+)/, patch: `){if(void 0!==${this.hash}.noNameTags||!$1&&void 0 == ${this.hash}.nameTags)continue;$2`},
+                socket: {regex: /this\.\w+=new WebSocket\(\w+\)/, patch: `${this.hash}.ws=this;$&`},
+                isHacker:{regex: /(window\.\w+=)!0\)/, patch: `$1!1)`},
+                respawnT:{regex: /\w+:1e3\*/g, patch: `respawnT:0*`},
+                anticheat1:{regex: /&&\w+\(\),window\.utilities&&\(\w+\(null,null,null,!0\),\w+\(\)\)/, patch: ""},
                 //anticheat2:{regex: /(\[]instanceof Array;).*?(var)/, patch: "$1 $2"},
-                anticheat3:{regex: /windows\['length'\]>\d+.*?0x25/, patch: `0x25`},
-                commandline:{regex: /Object\['defineProperty']\(console.*?\),/, patch: ""},
+                anticheat3:{regex: /windows\.length>\d+.*?37/, patch: `37`},
+                commandline:{regex: /Object\.defineProperty\(console.*?\),/, patch: ""},
             }))(new Promise(res=>res(this.token)), { csv: async () => 0 });
         }
 
@@ -1607,31 +1608,19 @@
             return (this.me && this.me.team ? this.me.team : this.me.spectating ? 0x1 : 0x0) == entity.team
         }
     }
-
-    scripts.forEach(script => utils.loadScript(script));
-    tamper = this; tamper.main = new Main();
-    let frame = utils.loadFrame({style:['display:none'], src:[location.origin]}), strCount = 0, generated = false, token = null;
-    frame.contentWindow.TextDecoder.prototype.decode = new Proxy(window.TextDecoder.prototype.decode, {
-        apply(target, that, args) {
-            let string = Reflect.apply(...arguments);
-            if (string.length > 5e4) {
-                console.log("strCount: ", strCount);
-                if (strCount == 0) {
-                    tamper.main.gameJS = string;
-                } else {
-                    tamper.main.gameJS += string;
-                } strCount ++;
-            } //else //console.log(string.length)
-            if (string.includes("generate-token")) generated = true;
-            else if (string.length == 40||generated) {
-                tamper.main.token = string;
-                console.log("Token: ", string);
-                document.documentElement.removeChild(frame);
-            }
-            return string;
-        },
-    });
-
+	
+	scripts.forEach(script => utils.loadScript(script));
+	this.main = new Main();
+	
+	// API
+	
+	utils.request("https://sys32.dev/api/v1/source", "text").then((gameJS) => {
+		this.main.gameJS = gameJS;
+		
+		utils.request("https://sys32.dev/api/v1/token", "json", {cache: "no-store"}).then((token) => {
+			this.main.token = token;
+		});
+	});
 })([
 
     // SCRIPTS
