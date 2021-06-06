@@ -1,0 +1,9 @@
+{
+  "name": "krunker-script-injector",
+  "version": "1.0.0",
+  "description": "Inject user scripts into krunker client",
+  "main": "src/index.js",
+  "author": "skidlamer <skidlamer@mail.com>",
+  "license": "Beerwah",
+  "private": true
+}
