@@ -1,13 +1,14 @@
 // ==UserScript==
 // @name Krunker  Dogeware - by The Gaming Gurus
 // @description   The most advanced krunker cheat
-// @version       3.8.4
-// @author        SkidLamer - From The Gaming Gurus
+// @version       3.9.8
+// @author        ©2021 Skid Lamer - The Gaming Gurus™
 // @supportURL    https://skidlamer.github.io/wp
 // @homepage      https://skidlamer.github.io/
-// @iconURL       https://i.imgur.com/MqW6Ufx.png
+// @icon          https://i.imgur.com/jjkFpnV.gif
 // @namespace     https://greasyfork.org/users/704479
-// @match         *://krunker.io/*
+// @include       /^https?\:\/\/krunker\..*\/.*$/
+// @include       /^https?\:\/\/.*.browserfps\..*\/.*$/
 // @exclude       *://krunker.io/editor*
 // @exclude       *://krunker.io/social*
 // @run-at        document-start
@@ -18,11 +19,13 @@
 /* eslint-env es6 */
 /* eslint-disable curly, no-undef, no-loop-func, no-return-assign, no-sequences */
 
-// Donations Expected $$$$$$$$$$$$$$$$$$$$$
+// License Donationware
+
+// Amazon Giftcards Accepted - Send to : skidlamer@mail.com
+
 // BTC:  3CsDVq96KgmyPjktUe1YgVSurJVe7LT53G
 // ETH:  0x5dbF713F95F7777c84e6EFF5080e2f0e0724E8b1
 // ETC:  0xF59BEbe25ECe2ac3373477B5067E07F2284C70f3
-// Amazon Giftcard - skidlamer@mail.com
 
 (function(dogStr, dog) {
 
@@ -525,13 +528,7 @@
                     set(val) {
                         this._value = val;
                         dog.renderer = this._value;
-
-                        Object.defineProperty(this._value, "adsFovMlt", {
-                            get() {
-                                return dog.settings.weaponZoom
-                            }
-                        })
-
+                        dog.renderer.adsFovMlt.fill(dog.settings.weaponZoom)
                         dog.fxComposer = this;
                     },
                     get() {
@@ -650,7 +647,12 @@
                     }
                 },
                 thirdPerson: {
-                    get() {return dog.settings.thirdPerson}
+                    set(val) {
+                        this._thirdPerson = val;
+                    },
+                    get() {
+                        return dog.settings.thirdPerson.val || this._thirdPerson
+                    }
                 },
             });
 
